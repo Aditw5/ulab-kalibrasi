@@ -1,0 +1,5 @@
+/frontend
+backend/.env
+.scannerwork/
+backend/.scannerwork/
+/frontend-v2/.env
