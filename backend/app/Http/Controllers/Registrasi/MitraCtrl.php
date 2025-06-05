@@ -3,19 +3,6 @@
 namespace App\Http\Controllers\Registrasi;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\Agama;
-
-use App\Models\Master\GolonganDarah;
-use App\Models\Master\JenisKelamin;
-use App\Models\Master\JenisPegawai;
-use App\Models\Master\Kebangsaan;
-use App\Models\Master\Negara;
-use App\Models\Master\Pasien;
-use App\Models\Master\Pekerjaan;
-use App\Models\Master\Pendidikan;
-use App\Models\Master\StatusPerkawinan;
-use App\Models\Master\Suku;
-use App\Models\Transaksi\PasienDaftar;
 use App\Traits\Valet;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -67,7 +54,7 @@ class MitraCtrl extends Controller
         }
         $data = $data->orderByDesc('mtr.tglregistrasi');
         $data = $data->paginate(isset($r['limit']) ? $r['limit'] : 10, ['*'], 'page', $page);
-       
+
         foreach ($data as $d) {
             $d->progress = $d->progress == null ? 0 : (int)  $d->progress;
             if ((int)  $d->progress <= 50) {
@@ -80,7 +67,7 @@ class MitraCtrl extends Controller
                 $d->class_proggress = 'success';
             }
         }
-       
+
         return $this->respond($data);
     }
 
@@ -106,8 +93,64 @@ class MitraCtrl extends Controller
             ->where('mt.id', $r['nocmfk'])
             ->where('mtr.norec', $r['norec_pd'])
             ->first();
-       
+
         $result['mitra'] = $data;
+        $result['as'] = '@epic';
+
+        return $this->respond($result);
+    }
+
+    public function pegawaiManager(Request $r)
+    {
+        $data = DB::table('pegawai_m as pg')
+            ->select(
+                'pg.id',
+                'pg.namalengkap',
+                'pg.lokasikalibrasifk',
+            )
+            ->where('pg.statusenabled', true);
+
+        if (isset($r['jabatan']) && $r['jabatan'] != "" && $r['jabatan'] != "undefined") {
+            $data = $data->where('pg.jabatan1fk', '=', $r['jabatan']);
+        };
+
+        if (isset($r['lokasi']) && $r['lokasi'] != "" && $r['lokasi'] != "undefined") {
+            $data = $data->where('pg.lokasikalibrasifk', '=', $r['lokasi']);
+        };
+        $data = $data->first();
+
+
+        $result['data'] = $data;
+        $result['as'] = '@epic';
+
+        return $this->respond($result);
+    }
+
+    public function pegawaiLokasi(Request $r)
+    {
+        $search = $r['query'];
+        $data = DB::table('pegawai_m as pg')
+            ->select(
+                'pg.id',
+                'pg.namalengkap',
+                'pg.lokasikalibrasifk',
+            )
+            ->where('pg.statusenabled', true);
+
+        if (isset($r['lokasi']) && $r['lokasi'] != "" && $r['lokasi'] != "undefined") {
+            $data = $data->where('pg.lokasikalibrasifk', '=', $r['lokasi']);
+        };
+        if (isset($r['param_search']) && $r['param_search'] != '') {
+            $exp = explode(',', $r['param_search']);
+            foreach ($exp as $items) {
+                $where[] = [$items, 'ILIKE', '%' . $search . '%'];
+            }
+            $data = $data->where($where);
+        }
+        $data = $data->get();
+
+
+        $result['data'] = $data;
         $result['as'] = '@epic';
 
         return $this->respond($result);
@@ -115,176 +158,114 @@ class MitraCtrl extends Controller
 
     public function LayananKajian(Request $r)
     {
-            $data = DB::table('mitraregistrasi_t as mtr')
+        $data = DB::table('mitraregistrasi_t as mtr')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftjoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftjoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftjoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
             ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftjoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
                 'mtr.norec',
                 'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.namafile',
+                'mtrd.keterangan',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
                 'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'mt.namaperusahaan',
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtrd.statusenabled', true)
             ->where('mtr.norec', $r['norec_pd']);
 
-        if (isset($r['tglregistrasi']) && $r['tglregistrasi'] != '' && $r['tglregistrasi'] != 'undefined') {
-            $data = $data->whereDate('mtr.tglregistrasi', '=', Carbon::parse($r['tglregistrasi'])->toDateString());
-        } else {
-            $data = $data->whereDate('mtr.tglregistrasi', '=', now()->toDateString());
-        }
+        // if (isset($r['tglregistrasi']) && $r['tglregistrasi'] != '' && $r['tglregistrasi'] != 'undefined') {
+        //     $data = $data->whereDate('mtr.tglregistrasi', '=', Carbon::parse($r['tglregistrasi'])->toDateString());
+        // } else {
+        //     $data = $data->whereDate('mtr.tglregistrasi', '=', now()->toDateString());
+        // }
+
+        if (isset($r['norecdetail']) && $r['norecdetail'] != "" && $r['norecdetail'] != "undefined") {
+            $data = $data->where('mtrd.norec', '=', $r['norecdetail']);
+        };
 
         $data = $data->orderByDesc('prd.namaproduk')->get();
 
 
         $result['length'] = count($data);
-        $result['detail'] = $data; //collect($data)->groupBy('tglpelayanan_group')->sortByDesc('tglpelayanan_group');
+        $result['detail'] = $data;
         $result['as'] = '@epic';
 
         return $this->respond($result);
     }
 
-    public function CountDaftar(Request $r)
+    public function saveKajianUlang(Request $r)
     {
-        $tglAwal = $r->dari . " 00:00:00";
-        $tglAkhir = $r->sampai . " 23:59:59";
-
-        $range = "";
-        if ($tglAwal != '' && $tglAkhir != '' && $tglAwal != null && $tglAkhir != null) {
-            $range = " and pd.tglregistrasi between '" . $tglAwal . "' and '" . $tglAkhir . "'";
-        }
-        $data = DB::select(DB::raw("SELECT COUNT
-        ( kp.kelompokpasien ) AS jmlkp , kp.kelompokpasien, kp.id
-    FROM
-        pasien_m AS ps
-        INNER JOIN alamat_m AS alm ON alm.nocmfk = ps.id
-        LEFT JOIN pasiendaftar_t AS pd ON ps.id = pd.nocmfk
-        AND pd.statusenabled = true
-        AND pd.norec IS NOT NULL
-        LEFT JOIN antrianpasienregistrasi_t AS apr ON apr.norec = pd.antrianpasienregistrasifk
-        LEFT JOIN pemakaianasuransi_t AS pa ON pa.noregistrasifk = pd.norec
-        LEFT JOIN ruangan_m AS ru ON pd.objectruanganlastfk = ru.id
-        LEFT JOIN pegawai_m AS pg ON pd.objectpegawaifk = pg.id
-        LEFT JOIN kelompokpasien_m AS kp ON pd.objectkelompokpasienlastfk = kp.id
-        INNER JOIN jeniskelamin_m AS jk ON jk.id = ps.objectjeniskelaminfk
-    WHERE
-        ps.statusenabled = true
-        $range
-        AND ps.kdprofile = 1
-        AND pd.norec IS NOT NULL
-        GROUP BY  kp.kelompokpasien, kp.id"));
-
-        $data2 = DB::select(DB::raw("SELECT COUNT( ru.objectdepartemenfk ) AS jmldp , dp.namadepartemen, dp.id
-        FROM pasien_m AS ps INNER JOIN alamat_m AS alm ON alm.nocmfk = ps.id LEFT JOIN pasiendaftar_t AS pd ON ps.id = pd.nocmfk
-        AND pd.statusenabled = true
-        AND pd.norec IS NOT NULL
-        LEFT JOIN antrianpasienregistrasi_t AS apr ON apr.norec = pd.antrianpasienregistrasifk
-        LEFT JOIN pemakaianasuransi_t AS pa ON pa.noregistrasifk = pd.norec
-        LEFT JOIN ruangan_m AS ru ON pd.objectruanganlastfk = ru.id
-        LEFT JOIN departemen_m AS dp ON ru.objectdepartemenfk = dp.id
-        LEFT JOIN pegawai_m AS pg ON pd.objectpegawaifk = pg.id
-        LEFT JOIN kelompokpasien_m AS kp ON pd.objectkelompokpasienlastfk = kp.id
-        INNER JOIN jeniskelamin_m AS jk ON jk.id = ps.objectjeniskelaminfk
-        WHERE
-        ps.statusenabled = true
-        $range
-        AND ps.kdprofile = 1
-        AND pd.norec IS NOT NULL
-        GROUP BY  dp.namadepartemen, dp.id"));
-
-        $res['kelompokpasien'] = $data;
-        $res['departemen'] = $data2;
-
-        return $this->respond($res);
-    }
-
-    public function saveBatalStatusKanker(Request $request)
-    {
-        $request->validate([
-            'norec_pasien' => 'required', //memastikan requestnya ada
-        ]);
         DB::beginTransaction();
         try {
-            Pasien::where('id', $request['norec_pasien'])->where('kdprofile', $this->kdProfile)->update([
-                'iskanker' => false
-            ]);
+            $file = $r->file('fileMitra');
+            $allowedExtensions = ['jpg', 'jpeg', 'png'];
+            $extension = strtolower($file->getClientOriginalExtension());
 
-            $transStatus = true;
-        } catch (Exception $e) {
-            $transStatus = false;
-        }
+            if (!in_array($extension, $allowedExtensions)) {
+                throw new \Exception("File harus berupa gambar (jpg, jpeg, atau png).");
+            }
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('berkas-mitra'), $filename);
 
-        if ($transStatus) {
-            $transMessage = "Sukses";
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $r->norec)
+                ->update([
+                    'keterangan' => $r->keterangan,
+                    // 'tanggalkaji' => $r->tanggalKajian,
+                    'lokasikajifk' => $r->lokasikalibrasi,
+                    'lingkupkalibrasifk' => $r->lingkupkalibrasi,
+                    'penyeliateknikfk' => $r->penyeliateknik,
+                    'pelaksanateknikfk' => $r->pelaksana,
+                    'iskaji' => true,
+                    'namafile' => $filename,
+                    'updated_at' => now()
+                ]);
+
+            $transMessage = "Simpan Kajian Ulang Sukses";
             DB::commit();
-            $result = array(
+
+            $result = [
                 "status" => 200,
-                "result" => $transMessage
-            );
-        } else {
-            $transMessage = "Gagal";
+                "result" => [
+                    "as" => '@epic',
+                    "namafile" => $filename,
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
             DB::rollBack();
-            $result = array(
+            $result = [
                 "status" => 400,
-                "result" => $e->getMessage() . ' - ' . $e->getFile()
-            );
+                "result"  => $e->getMessage()
+            ];
         }
 
         return $this->respond($result['result'], $result['status'], $transMessage);
-    }
-
-    public function saveJadikanStatusKanker(Request $request)
-    {
-        $request->validate([
-            'norec_pasien' => 'required', //memastikan requestnya ada
-        ]);
-        DB::beginTransaction();
-        try {
-            Pasien::where('id', $request['norec_pasien'])->where('kdprofile', $this->kdProfile)->update([
-                'iskanker' => true
-            ]);
-
-            $transStatus = true;
-        } catch (Exception $e) {
-            $transStatus = false;
-        }
-
-        if ($transStatus) {
-            $transMessage = "Sukses";
-            DB::commit();
-            $result = array(
-                "status" => 200,
-                "result" => $transMessage
-            );
-        } else {
-            $transMessage = "Gagal";
-            DB::rollBack();
-            $result = array(
-                "status" => 400,
-                "result" => $e->getMessage() . ' - ' . $e->getFile()
-            );
-        }
-
-        return $this->respond($result['result'], $result['status'], $transMessage);
-    }
-
-    public function getDataPasienKanker() {
-        $data = DB::table('pasien_m as ps')
-        ->select(
-            'ps.namapasien',
-            'ps.nocm'
-        )
-        ->where('ps.kdprofile', $this->kdProfile)
-        ->where('ps.statusenabled', true)
-        ->where('ps.iskanker', true)
-        ->get();
-
-        $result = array(
-            'data' => $data,
-            'message' => 'ea@epic',
-        );
-        return $this->respond($result);
     }
 }

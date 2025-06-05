@@ -128,7 +128,7 @@
                               </div>
                             </div>
                             <div class="meta-right">
-                             <VIconButton v-tooltip.bottom.left="'Verifikasi'"
+                             <VIconButton v-tooltip.bottom.left="'Kaji Ulang'"
                                 label="Bottom Left" color="primary" circle
                                 icon="pi pi-check-circle" 
                                 @click="kajiUlang(item)" style="margin-right: 15px;" />

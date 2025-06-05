@@ -199,41 +199,6 @@ const getCurrentDateTime = () => {
 const currentDateTime = getCurrentDateTime();
 
 
-// const openCamera = () => {
-//       if (isMobileDevice()) {
-//         // Open the device's camera app
-//         const videoInput = document.createElement('input');
-//         videoInput.type = 'file';
-//         videoInput.accept = 'image/*';
-//         videoInput.capture = 'environment'; // Use the rear camera
-//         videoInput.onchange = (event) => {
-//           const file = (event.target as HTMLInputElement).files?.[0];
-//           if (file) {
-//             const pdfFileName = `${norec}_${noregistrasi}_${currentDateTime}.pdf`;
-//             const pdfFile = new File([file], pdfFileName, { type: "application/pdf" });
-//             filePasien.value = pdfFile; 
-//             console.log("Foto tersimpan sebagai PDF di filePasien:", filePasien.value);
-//           }
-//         };
-//         videoInput.click(); // Open the camera app
-//       } else {
-//         // Use getUserMedia for desktop
-//         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-//           navigator.mediaDevices.getUserMedia({ video: true })
-//             .then((stream) => {
-//               if (video.value) {
-//                 video.value.srcObject = stream;
-//                 video.value.style.display = 'block'; 
-//                 isCameraActive.value = true; 
-//               }
-//             })
-//             .catch((err) => {
-//               console.error("Error accessing the camera: ", err);
-//             });
-//         }
-//       }
-//     };
-
 
 const openCamera = () => {
   if (isMobileDevice()) {

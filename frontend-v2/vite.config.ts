@@ -44,7 +44,7 @@ export default defineConfig({
    * @see https://vitejs.dev/config/#optimizedeps-entries
    */
   server: {
-    hmr: false,
+    hmr: true,
     watch: {
       usePolling: true,
     }

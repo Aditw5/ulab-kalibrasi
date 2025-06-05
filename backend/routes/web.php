@@ -576,9 +576,9 @@ Route::middleware(['log'])->group(function () {
         Route::get('registrasi/count-daftar', 'CountDaftar');
         Route::get('registrasi/header-mitra', 'HeaderMitra');
         Route::get('registrasi/layana-mitra', 'LayananKajian');
-        Route::get('pasien/get-data-pasien-kanker', 'getDataPasienKanker');
-        Route::post('pasien/batal-status-kanker', 'saveBatalStatusKanker');
-        Route::post('pasien/jadikan-status-kanker', 'saveJadikanStatusKanker');
+        Route::get('registrasi/pegawai-kalibrasi', 'pegawaiManager');
+        Route::get('registrasi/pegawai-lokasi-kalibrasi', 'pegawaiLokasi');
+        Route::post('registrasi/save-kajian-ulang', 'saveKajianUlang');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {
