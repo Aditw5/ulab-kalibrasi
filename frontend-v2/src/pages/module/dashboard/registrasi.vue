@@ -1,236 +1,173 @@
 <template>
-  <div class="business-dashboard hr-dashboard">
-    <div class="columns is-multiline">
-      <div class="column is-12">
-        <div class="columns is-multiline">
-          <div class="column is-12">
-            <div class="illustration-header-2 large-screen">
-              <div class="header-image">
-                <img src="/@src/assets/illustrations/dashboards/lifestyle/ulab.png" alt=""
-                  style="max-width:84%; margin-left: 2rem; margin-bottom: 1rem;" />
-              </div>
-              <div class="header-meta">
-                <h3 style="color:white"><i class="fas fa-id-card" aria-hidden="true"></i> Dashboard
-                  Registrasi</h3>
-                <p>
-                  Selamat Datang , {{ userLogin.pegawai.namaLengkap }}
-                </p>
-              </div>
+  <div class="columns is-multiline">
+    <div class="column is-12">
+      <div class="columns is-multiline">
+        <div class="column is-12">
+          <div class="illustration-header-2 large-screen">
+            <div class="header-image">
+              <img src="/@src/assets/illustrations/dashboards/lifestyle/ulab.png" alt=""
+                style="max-width:84%; margin-left: 2rem; margin-bottom: 1rem;" />
+            </div>
+            <div class="header-meta">
+              <h3 style="color:white"><i class="fas fa-id-card" aria-hidden="true"></i> Dashboard
+                Registrasi</h3>
+              <p>
+                Selamat Datang , {{ userLogin.pegawai.namaLengkap }}
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="columns is-multiline">
-      <div class="column is-12">
-        <div class="columns is-multiline">
-          <div class="column is-12">
+  </div>
+  <div>
+    <div class="business-dashboard hr-dashboard">
+      <div class="columns">
+        <div class="column is-12">
+          <!-- <Badge :value="dataOrder.length" v-if="dataOrder.length > 0" severity="danger"
+            style="z-index: 6;top: 38px;position: relative; left: 20px" /> -->
+          <div class="column is-12" style="margin-top: 2rem;">
+            <p>
+            <div class="column is-12">
+              <VCard radius="rounded">
+                <div class="columns is-multiline">
+                  <div class="column is-4">
+                    <VField label="Periode">
+                      <VControl class="prime-auto">
+                        <Calendar inputId="range" v-model="item.qPeriode" selectionMode="range" :manualInput="false"
+                          :disabled="!item.qAktif" class="w-100" :showIcon="true" />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-6">
+                    <VField label="Cari Registrasi Mitra">
+                      <VControl icon="fas fa-id-card" fullwidth>
+                        <VInput type="text" placeholder="Nama Oerusahaan, No Pendaftaran" autocomplete="off"
+                          v-model="item.search" class="is-rounded" v-on:keyup.enter="cari()" />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-2 mt-5">
+                    <VIconButton type="button" color="success" class="is-rounded" rounded raised icon="fas fa-search"
+                      @click="cari()" :loading="isLoading">
+                    </VIconButton>
+                  </div>
+                </div>
+              </VCard>
+            </div>
+            <!-- <VCard class="text-center pt-0 pb-0 mt-0">
+              <VRadio v-model="order" value="0" label="Belum Kaji" name="outlined_radio" color="warning" />
+              <VRadio v-model="order" value="1" label="Sudah Kaji" name="outlined_radio" color="info" />
+            </VCard> -->
             <VCard radius="rounded">
-              <div class="columns is-multiline">
-                <div class="column is-4">
-                  <VField label="Periode">
-                    <VControl class="prime-auto">
-                      <Calendar inputId="range" v-model="item.qPeriode" selectionMode="range" :manualInput="false"
-                        :disabled="!item.qAktif" class="w-100" :showIcon="true" />
-                    </VControl>
-                  </VField>
-                </div>
-                <div class="column is-6">
-                  <VField label="Cari Registrasi Mitra">
-                    <VControl icon="fas fa-id-card" fullwidth>
-                      <VInput type="text" placeholder="Nama Oerusahaan, No Pendaftaran" autocomplete="off"
-                        v-model="item.search" class="is-rounded" v-on:keyup.enter="cari()" />
-                    </VControl>
-                  </VField>
-                </div>
-                <div class="column is-2 mt-5">
-                  <VIconButton type="button" color="success" class="is-rounded" rounded raised icon="fas fa-search"
-                    @click="cari()" :loading="isLoading">
-                  </VIconButton>
-                  <VIconButton type="button" color="info" class="is-rounded ml-1" raised icon="fas fa-filter"
-                    @click="HIDE_FILTER = false">
-                  </VIconButton>
-                </div>
-              </div>
-            </VCard>
-          </div>
-          <div class="column is-12">
-            <VCard radius="rounded" v-if="IS_REGISTRASI">
-              <div class="columns is-multiline">
-                <div class="column is-6">
-                  <h3 class="title is-5 mb-2 mr-1">Mitra </h3>
-                  <span>{{ '(' + (ds_MITRA.total != undefined ? ds_MITRA.total : 0) + ' totals)' }}
-                  </span>
-                </div>
-                <div class="column is-6">
-                  <VField class="h-hidden-mobile">
-                    <RouterLink :to="{ name: 'module-registrasi-mitra-lama', }">
-                      <VIconButton class="ml-3 is-pulled-right" type="button" color="info" rounded circle raised
-                        icon="fas fa-users" v-tooltip.bubble="'Mitra Lama'">
-                      </VIconButton>
-                    </RouterLink>
-                    <VButton class="ml-3 is-pulled-right" type="button" color="info" rounded raised
-                      icon="fas fa-long-arrow-alt-right" @click="mitraBaru()">
-                      Mitra Baru
-                    </VButton>
-                  </VField>
-                </div>
-              </div>
-              <div class="columns is-multiline">
-                <div class="column is-12">
+              <VCard>
+                <div class="user-grid user-grid-v2">
+                  <VPlaceholderPage :title="H.assets().notFound" :subtitle="H.assets().notFoundSubtitle" class="my-6"
+                    v-if="ds_MITRA.length === 0">
+                    <template #image>
+                      <img class="light-image" :src="H.assets().iconNotFound_rev" alt="" />
+                      <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
+                    </template>
+                  </VPlaceholderPage>
+                  <TransitionGroup name="list" tag="div" class="columns is-multiline" v-else>
+                    <div v-for="(item, key) in ds_MITRA" :key="key" class="column is-4">
+                      <div class="grid-item-wrap is-clickable">
+                        <!-- @click="clickCard(item)" -->
+                        <div class="grid-item-head is-registrasi">
+                          <div class="flex-head">
 
-                  <div class="list-view list-view-v1">
-                    <VPlaceholderPage v-if="ds_MITRA.length === 0" title="We couldn't find any matching results."
-                      subtitle="Too bad. Looks like we couldn't find any matching results for the search terms you've entered. Please try different search terms or criteria."
-                      larger>
-                      <template #image>
-                        <img class="light-image" src="/@src/assets/illustrations/placeholders/search-1.svg" alt="" />
-                        <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-1-dark.svg"
-                          alt="" />
-                      </template>
-                    </VPlaceholderPage>
-                    <div class="list-view-inner" v-else-if="ds_MITRA.length > 0">
-                      <TransitionGroup name="list-complete" tag="div">
-                        <div v-for="(item, key) in ds_MITRA" :key="key" class="list-view-item">
-                          <div class="list-view-item-inner is-clickable">
-                            <VAvatar :picture="(item.foto != null ? item.foto : '/images/other/no_image.jpg')"
-                              size="large" />
-                            <div class="meta-left">
-                              <h3>{{ item.namaperusahaan }}</h3>
+                            <div class="meta">
                               <span>
-                                <i aria-hidden="true" class="iconify" data-icon="fa:address-card"></i>
-                                <span class="ml-1 mt-1">{{ item.nopendaftaran }}</span>
+                                {{
+                                  H.formatDateIndoSimple(item.tgldaftar)
+                                }}
                               </span>
-                              <div class="icon-list">
-                                <span>
-                                  <i aria-hidden="true" class="lnil lnil-cardiology fs-1"></i>
-                                  <span class="fs-1">{{ item.tgldaftar }}</span>
-                                </span>
-                              </div>
                             </div>
-                            <div class="meta-right">
-                              <div class="columns is-multiline">
-                                <div class="column is-12">
-                                  <div class="stats">
-                                    <div class="stat">
-                                      <span>{{ item.email }}</span>
-                                      <span>Email</span>
-                                    </div>
-                                    <div class="separator"></div>
-                                    <div class="stat">
-                                      <span>{{ item.nohp ? item.nohp : '0000000000000'
-                                      }}</span>
-                                      <span>No HP</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="meta-right">
-                             <VIconButton v-tooltip.bottom.left="'Kaji Ulang'"
-                                label="Bottom Left" color="primary" circle
-                                icon="pi pi-check-circle" 
-                                @click="kajiUlang(item)" style="margin-right: 15px;" />
-                            </div>
-
-                            <VDropdown icon="feather:more-vertical" spaced right>
-                              <template #content>
-                                <a role="menuitem" @click="kajiUlang(item)" class="dropdown-item is-media">
-                                  <div class="icon">
-                                    <i aria-hidden="true" class="lnil lnil-user-alt"></i>
-                                  </div>
-                                  <div class="meta">
-                                    <span>Profile</span>
-                                    <span>lihat profile</span>
-                                  </div>
-                                </a>
-                                <a v-if="item.nopendaftaran == null" role="menuitem" href="#"
-                                  class="dropdown-item is-media">
-                                  <div class="icon">
-                                    <i aria-hidden="true" class="lnil lnil-pointer"></i>
-                                  </div>
-                                  <div class="meta">
-                                    <span>Registrasi</span>
-                                    <span>Daftarkan pasien ke ruangan</span>
-                                  </div>
-                                </a>
-                                <a v-else-if="item.nopendaftaran != null" role="menuitem" href="#"
-                                  class="dropdown-item is-media">
-                                  <div class="icon">
-                                    <i aria-hidden="true" class="lnil lnil-medical-sign"></i>
-                                  </div>
-                                  <div class="meta">
-                                    <span>EMR</span>
-                                    <span>Lihat Rekam Medis pasien </span>
-                                  </div>
-                                </a>
-                              </template>
-                            </VDropdown>
                           </div>
                         </div>
-                      </TransitionGroup>
+                        <div class="flex-head" style=" display: flex; justify-content: space-between;">
+                          <VDropdown icon="feather:more-vertical" spaced left>
+                            <template #content>
+                              <a role="menuitem" @click="PengkajianMedis(item)" class="dropdown-item is-media">
+                                <div class="icon">
+                                  <i aria-hidden="true" class="lnil lnil-medical-sign"></i>
+                                </div>
+                                <div class="meta">
+                                  <span>Pengkajian Medis</span>
+                                </div>
+                              </a>
+                              <a role="menuitem" @click="UpdateJenisKelamin(item)" class="dropdown-item is-media">
+                                <div class="icon">
+                                  <i aria-hidden="true" class="lnil lnil-user-alt"></i>
+                                </div>
+                                <div class="meta">
+                                  <span>Ubah Jenis Kelamin</span>
+                                </div>
+                              </a>
+                              <a role="menuitem" @click="UpdateGolonganDarah(item)" class="dropdown-item is-media">
+                                <div class="icon">
+                                  <i aria-hidden="true" class="lnil lnil-pencil"></i>
+                                </div>
+                                <div class="meta">
+                                  <span>Ubah Golongan Darah</span>
+                                </div>
+                              </a>
+
+                            </template>
+                          </VDropdown>
+                        </div>
+                        <div class="grid-item">
+                          <VAvatar :picture="(item.foto != null ? item.foto : '/images/other/no_image.jpg')"
+                            size="big" />
+                          <h3 class="dark-inverted">{{ item.namaperusahaan }}</h3>
+                          <h3 class="dark-inverted">{{ item.nopendaftaran }}</h3>
+                          <!-- <p>{{ item.nocm }}</p> -->
+                          <p>Email : {{ item.email }}</p>
+                          <p>No HP : {{ item.nohp }}</p>
+                          <div class="buttons mt-4" style="display: flex; justify-content: center;">
+                            <VIconButton v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
+                              outlined circle icon="pi pi-arrow-right" @click="kajiUlang(item)" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <VFlexPagination v-model:current-page="currentPage.page" :item-per-page="currentPage.limit"
-                    :total-items="ds_MITRA.total" :max-links-displayed="5">
-                    <template #before-pagination>
-                    </template>
-                    <template #before-navigation>
-                      <VFlex class="mr-4 mt-1" column-gap="1rem">
-                        <VField>
-                        </VField>
-                        <VField>
-                          <VControl>
-                            <div class="select is-rounded">
-                              <select v-model="currentPage.limit">
-                                <option :value="3">3 results per page</option>
-                                <option :value="5">5 results per page</option>
-                                <option :value="6">6 results per page</option>
-                                <option :value="10">10 results per page</option>
-                                <option :value="15">15 results per page</option>
-                                <option :value="25">25 results per page</option>
-                                <option :value="50">50 results per page</option>
-                                <option :value="100">100 results per page</option>
-                                <option :value="200">200 results per page</option>
-                                <option :value="500">500 results per page</option>
-                                <option :value="1000">1000 results per page</option>
-                                <option :value="10000">All</option>
-                              </select>
-                            </div>
-                          </VControl>
-                        </VField>
-                      </VFlex>
-                    </template>
-                  </VFlexPagination>
+                  </TransitionGroup>
                 </div>
-              </div>
+              </VCard>
             </VCard>
+            </p>
           </div>
         </div>
+
       </div>
+      <VFlexPagination v-model:current-page="currentPage.page" :item-per-page="currentPage.limit"
+        :total-items="ds_MITRA.total" :max-links-displayed="5">
+        <template #before-pagination>
+        </template>
+        <template #before-navigation>
+          <VFlex class="mr-4 mt-1" column-gap="1rem">
+            <VField>
+
+            </VField>
+            <VField>
+              <VControl>
+                <div class="select is-rounded">
+                  <select v-model="currentPage.limit">
+                    <option :value="1">1 results per page</option>
+                    <option :value="5">5 results per page</option>
+                    <option :value="10">10 results per page</option>
+                    <option :value="15">15 results per page</option>
+                    <option :value="25">25 results per page</option>
+                    <option :value="50">50 results per page</option>
+                  </select>
+                </div>
+              </VControl>
+            </VField>
+          </VFlex>
+        </template>
+      </VFlexPagination>
     </div>
   </div>
-
-  <VModal :open="modalFilter" title=" Periode" :noclose="false" size="small" actions="right"
-    @close="modalFilter = false">
-    <template #content>
-      <form class="modal-form">
-        <div class="columns">
-          <div class="column is-12" style="text-align: center">
-            <VField class="is-centered">
-              <v-date-picker v-model="item.filterDate" class="is-centered" trim-weeks :max-date="new Date()" />
-            </VField>
-          </div>
-        </div>
-      </form>
-    </template>
-    <template #action>
-      <VButton icon="feather:search" @click="reload()" :loading="isLoading" color="primary" raised>
-        Filter</VButton>
-    </template>
-  </VModal>
-
   <VModal :open="modalBatalRegis" title="Batal Registrasi" size="medium" actions="right"
     @close="modalBatalRegis = false" cancelLabel="Tutup">
     <template #content>
@@ -361,7 +298,7 @@ currentPage.value.page = computed(() => {
   return 1
 })
 watch(currentPage.value, () => {
-  fetchPasien()
+  fetchMitra()
 })
 currentPageReservation.value.page = computed(() => {
   try {
@@ -370,6 +307,7 @@ currentPageReservation.value.page = computed(() => {
   return 1
 })
 
+const order: any = ref(0)
 const norecPd: string = ref('');
 const apd: any = reactive({})
 const item: any = reactive({
@@ -402,16 +340,8 @@ const tutupCetakResep = async () => {
 }
 const onPageChange = () => {
   console.log("successfully", currentPage.value);
-  fetchPasien()
+  fetchMitra()
 }
-
-// const fetchRanap = async (filter: any) => {
-//   await useApi().get(
-//     `emr/dropdown/ruangan_m?select=id,namaruangan&param_search=namaruangan&query=${filter.query}&settingdatafix=objectdepartemenfk,idDepRawatInap&limit=10`
-//   ).then((response) => {
-//     d_Ranap.value = response
-//   })
-// }
 
 
 const dataSourcefiltered = computed(() => {
@@ -426,22 +356,7 @@ const dataSourcefiltered = computed(() => {
 })
 
 
-const changeView = (e: any) => {
-  selectView.value = e
-}
-// const fetchdDropdown = async () => {
-//   const response = await useApi().get(`/dashboard/registrasi/dropdown`)
-//   d_Ruangan.value = response.ruangan.map((e: any) => { return { label: e.namaruangan, value: e.id, default: e } })
-//   d_Instalasi.value = response.departemen.map((e: any) => { return { id: e.id, namadepartemen: e.namadepartemen, count: 0 } })
-//   d_KelompokPasien.value = response.kelompokpasien.map((e: any) => { return { id: e.id, kelompokpasien: e.kelompokpasien, count: 0 } })
-//   // dataDokter.value = response.jadwaldokter
-// }
-
-function changeSwitch(e: any) {
-  fetchPasien()
-}
-
-const fetchPasien = async () => {
+const fetchMitra = async () => {
 
   ds_MITRA.value = []
   ds_MITRA.value.loading = true
@@ -477,13 +392,13 @@ const fetchPasien = async () => {
 
 
 const filter = () => {
-  fetchPasien()
+  fetchMitra()
 }
 
 const cari = () => {
   if (IS_REGISTRASI.value) {
-    fetchPasien()
-  } 
+    fetchMitra()
+  }
 }
 
 const mitraBaru = () => {
@@ -500,22 +415,7 @@ const registrasi = (e: any) => {
     },
   })
 }
-const emr = (e: any) => {
-  H.cacheHelper().set('xxx_cache_menu', undefined)
-  router.push({
-    name: 'module-emr-profile-pasien',
-    query: {
-      nocmfk: e.nocmfk,
-      nopendaftaran: e.nopendaftaran,
-    },
-  })
-}
 
-
-const getAPD = async (e: any) => {
-  let resp = await useApi().get(`/dashboard/get-norecapd?nopendaftaran=${e.nopendaftaran}&objectruanganlastfk=${e.objectruanganlastfk}`)
-  return resp.norec_apd
-}
 
 
 const editRegistrasi = async (e: any) => {
@@ -549,15 +449,6 @@ const cetakkartuPasien = async (e: any) => {
     'KARTU PASIEN', 1)
 }
 
-const cetakSuratKeteranganDokter = async (e: any) => {
-
-  let dokter = `&dokter=${e.dokter}`
-  let kelompokpasien = `&kelompokpasien=${e.kelompokpasien}`
-  let objectdepartemenfk = `&objectdepartemenfk=${e.objectdepartemenfk}`
-  let tglregistrasi = `&tglregistrasi=${e.tglregistrasi}`
-  let nopendaftaran = `&nopendaftaran=${e.nopendaftaran}`
-  H.printBlade(`dashboard/registrasi/cetak-surat-keterangan-dokter?noregistrasi=${e.noregistrasi}${dokter}${kelompokpasien}${objectdepartemenfk}${tglregistrasi}${nopendaftaran}`);
-}
 
 const cetakSuratKeteranganKeluar = async (e: any) => {
 
@@ -624,7 +515,7 @@ const saveBatalRegis = async () => {
     .then((response: any) => {
       isLoading.value = false
       clear()
-      fetchPasien()
+      fetchMitra()
     })
     .catch((e: any) => {
       isLoading.value = false
@@ -648,29 +539,15 @@ const clear = () => {
 
 const kajiUlang = (e: any) => {
   console.log(e)
-    router.push({
-        name: 'module-registrasi-kaji-ulang',
-        query: {
-            nocmfk: e.id,
-            norec_mitra_daftar: e.iddetail,
-            tglregistrasi: e.tglregistrasi
-        },
+  router.push({
+    name: 'module-registrasi-kaji-ulang',
+    query: {
+      nocmfk: e.id,
+      norec_mitra_daftar: e.iddetail,
+      tglregistrasi: e.tglregistrasi
+    },
 
-    })
-}
-
-const transaksiPelayanan = (e: any) => {
-    console.log(e)
-    router.push({
-        name: 'module-radiologi-transaksi-radiologi',
-        query: {
-            nocmfk: e.nocmfk,
-            norec_pasien_daftar: e.norec_pd,
-            norec_apd: e.norec_apd,
-            tglpelayanan: e.tglpelayanan
-        },
-
-    })
+  })
 }
 
 
@@ -723,11 +600,9 @@ const countData = async () => {
   }
 }
 
-
-
 qzService.connect()
 // fetchdDropdown()
-fetchPasien()
+fetchMitra()
 // countData()
 </script>
 <style lang="scss">

@@ -25,12 +25,12 @@ class MitraLamaCtrl extends Controller
             ->select(
                 'mt.id',
                 'mt.namaperusahaan',
-                'mt.nocm',
                 'mt.nohp',
                 'mt.tgldaftar',
                 'mt.progress',
                 'mt.isfoto',
                 'mt.filename',
+                'mt.alamatktr',
             )
             ->where('mt.statusenabled', true);
             

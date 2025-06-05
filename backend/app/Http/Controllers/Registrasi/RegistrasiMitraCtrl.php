@@ -32,7 +32,6 @@ class RegistrasiMitraCtrl extends Controller
     {
         $data = DB::table('mitra_m as mt')
             ->select(
-                'mt.nocm',
                 'mt.id as nocmfk',
                 'mt.namaperusahaan',
                 'mt.nohp',

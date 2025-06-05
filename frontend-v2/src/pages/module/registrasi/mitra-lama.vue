@@ -619,17 +619,6 @@ const registrasi = async(e: any) => {
     useToaster().error('Pasien belum dipulangkan')
     return
   }
-  if(e.nohp.length < 10 ){
-    useToaster().error('Nomor Handpohone tidak sesuai perbaiki dulu')
-    return
-  }
-
-
-  // const cekSEPTerbit = await useApi().get(`/registrasi/cek-sep?id=${e.id}`)
-  // if(cekSEPTerbit != null){
-  //   useToaster().error(`SEP Sudah terbit pada hari ini dengan nomor registrasi ${cekSEPTerbit.noregistrasi} dan no SEP ${cekSEPTerbit.nosep}`)
-  //   return
-  // }
   router.push({
     name: 'module-registrasi-registrasi-mitra',
     query: {
