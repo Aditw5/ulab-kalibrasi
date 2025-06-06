@@ -579,6 +579,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('registrasi/pegawai-kalibrasi', 'pegawaiManager');
         Route::get('registrasi/pegawai-lokasi-kalibrasi', 'pegawaiLokasi');
         Route::post('registrasi/save-kajian-ulang', 'saveKajianUlang');
+        Route::post('registrasi/save-batal-regis-mitra', 'saveBatalRegis');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {

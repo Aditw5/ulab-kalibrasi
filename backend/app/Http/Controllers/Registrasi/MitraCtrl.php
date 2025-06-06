@@ -7,6 +7,7 @@ use App\Traits\Valet;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Exception;
 
 class MitraCtrl extends Controller
 {
@@ -90,6 +91,7 @@ class MitraCtrl extends Controller
                 'mtr.norec as norec_pd',
             )
             ->where('mt.statusenabled', true)
+            ->where('mtr.statusenabled', true)
             ->where('mt.id', $r['nocmfk'])
             ->where('mtr.norec', $r['norec_pd'])
             ->first();
@@ -267,5 +269,55 @@ class MitraCtrl extends Controller
         }
 
         return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function saveBatalRegis(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $r_NewMitra = $request['mitraregis'];
+            $dataMitra = DB::table('mitraregistrasi_t')
+                ->where('norec', $r_NewMitra['norecregis'])
+                ->where('statusenabled', true)
+                ->first();
+
+            if (!$dataMitra) {
+                throw new \Exception("Data registrasi tidak ditemukan atau sudah tidak aktif");
+            }
+
+            $norecMitra = $dataMitra->norec;
+            DB::table('mitraregistrasidetail_t')
+                ->where('noregistrasifk', $norecMitra)
+                ->update(['statusenabled' => false]);
+
+            DB::table('mitraregistrasi_t')
+                ->where('norec', $norecMitra)
+                ->update([
+                    'statusenabled' => false,
+                    'tanggalpembatalan' => $r_NewMitra['tanggalpembatalan'] ?? null,
+                    'alasanpembatalan' => $r_NewMitra['alasanpembatalan'] ?? null 
+                ]);
+
+            $message = 'Berhasil Batal Registrasi';
+
+            DB::commit();
+
+            $result = array(
+                "status" => 200,
+                "message" => $message,
+                "result" => array(
+                    "as" => '@adit',
+                )
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $result = array(
+                "status" => 400,
+                "message" => "Something Went Wrong",
+                "result"  => $e->getMessage() . ' | Line: ' . $e->getLine()
+            );
+        }
+
+        return $this->respond($result['result'], $result['status'], $result['message']);
     }
 }

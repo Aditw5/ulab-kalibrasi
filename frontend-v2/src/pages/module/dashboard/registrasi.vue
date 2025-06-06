@@ -79,7 +79,7 @@
                             <div class="meta">
                               <span>
                                 {{
-                                  H.formatDateIndoSimple(item.tgldaftar)
+                                  H.formatDateIndoSimple(item.tglregistrasi)
                                 }}
                               </span>
                             </div>
@@ -88,28 +88,12 @@
                         <div class="flex-head" style=" display: flex; justify-content: space-between;">
                           <VDropdown icon="feather:more-vertical" spaced left>
                             <template #content>
-                              <a role="menuitem" @click="PengkajianMedis(item)" class="dropdown-item is-media">
+                              <a role="menuitem" @click="batalRegis(item)" class="dropdown-item is-media">
                                 <div class="icon">
-                                  <i aria-hidden="true" class="lnil lnil-medical-sign"></i>
+                                  <i aria-hidden="true" class="lnil lnil-trash"></i>
                                 </div>
                                 <div class="meta">
-                                  <span>Pengkajian Medis</span>
-                                </div>
-                              </a>
-                              <a role="menuitem" @click="UpdateJenisKelamin(item)" class="dropdown-item is-media">
-                                <div class="icon">
-                                  <i aria-hidden="true" class="lnil lnil-user-alt"></i>
-                                </div>
-                                <div class="meta">
-                                  <span>Ubah Jenis Kelamin</span>
-                                </div>
-                              </a>
-                              <a role="menuitem" @click="UpdateGolonganDarah(item)" class="dropdown-item is-media">
-                                <div class="icon">
-                                  <i aria-hidden="true" class="lnil lnil-pencil"></i>
-                                </div>
-                                <div class="meta">
-                                  <span>Ubah Golongan Darah</span>
+                                  <span>Batal Registrasi</span>
                                 </div>
                               </a>
 
@@ -189,9 +173,9 @@
         </div>
         <div class="column is-6">
           <VField>
-            <VLabel class="required-field">Ruangan</VLabel>
+            <VLabel class="required-field">Nama Peerusahaan</VLabel>
             <VControl icon="feather:map-pin">
-              <VInput type="text" v-model="item.ruangan" placeholder="Tempat Lahir" class="is-rounded_Z" disabled />
+              <VInput type="text" v-model="item.perusahaan" placeholder="Tempat Lahir" class="is-rounded_Z" disabled />
             </VControl>
           </VField>
         </div>
@@ -481,14 +465,8 @@ const cetakBuktiPendaftaran = (e: any) => {
 }
 
 const batalRegis = async (e: any) => {
-  let apd = await getAPD(e);
-
-  item.ruangan = e.namaruangan
-  item.nopendaftaran = e.nopendaftaran
-  item.norec_apd = apd
-  item.nocm = e.nocm,
-    item.noregistrasi = e.noregistrasi,
-    item.namapasien = e.namapasien
+  item.perusahaan = e.namaperusahaan
+  item.norecregis = e.iddetail
 
   modalBatalRegis.value = true
 }
@@ -496,22 +474,15 @@ const batalRegis = async (e: any) => {
 const saveBatalRegis = async () => {
   if (!item.alasanpembatalan) { H.alert('warning', 'Alasan Pembatalan harus di isi'); return }
   let json = {
-    pasiendaftar: {
-      'nopendaftaran': item.nopendaftaran,
+    mitraregis: {
+      'norecregis': item.norecregis,
       'tanggalpembatalan': item.tanggalpembatalan,
       'alasanpembatalan': item.alasanpembatalan,
-      'ruangan': item.ruangan,
-      'nocm': item.nocm,
-      'namapasien': item.namapasien,
-      'noregistrasi': item.noregistrasi
-    },
-    antrianpasiendiperiksa: {
-      'norec_apd': item.norec_apd,
     }
   }
   isLoading.value = true
   await useApi()
-    .post(`/dashboard/save-batal-registrasi`, json)
+    .post(`/registrasi/save-batal-regis-mitra`, json)
     .then((response: any) => {
       isLoading.value = false
       clear()
