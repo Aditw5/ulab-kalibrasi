@@ -3,7 +3,7 @@
     align-items: center;
     padding: 10px;
     border-radius: 16px;
-    background: var(--primary-dark-24);
+    background: var(--teal-400);
     font-family: var(--font);
     box-shadow: var(--primary-box-shadow);
 
@@ -151,7 +151,7 @@ label {
         display: flex;
         border-radius: 16px;
         padding: 18px;
-        background: var(--primary);
+        background: var(--teal-400);
         font-family: var(--font);
         box-shadow: var(--primary-box-shadow);
 
@@ -239,6 +239,14 @@ label {
         }
 
         .block-text {
+            font-family: var(--font);
+            font-size: 0.9rem;
+            color: var(--white);
+            margin-bottom: 16px;
+            width: auto;
+        }
+
+        .block-hext {
             font-family: var(--font);
             font-size: 0.9rem;
             color: var(--white);

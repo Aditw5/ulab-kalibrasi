@@ -5,7 +5,7 @@
         <div class="column is-12">
           <div class="illustration-header-2 large-screen">
             <div class="header-image">
-              <img src="/@src/assets/illustrations/dashboards/lifestyle/ulab.png" alt=""
+              <img src="/@src/assets/illustrations/dashboards/lifestyle/Picture1.png" alt=""
                 style="max-width:84%; margin-left: 2rem; margin-bottom: 1rem;" />
             </div>
             <div class="header-meta">
@@ -83,6 +83,8 @@
                                 }}
                               </span>
                             </div>
+                            <VTag v-if="!item.iskaji" color="warning" rounded>Belum Kaji</VTag>
+                            <VTag v-if="item.iskaji" color="info" rounded>Sudah Kaji</VTag>
                           </div>
                         </div>
                         <div class="flex-head" style=" display: flex; justify-content: space-between;">

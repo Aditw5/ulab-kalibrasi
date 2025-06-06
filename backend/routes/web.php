@@ -21,6 +21,7 @@ use App\Http\Controllers\EMR\InputDiagnosaCtrl;
 use App\Http\Controllers\EMR\ProfilePasienCtrl;
 use App\Http\Controllers\Registrasi\PasienCtrl;
 use App\Http\Controllers\Registrasi\MitraCtrl;
+use App\Http\Controllers\Asman\AsmanCtrl;
 use App\Http\Controllers\Farmasi\InputResepCtrl;
 use App\Http\Controllers\Farmasi\OrderResepCtrl;
 use App\Http\Controllers\Logistik\KartuStokCtrl;
@@ -578,8 +579,15 @@ Route::middleware(['log'])->group(function () {
         Route::get('registrasi/layana-mitra', 'LayananKajian');
         Route::get('registrasi/pegawai-kalibrasi', 'pegawaiManager');
         Route::get('registrasi/pegawai-lokasi-kalibrasi', 'pegawaiLokasi');
-        Route::post('registrasi/save-kajian-ulang', 'saveKajianUlang');
+        Route::post('registrasi/save-kajian-ulang-item', 'saveKajianUlangItem');
+        Route::post('registrasi/save-kaji-ulang', 'saveKajiUlang');
         Route::post('registrasi/save-batal-regis-mitra', 'saveBatalRegis');
+    });
+
+    Route::controller(AsmanCtrl::class)->group(function () {
+        Route::get('asman/list-mitra-regis', 'listMitraAsmanGrid');
+        Route::get('asman/get-detail-pegawai', 'getAsmanDetail');
+        Route::get('asman/layanan-verif', 'LayananVerif');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {

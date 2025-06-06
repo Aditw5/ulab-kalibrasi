@@ -232,7 +232,7 @@ export default defineConfig({
       base: '/',
       includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Transmedic - Apps',
+        name: 'ULAB - Apps',
         short_name: 'transmedic',
         start_url: '/?utm_source=pwa',
         display: 'standalone',

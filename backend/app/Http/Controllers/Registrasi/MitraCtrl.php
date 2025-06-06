@@ -36,6 +36,7 @@ class MitraCtrl extends Controller
                 'mtr.nopendaftaran',
                 'mtr.lokasikalibrasi',
                 'mtr.norec as iddetail',
+                'mtr.iskaji',
             )
             ->where('mt.statusenabled', true)
             ->where('mtr.statusenabled', true)
@@ -221,7 +222,7 @@ class MitraCtrl extends Controller
         return $this->respond($result);
     }
 
-    public function saveKajianUlang(Request $r)
+    public function saveKajianUlangItem(Request $r)
     {
         DB::beginTransaction();
         try {
@@ -249,7 +250,7 @@ class MitraCtrl extends Controller
                     'updated_at' => now()
                 ]);
 
-            $transMessage = "Simpan Kajian Ulang Sukses";
+            $transMessage = "Simpan Kajian Ulang Alat Sukses";
             DB::commit();
 
             $result = [
@@ -257,6 +258,40 @@ class MitraCtrl extends Controller
                 "result" => [
                     "as" => '@epic',
                     "namafile" => $filename,
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function saveKajiUlang(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $PD = $r['kajian'];
+            DB::table('mitraregistrasi_t')
+                ->where('norec', $PD['norec'])
+                ->update([
+                    'iskaji' => true,
+                    'tglkajiulang' => now(),
+                    'petugaskaji' => $this->getUserId(),
+                ]);
+
+            $transMessage = "Simpan Kajian Ulang Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
                 ],
             ];
         } catch (\Exception $e) {

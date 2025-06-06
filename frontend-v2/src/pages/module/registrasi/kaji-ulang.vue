@@ -1,46 +1,28 @@
 <template>
-  <ConfirmDialog group="positionDialog"></ConfirmDialog>
-  <div class="columns is-multiline " style="position: relative;width: 130%;left: -11rem;">
+  <div class="columns is-multiline ">
     <div class="column is-12">
       <div class="form-layout is-stacked p-0">
-        <div v-if="isLoadHeader == true" style="background:rgb(65, 185, 131);">
-          <PlaceloadHeader />
-        </div>
-        <div class="form-outer" v-else>
-          <div class="form-body p-2">
-            <div class="business-dashboard hr-dashboard">
-              <div class="columns is-multiline">
-                <div class="column is-12 pt-0">
-                  <div class="block-header">
-                    <div class="left">
-                      <div class="current-user">
-                        <h3>{{ mitra.namaperusahaan }}</h3>
-                      </div>
-                    </div>
-                    <div class="center">
-                      <div class="columns">
-                        <div class="column">
-                          <h4 class="block-heading">No Pendaftaran</h4>
-                          <p class="block-text">{{ mitra.nopendaftaran }}</p>
-                          <h4 class="block-heading">Tgl Registrasi</h4>
-                          <p class="block-text">{{ mitra.tgldaftar }}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="right">
-                      <div class="columns">
-                        <div class="column">
-                          <h4 class="block-heading">No HP</h4>
-                          <p class="block-text">{{ mitra.nohp }}</p>
-                          <h4 class="block-heading">Email</h4>
-                          <p class="block-text">{{ mitra.email }}</p>
-                        </div>
-
-                      </div>
+        <div class="business-dashboard hr-dashboard">
+          <div class="columns is-multiline">
+            <div class="column is-12 p-0">
+              <div class="block-header">
+                <div class="left column is-6 p-0">
+                  <div class="current-user">
+                    <h3>{{ mitra.namaperusahaan }}</h3>
+                  </div>
+                </div>
+                <div class="left column is-6 p-0">
+                  <div>
+                    <div>
+                      <h4 class="block-heading">No. Pendaftaran</h4>
+                      <p class="block-hext">{{ mitra.nopendaftaran }}</p>
+                      <h4 class="block-heading">Tgl Registrasi</h4>
+                      <p class="block-hext">{{ mitra.tglregistrasi }}</p>
                     </div>
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -72,8 +54,11 @@
                             Input Alat
                           </VButton>
                         </div>
-                        <div class="column is-4 ">
-                          <SplitButton label="Lainnya" icon="pi pi-info-circle" size="medium" style="height: 38px;" />
+                        <div class="column is-3">
+                          <VButton icon="feather:plus-circle" raised bold class="w-100" @click="simpanKaji(item)"
+                            :loading="isLoadingBill" color="primary">
+                            Simpan Kaji
+                          </VButton>
                         </div>
                       </div>
                     </div>
@@ -139,7 +124,7 @@
                                 <td class="center">
                                   <div class="columns is-multiline">
                                     <div class="column is-12">
-                                      <div class="title-ruangan">{{ itemsDet.namamerk }} - {{ itemsDet.namatipe }}</div>
+                                      <div class="title-layan">{{ itemsDet.namamerk }} - {{ itemsDet.namatipe }}</div>
 
                                     </div>
                                   </div>
@@ -147,15 +132,15 @@
                                 <td class="center" style="text-align:center">
                                   <div class="columns is-multiline">
                                     <div class="column is-12">
-                                      <div class="title-ruangan">{{ itemsDet.namaserialnumber }}</div>
+                                      <div class="title-layan">{{ itemsDet.namaserialnumber }}</div>
                                     </div>
                                   </div>
                                 </td>
                                 <td class="center">
                                   <div class="columns is-multiline">
                                     <div class="column is-12">
-                                      <div class="title-ruangan">
-                                        <p>1</p>
+                                      <div class="title-layan">
+                                        <p class="title-layan" style="text-align: center; font-weight: bold; color: black;">1</p>
                                       </div>
                                     </div>
                                   </div>
@@ -549,7 +534,7 @@ const simpan = async () => {
   formData.append('penyeliateknik', input.value.penyeliateknik.value)
   formData.append('pelaksana', input.value.pelaksana.value)
   isLoadingPop.value = true
-  await useApi().post('/registrasi/save-kajian-ulang', formData).then((r) => {
+  await useApi().post('/registrasi/save-kajian-ulang-item', formData).then((r) => {
     isLoadingPop.value = false
     fetchLayanan()
     modalKajiUlang.value = false
@@ -570,6 +555,34 @@ const simpan = async () => {
     }
   })
 
+}
+
+
+const simpanKaji = async (e : any) => {
+  console.log(e)
+  let json = {
+    'kajian': {
+      'norec': item.NOREC_PD ? item.NOREC_PD : '',
+      'nomitrafk': ID_MITRA,
+      'namaperusahaan': mitra.value.namaperusahaan,
+    }
+  }
+  isLoadingBill.value = true
+  await useApi().post(`/registrasi/save-kaji-ulang`, json).then(async (response: any) => {
+    isLoadingBill.value = false
+    toDashboard()
+  }).catch((e: any) => {
+    isLoadingBill.value = false
+    console.clear()
+    console.log(e)
+  })
+  isLoadingBill.value = false
+}
+
+const toDashboard = (norec_pd: any) => {
+  router.push({
+    name: 'module-dashboard-registrasi',
+  })
 }
 
 const edit = async (e: any) => {
@@ -825,212 +838,296 @@ headerPasien(ID_MITRA, NOREC_PD, TGLREGISTRASI)
 
 </script>
 <style lang="scss">
-@import '/@src/scss/main';
-@import '/@src/scss/module/kasir/billing';
+@import '/@src/scss/abstracts/all';
+@import '/@src/scss/custom/config';
+@import '/@src/scss/module/dashboard/bedah.scss';
 
-.field>label {
-  color: hsl(0deg, 0%, 4%) !important;
+tabs-wrapper.is-slider .tabs,
+.tabs-wrapper-alt.is-slider .tabs {
+  position: relative;
+  background: var(--fade-grey-light-2);
+  border: 1px solid var(--fade-grey);
+  max-width: 400px;
+  height: 35px;
+  border-bottom: none;
+
 }
 
-.hr-dashboard {
-  .block-header {
-    display: flex;
-    border-radius: 16px;
-    padding: 20px;
-    background: var(--primary);
-    font-family: var(--font);
-    box-shadow: var(--primary-box-shadow);
+.tb-order .text-value {
+  font-family: var(--font-alt);
+  color: var(--dark-text);
+  font-weight: 400;
+  font-size: 12px;
+}
 
-    .left,
-    .right {
-      width: 30%;
+.user-grid-v2 {
+  .columns {
+    margin-left: -0.5rem !important;
+    margin-right: -0.5rem !important;
+    margin-top: -0.5rem !important;
+  }
+
+  .column {
+    padding: 0.5rem !important;
+  }
+
+  .grid-item {
+    @include vuero-s-card;
+
+    text-align: center;
+
+    >.v-avatar {
+      display: block;
+      margin: 0 auto 4px;
     }
 
-    .center {
+    h3 {
+      font-family: var(--font-alt);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--dark-text);
+    }
+
+    p {
+      font-size: 0.85rem;
+    }
+
+    .people {
       display: flex;
-      flex-direction: column;
-      width: 40%;
-      padding-right: 10px;
-      margin-right: 30px;
-      border-right: 1px solid var(--primary-light-10);
+      justify-content: center;
+      padding: 8px 0 30px;
 
-      .block-text {
-        margin-bottom: 16px;
+      .v-avatar {
+        margin: 0 4px;
       }
+    }
 
-      .candidates {
-        margin-top: auto;
+    .buttons {
+      display: flex;
+      justify-content: space-between;
 
-        >.v-avatar {
-          margin-right: 10px;
+      .button {
+        width: calc(50% - 4px);
+        color: var(--light-text);
+
+        &:hover,
+        &:focus {
+          border-color: var(--fade-grey-dark-4);
+          color: var(--primary);
+          box-shadow: var(--light-box-shadow);
+        }
+      }
+    }
+  }
+
+  .grid-item-wrap {
+    border: 1px solid var(--fade-grey-dark-3);
+    border-radius: var(--radius-large);
+    transition: all 0.3s; // transition-all test
+
+    .grid-item-head {
+      background: #fafafa;
+      border-radius: var(--radius-large) 6px 0 0;
+      padding: 20px;
+
+      .flex-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+
+        .meta {
+          span {
+            display: flex;
+
+            &:first-child {
+              font-family: var(--font-alt);
+              font-weight: 600;
+              font-size: 0.85rem;
+              color: white;
+            }
+
+            &:nth-child(2) {
+              font-size: 0.8rem;
+              color: white;
+            }
+          }
         }
 
-        button {
-          height: 40px;
-          width: 40px;
-          display: inline-flex;
-          justify-content: center;
+        .status-icon {
+          height: 28px;
+          width: 28px;
+          min-width: 28px;
+          border-radius: var(--radius-rounded);
+          border: 1px solid var(--fade-grey-dark-3);
+          display: flex;
           align-items: center;
-          border-radius: 10px;
-          background: var(--white);
-          color: var(--light-text);
-          border: none;
-          cursor: pointer;
-          transition: all 0.3s; // transition-all test
+          justify-content: center;
 
-          svg {
-            height: 18px;
-            width: 18px;
+          &.is-success {
+            background: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+          }
+
+          &.is-warning {
+            background: var(--orange);
+            border-color: var(--orange);
+            color: var(--white);
+          }
+
+          &.is-danger {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: var(--white);
+          }
+
+          i {
+            font-size: 8px;
+          }
+        }
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0;
+
+        .button,
+        .v-button {
+          width: calc(50% - 4px);
+          color: var(--light-text);
+          margin-bottom: 0;
+
+          &:hover,
+          &:focus {
+            border-color: var(--fade-grey-dark-4);
+            color: var(--primary);
+            box-shadow: var(--light-box-shadow);
           }
         }
       }
     }
 
-    .left {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      .current-user {
-        .v-avatar {
-          margin-bottom: 1rem;
-        }
-
-        h3 {
-          font-family: var(--font-alt);
-          font-weight: 700;
-          font-size: 1.8rem;
-          color: var(--white);
-          line-height: 1.2;
-        }
-      }
+    .grid-item {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border: none;
     }
+  }
+}
 
-    .right {
-      display: flex;
-      flex-direction: column;
-
-      .button {
-        margin-top: auto;
-      }
-    }
-
-    .block-heading {
-      font-family: var(--font-alt);
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: var(--white);
-      margin-bottom: 4px;
-    }
-
-    .block-text {
-      font-family: var(--font);
-      font-size: 0.9rem;
-      color: var(--white);
-      margin-bottom: 16px;
-    }
-
-    .header-meta {
-      margin-left: 0;
-      padding-right: 30px;
-
-      h3 {
-        color: var(--smoke-white);
-        font-family: var(--font-alt);
-        font-weight: 700;
-        font-size: 1.3rem;
-        max-width: 280px;
-      }
-
-      p {
-        font-weight: 400;
-        color: var(--smoke-white-dark-2);
-        margin-bottom: 16px;
-        max-width: 320px;
-      }
-
-      .action-link {
-        span {
-          font-size: 0.8rem;
-          text-transform: uppercase;
-          margin-right: 6px;
-        }
-
-        i {
-          font-size: 12px;
-        }
-      }
+.is-dark {
+  .user-grid {
+    .grid-item {
+      @include vuero-card--dark;
     }
   }
 
-  .feed-settings {
+  .user-grid-v2 {
+    .grid-item-wrap {
+      border-color: var(--dark-sidebar-light-12);
+
+      .grid-item-head {
+        background: var(--dark-sidebar-light-4);
+      }
+    }
+  }
+}
+
+.user-grid-v2 .grid-item-wrap .grid-item-head.is-registrasi {
+  background: var(--success) !important
+}
+
+.user-grid-v2 .grid-item-wrap .grid-item-head {
+  padding: 10px;
+}
+
+.search-menu-rad {
+  height: 56px !important;
+  white-space: nowrap;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  width: 100%;
+  padding-left: 0.75rem;
+
+  >div:not(:last-of-type) {
+    border-right: 1px solid var(--search-border-color);
+  }
+
+  .search-bar {
+    height: 55px;
+    width: 100%;
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px 0;
+    padding-right: 1.5rem;
 
-    h3 {
-      font-family: var(--font-alt);
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--dark-text);
+    .field {
+      width: 100%;
     }
 
-    .button {
-      font-size: 0.8rem;
-      border-radius: 8px;
-      margin-right: 4px;
-
-      &.is-selected {
-        background: var(--primary);
-        color: var(--white);
-        border-color: var(--primary);
-        box-shadow: var(--primary-box-shadow);
-      }
+    .multiselect-tags {
+      padding-left: 2.5rem;
     }
   }
 
-  .side-text {
-    h3 {
-      font-family: var(--font-alt);
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--dark-text);
-      margin-bottom: 8px;
+  .search-location-rad,
+  .search-job,
+  .search-salary {
+    display: flex;
+    align-items: center;
+    width: 50%;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0 25px;
+    height: 100%;
+    font-family: var(--font);
+
+    input {
+      width: 100%;
+      height: 90%;
+      display: block;
+      font-family: var(--font);
+      color: var(--input-color);
+      background-color: transparent;
+      border: none;
     }
 
-    p {
-      font-size: 0.95rem;
-      margin-bottom: 8px;
-    }
-
-    .action-link {
-      font-size: 0.9rem;
-    }
-  }
-
-  .recent-rookies {
-    .recent-rookies-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-
-      h3 {
-        font-family: var(--font-alt);
-        font-size: 2rem;
-        font-weight: 600;
-        color: var(--dark-text);
-      }
-    }
-
-    .user-grid {
-      &.user-grid-v4 {
-        .grid-item {
-          @include vuero-l-card;
-        }
-      }
+    svg {
+      margin-right: 0.5rem;
+      width: 18px;
+      color: var(--primary);
+      flex-shrink: 0;
     }
   }
+
+  .search-button-rad {
+    background-color: var(--primary);
+    min-width: 100px;
+    height: 56px !important;
+    border: none;
+    font-weight: 500;
+    font-family: var(--font);
+    padding: 0 1rem;
+    border-radius: 0 0.75rem 0.75rem 0;
+    color: white;
+    cursor: pointer;
+    margin-left: auto;
+  }
+}
+
+.search-widget {
+  flex: 1;
+  display: inline-block;
+  width: 100%;
+  padding: 10px;
+  background-color: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--fade-grey-dark-3);
+  transition: all 0.3s;
 }
 </style>

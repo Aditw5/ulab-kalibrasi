@@ -195,6 +195,7 @@ class RegistrasiMitraCtrl extends Controller
             $model_PD->catatan = $PD['catatan'];
             $model_PD->lokasikalibrasi = $PD['lokasikalibrasi'];
             $model_PD->petugas = $this->getNamaPegawai();
+            $model_PD->statusorder = 0;
             $model_PD->save();
 
             $dataAPD = [];
