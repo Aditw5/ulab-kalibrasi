@@ -10,7 +10,6 @@
                                     <img src="/@src/assets/illustrations/dashboards/lifestyle/Picture2.png" alt=""
                                         style="max-width:75%; margin-left: 2rem; margin-top: 0.5rem;" />
                                 </div>
-
                                 <div class="header-meta" style="margin-left : -2rem;">
                                     <h3 style="color:white"><i class="fas fa-id-card" aria-hidden="true"></i> Dashboard
                                         Asman
@@ -104,17 +103,6 @@
                                                                     <span>Cetak Surat Elegibilitas</span>
                                                                 </div>
                                                             </a>
-                                                            <a role="menuitem" class="dropdown-item is-media"
-                                                                @click="cetakOrder(items)">
-                                                                <div class="icon">
-                                                                    <i class="iconify" data-icon="feather:printer"
-                                                                        aria-hidden="true"></i>
-                                                                </div>
-                                                                <div class="meta">
-                                                                    <span>Cetak Order</span>
-                                                                    <span>Cetak Order Lab</span>
-                                                                </div>
-                                                            </a>
                                                         </template>
                                                     </VDropdown>
                                                 </div>
@@ -153,9 +141,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                    }}</span>
+                                                                }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                    }}</span>
+                                                                }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -188,9 +176,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                    }}</span>
+                                                                }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                    }}</span>
+                                                                }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -338,12 +326,8 @@
                                     </div>
                                     <div class="columns mt-2" style="margin-left:40px">
                                         <VButtons>
-                                            <VButton color="success" raised icon="feather:edit"
-                                                v-if="item.pelaksana" @click="update(item)"> Update
-                                            </VButton>
-                                            <VButton color="info" raised icon="fas fa-plus"
-                                                v-else-if="!item.no && d_Komponen.length" @click="add(), clear()">
-                                                Tambah
+                                            <VButton color="success" raised icon="feather:edit" v-if="item.pelaksana"
+                                                @click="update(item)" :loading="isLoadingSave"> Update
                                             </VButton>
                                             <VButton raised @click="clear()"> Batal </VButton>
                                         </VButtons>
@@ -367,9 +351,16 @@
 
                             </div>
                         </div>
-
                         <div class="timeline-wrapper" v-else>
                             <div class="timeline-wrapper-inner">
+                                <div class="column is-2 ml-6">
+                                    <VField label="Semua Durasi Hari">
+                                        <VControl icon="lnir lnir-repeat-one">
+                                            <VInput type="number" v-model="item.durasiSemuaKalibrasi"
+                                                placeholder="Jumlah" class="is-rounded" />
+                                        </VControl>
+                                    </VField>
+                                </div>
                                 <div class="timeline-container">
                                     <div class="timeline-item is-unread" v-for="(items, index) in detailOrderLayanan"
                                         :key="items.norec">
@@ -389,24 +380,33 @@
                                                         </p>
                                                         <table class="tb-order">
                                                             <tr>
-                                                                <td>Lingkup Kalibrasi</td>
+                                                                <td style="font-weight: bold;">Lingkup Kalibrasi</td>
                                                                 <td>:</td>
                                                                 <td>{{ items.lingkupkalibrasi }} </td>
                                                             </tr>
                                                             <tr>
-                                                                <td>Lokasi Kalibrasi</td>
+                                                                <td style="font-weight: bold">Lokasi Kalibrasi</td>
                                                                 <td>:</td>
                                                                 <td>{{ items.lokasi }} </td>
                                                             </tr>
                                                             <tr>
-                                                                <td>Penyelias Teknik </td>
+                                                                <td style="font-weight: bold">Penyelias Teknik </td>
                                                                 <td>:</td>
                                                                 <td class="font-values">{{ items.penyeliateknik }}</td>
                                                             </tr>
                                                             <tr>
-                                                                <td>Pelaksana Teknik</td>
+                                                                <td style="font-weight: bold">Pelaksana Teknik</td>
                                                                 <td>:</td>
                                                                 <td>{{ items.pelaksanateknik }} </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="font-weight: bold">Durasi</td>
+                                                                <td>:</td>
+                                                                <td>
+                                                                    <VTag v-if="items.durasikalbrasi" color="warning"
+                                                                        rounded> {{ items.durasikalbrasi }}
+                                                                    </VTag>
+                                                                </td>
                                                             </tr>
                                                         </table>
 
@@ -438,8 +438,8 @@
             <template #action>
                 <VButton v-if="isLoadDataSoNorec" icon="feather:printer" @click="cetakBuktiOrder(norec)" color="info"
                     :loading="isLoadingSave" raised>Cetak</VButton>
-                <VButton 
-                    icon="feather:save" @click="save()" color="info" :loading="isLoadingSave" raised>Simpan Verif
+                <VButton icon="feather:save" @click="save(item)" color="info" :loading="isLoadingSave" raised>Simpan
+                    Verif
                 </VButton>
             </template>
         </VModal>
@@ -451,7 +451,6 @@
                         <div class="column is-12" style="text-align: center">
                             <VField class="is-centered">
                                 <v-date-picker v-model="item.periode" class="is-centered" is-range trim-weeks />
-                                <!-- :max-date="new Date()" /> -->
                             </VField>
                         </div>
                     </div>
@@ -488,7 +487,6 @@ useHead({
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
 useViewWrapper().setFullWidth(false)
-
 const NOREC_PD = useRoute().query.nocm as string
 const themeColors = useThemeColors()
 const dataSource: any = ref([])
@@ -513,7 +511,6 @@ const currentPage: any = ref({
 
 var date = new Date();
 const dateNow = date.toLocaleString('id-ID', { year: "numeric", month: "long", day: "numeric" });
-
 let listColor: any = ref(Object.keys(useThemeColors()))
 const modalDetail = ref(false)
 const route = useRoute()
@@ -534,14 +531,12 @@ let dataPasien: any = ref([])
 let isLoadingSave: any = ref(false)
 let isLoadDataOrder: any = ref(false)
 let isLoadDataSoNorec: any = ref(false)
-// let status_tunda: any = ref(false)
 let detailDiagnosa: any = ref(0)
 let dataPegawaiJakarta: any = ref([])
 let dataPegawaiGresik: any = ref([])
 let detailOrderVerify: any = ref(0)
 let detailOrderLayanan: any = ref(0)
 let totalData: any = ref(0)
-let dataPenunjang: any = ref([])
 let isData: any = ref()
 let sourceItemSelect: any = ref([])
 let data2: any = ref([])
@@ -561,7 +556,6 @@ const item: any = ref({
         start: new Date(),
         end: new Date(),
     }),
-    waktuPemeriksaan: new Date()
 
 })
 const order: any = ref(0)
@@ -686,18 +680,17 @@ const fetchPelaksana = async (filter: any) => {
 
 
 const orderVerify = async (e: any) => {
-    console.log(e)
     detailOrderLayanan.value = []
     modalDetailOrder.value = true
     item.value.namaperusahaan = e.namaperusahaan
     item.value.inisial = e.initials
     item.value.nopendaftaran = e.nopendaftaran
     item.value.catatan = e.keterangan
+    item.value.norec = e.iddetail
     // getListPelayanan(data)
     isLoadDataOrder.value = true
     isLoadDataSoNorec.value = false
     const response = await useApi().get(`/asman/layanan-verif?norec_pd=${e.iddetail}`)
-    console.log(response)
     response.detail.forEach((element: any, i: any) => {
         element.no = i + 1
     });
@@ -708,32 +701,20 @@ const orderVerify = async (e: any) => {
 const getDetailVerify = async (e: any) => {
     console.log(e)
     isLoadDataSoNorec = false
-
-    item.value.idJenisPelayanan = e.jenispelayananfk
-    item.value.namapasien = e.namapasien
     item.value.inisial = e.initials
-    item.value.ruangantujuan = e.ruangantujuan
-    item.value.noorder = e.noorder
-    item.value.no_rm = e.pas_nocm
-    item.value.jeniskelamin = e.jeniskelamin
-    item.value.kelompokpasien = e.kelompokpasien
-    item.value.idRuanganTujuan = e.objectruangantujuanfk
-    item.value.dokterorder = e.nama_pegawai
     item.value.tglregistrasi = e.tglregistrasi
 
     modalDetailOrderVerify.value = true
-    const response = await useApi().get(`/dashboard/radiologi/get-order-verify?norec_so=${e.norec}`)
-    const diagnosa = await useApi().get(`/dashboard/radiologi?tglAwal=${e.tglregistrasi}&tglAkhir=${e.tglregistrasi}&statusorder=${statusOrder.value}&noorder=${e.noorder}`)
-    detailDiagnosa.value = diagnosa ? diagnosa[0].detailDiagnosa : ''
-    response.forEach((element: any, i: any) => {
-        element.no = i + 1
-    });
-    detailOrderVerify.value = response
-    // console.log(detailOrderVerify)
+    // const response = await useApi().get(`/dashboard/radiologi/get-order-verify?norec_so=${e.norec}`)
+    // const diagnosa = await useApi().get(`/dashboard/radiologi?tglAwal=${e.tglregistrasi}&tglAkhir=${e.tglregistrasi}&statusorder=${statusOrder.value}&noorder=${e.noorder}`)
+    // detailDiagnosa.value = diagnosa ? diagnosa[0].detailDiagnosa : ''
+    // response.forEach((element: any, i: any) => {
+    //     element.no = i + 1
+    // });
+    // detailOrderVerify.value = response
 }
 
 const edit = (e: any) => {
-    console.log(e)
     item.value.lokasikalibrasi = {
         value: e.lokasikalibrasifk ?? '',
         label: e.lokasi ?? ''
@@ -750,25 +731,88 @@ const edit = (e: any) => {
         value: e.pelaksanateknikfk ?? '',
         label: e.pelaksanateknik ?? ''
     };
-
-    // item.value.no = e.no
-    // d_Produk.value.forEach(element => {
-    //     if (element.id == e.prid) {
-    //         item.value.produk = element
-    //         return
-    //     }
-    // });
-    // d_Komponen.value = e.komponenharga
-    // item.value.hargaLayanan = e.hargasatuan
-    // item.value.jumlah = e.qtyproduk
+    item.value.norec_detail = e.norec_detail
+    item.value.norec = e.norec
+    item.value.durasikalbrasi = e.durasikalbrasi
 }
 
-const cetakBuktiOrder = () => {
-    // console.log(so_norec)
+const update = async (e: any) => {
+    console.log(e)
+    if (!e.durasikalbrasi) {
+        H.alert('error', 'Durasi harus di isi')
+        return
+    }
+    let json = {
+        'veriItem': {
+            'norec': e.norec_detail ? e.norec_detail : '',
+            'lokasikalibrasi': e.lokasikalibrasi.value,
+            'lingkupkalibrasi': e.lingkupkalibrasi.value,
+            'penyeliateknik': e.penyeliateknik.value,
+            'pelaksana': e.pelaksana.value,
+            'durasikalbrasi': e.durasikalbrasi,
+        }
+    }
+    isLoadingSave.value = true
+    await useApi().post('/asman/save-verif-item', json).then((r) => {
+        isLoadingSave.value = false
+        reloadItemVerify(e.norec)
+        clear()
+    }).catch((error: any) => {
+        isLoadingSave.value = false
+        console.error('Error saat menyimpan berkas mitra:', error);
 
-    H.printBlade('radiologi/cetakan-hasil-radiologi?noregistrasi=' + item.value.noregistrasi
-        + '&so_norec=' + so_norec);
+        if (error.response) {
+
+            H.alert('error', `Kesalahan: ${error.response.status} - ${error.response.data.message || 'Gagal menyimpan berkas mitra'}`);
+        } else if (error.request) {
+
+            H.alert('error', 'Tidak ada respons dari server. Silakan coba lagi.');
+        } else {
+
+            H.alert('error', `Terjadi kesalahan: ${error.message}`);
+        }
+    })
 }
+
+const save = async (e: any) => {
+    console.log(e)
+    let json = {
+        'verif': {
+            'norec': e.norec ?? '',
+            'durasiSemuaKalibrasi': e.durasiSemuaKalibrasi ?? null,
+        }
+    }
+    isLoadingSave.value = true
+    await useApi().post('/asman/save-verif', json).then((r) => {
+        isLoadingSave.value = false
+        clear()
+        modalDetailOrder.value = false
+        fetchDataOrder(0)
+    }).catch((error: any) => {
+        isLoadingSave.value = false
+        console.error('Error saat menyimpan berkas mitra:', error);
+
+        if (error.response) {
+
+            H.alert('error', `Kesalahan: ${error.response.status} - ${error.response.data.message || 'Gagal menyimpan berkas mitra'}`);
+        } else if (error.request) {
+
+            H.alert('error', 'Tidak ada respons dari server. Silakan coba lagi.');
+        } else {
+
+            H.alert('error', `Terjadi kesalahan: ${error.message}`);
+        }
+    })
+}
+
+const reloadItemVerify = async (e: any) => {
+    const response = await useApi().get(`/asman/layanan-verif?norec_pd=${e}`)
+    response.detail.forEach((element: any, i: any) => {
+        element.no = i + 1
+    });
+    detailOrderLayanan.value = response.detail
+}
+
 
 const hapusItems = (e: any) => {
     for (var i = detailOrderLayanan.value.length - 1; i >= 0; i--) {
@@ -794,101 +838,10 @@ const clear = () => {
     item.value.durasikalbrasi = ''
 }
 
-const chartLayananByRuangan = async () => {
-    let tglAwal = 'tglAwal=' + H.formatDate(item.value.periode.start, 'YYYY-MM-DD')
-    let tglAkhir = '&tglAkhir=' + H.formatDate(item.value.periode.end, 'YYYY-MM-DD')
-    // await useApi().get(`/dashboard/radiologi/chart-layanan-ruangan?${tglAwal}${tglAkhir}`).then((res: any) => {
-    // item.value.chartLength = res.chartLO.count.length
-    item.value.chartLength = null
-    // item.value = res
-    // console.log(res.chartLO.categories)
-    chartLO.value = {
-        series: [
-            {
-                name: 'pasien',
-                // data: res.chartLO.count
-                data: res.chartLO.count
-            }
-        ],
-        chart: {
-            height: 220,
-            type: 'bar',
-            toolbar: {
-                show: false,
-            },
-        },
-        plotOptions: {
-            bar: {
-                dataLabels: {
-                    // fontSize: '8px',
-                    position: 'top', // top, center, bottom
-                },
-            },
-        },
-        dataLabels: {
-            enabled: true,
-            // formatter: formatters.asPercent,
-            offsetY: -20,
-            style: {
-                fontSize: '12px',
-                colors: ['#304758'],
-            },
-        },
-        xaxis: {
-            categories: res.chartLO.categories,
-            position: 'top',
-            axisBorder: {
-                show: true,
-            },
-            axisTicks: {
-                show: false,
-            },
-            crosshairs: {
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        colorFrom: '#D8E3F0',
-                        colorTo: '#BED1E6',
-                        stops: [0, 100],
-                        opacityFrom: 0.4,
-                        opacityTo: 0.5,
-                    },
-                },
-            },
-            // tooltip: {
-            //     enabled: true,
-            // },
-        },
-        yaxis: {
-            axisBorder: {
-                show: true,
-            },
-            axisTicks: {
-                show: false,
-            },
-            labels: {
-                show: false,
-                // formatter: formatters.asPercent,
-            },
-        },
-        colors: [themeColors.green, themeColors.secondary, themeColors.orange],
-        title: {
-            text: 'Pelayanan Berdasarkan Ruangan',
-            align: 'left',
-        },
-    }
-    // })
-
-}
-
 const showModalFilter = () => {
     modalFilter.value = true
 }
 
-const changeRuang = (e: any) => {
-    fetchDataOrder(0)
-    chartLayananByRuangan()
-}
 
 const goTo = (e: any) => {
 
@@ -906,7 +859,6 @@ const goTo = (e: any) => {
 
 const changePeriode = () => {
     fetchDataOrder(0)
-    chartLayananByRuangan()
 }
 
 
@@ -932,7 +884,6 @@ watch(
 )
 
 fetchDataOrder(0)
-chartLayananByRuangan()
 fetchDetail()
 </script>
 

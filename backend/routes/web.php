@@ -588,6 +588,8 @@ Route::middleware(['log'])->group(function () {
         Route::get('asman/list-mitra-regis', 'listMitraAsmanGrid');
         Route::get('asman/get-detail-pegawai', 'getAsmanDetail');
         Route::get('asman/layanan-verif', 'LayananVerif');
+        Route::post('asman/save-verif-item', 'saveVerifItem');
+        Route::post('asman/save-verif', 'saveVerif');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {

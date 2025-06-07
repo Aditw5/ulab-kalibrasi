@@ -53,6 +53,19 @@
                     </VIconButton>
                   </div>
                 </div>
+                <div class="column is-6">
+                  <VField class="h-hidden-mobile">
+                    <RouterLink :to="{ name: 'module-registrasi-mitra-lama', }">
+                      <VIconButton class="ml-3 is-pulled-right" type="button" color="info" rounded circle raised
+                        icon="fas fa-users" v-tooltip.bubble="'Mitra Lama'">
+                      </VIconButton>
+                    </RouterLink>
+                    <VButton class="ml-3 is-pulled-right" type="button" color="info" rounded raised
+                      icon="fas fa-long-arrow-alt-right" @click="mitraBaru()">
+                      Mitra Baru
+                    </VButton>
+                  </VField>
+                </div>
               </VCard>
             </div>
             <!-- <VCard class="text-center pt-0 pb-0 mt-0">

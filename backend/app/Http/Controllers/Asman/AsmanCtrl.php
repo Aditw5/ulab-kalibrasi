@@ -146,6 +146,7 @@ class AsmanCtrl extends Controller
                 'mtr.norec',
                 'mtrd.norec as norec_detail',
                 'mtrd.iskaji',
+                'mtrd.durasikalbrasi',
                 'mtrd.namafile',
                 'mtrd.keterangan',
                 'prd.namaproduk',
@@ -185,5 +186,93 @@ class AsmanCtrl extends Controller
         $result['as'] = '@epic';
 
         return $this->respond($result);
+    }
+
+
+    public function saveVerifItem(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $VI = $r['veriItem'];
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $VI['norec'])
+                ->update([
+                    'iskaji' => true,
+                    'lokasikajifk' => $VI['lokasikalibrasi'],
+                    'lingkupkalibrasifk' => $VI['lingkupkalibrasi'],
+                    'penyeliateknikfk' => $VI['penyeliateknik'],
+                    'pelaksanateknikfk' => $VI['pelaksana'],
+                    'durasikalbrasi' => $VI['durasikalbrasi'],
+                    'asmanveriffk' => $this->getUserId(),
+                ]);
+
+            $transMessage = "Simpan Verif Item Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function saveVerif(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $VI = $r['verif'];
+
+            $dataMitra = DB::table('mitraregistrasi_t')
+                ->where('norec', $VI['norec'])
+                ->where('statusenabled', true)
+                ->first();
+
+            $norecMitra = $dataMitra->norec;
+            DB::table('mitraregistrasi_t')
+                ->where('norec', $norecMitra)
+                ->update([
+                    'statusorder' => true,
+                    'asmanveriffk' => $this->getUserId(),
+                ]);
+
+            if ($VI['durasiSemuaKalibrasi'] !== null) {
+                DB::table('mitraregistrasidetail_t')
+                    ->where('noregistrasifk', $norecMitra)
+                    ->update([
+                        'durasikalbrasi' => $VI['durasiSemuaKalibrasi'],
+                        'asmanveriffk' => $this->getUserId(),
+                    ]);
+            }
+
+            $transMessage = "Simpan Verif Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
     }
 }
