@@ -343,6 +343,7 @@ const cancelRegistrasi = () => {
 }
 
 const saveRegistrasi = async () => {
+  console.log(item)
   if (!item.tglregistrasi) { H.alert('warning', 'Tgl Registrasi harus di isi'); return }
 
   const mappedOrderAlat = input.value.detailOrderAlat.map((alat: any) => ({

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Asman;
+namespace App\Http\Controllers\Penyelia;
 
 use App\Http\Controllers\Controller;
 use App\Traits\Valet;
@@ -9,12 +9,93 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
-class AsmanCtrl extends Controller
+class PenyeliaCtrl extends Controller
 {
     use Valet;
     public function __construct()
     {
         parent::__construct($is_encrypt = true);
+    }
+
+    public function getAlatPenyelia(Request $r)
+    {
+         $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftjoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftjoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftjoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftjoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->select(
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.durasikalbrasi',
+                'mtrd.namafile',
+                'mtrd.keterangan',
+                'prd.namaproduk',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'mt.namaperusahaan',
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi',
+            )
+            ->where('pg.id',$this->getPegawaiId())
+            ->where('mtr.statusorder', 1)
+            ->where('mtr.iskaji', true)
+            ->where('mtr.statusenabled', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.statusenabled', true);
+
+        if (isset($r['dari']) && $r['dari'] != '') {
+            $data = $data->where(DB::raw("mtr.tglregistrasi::date"), '>=', $r->dari);
+        }
+        if (isset($r['sampai']) && $r['sampai'] != '') {
+            $data = $data->where(DB::raw("mtr.tglregistrasi::date"), '<=', $r->sampai);
+        }
+        if (isset($r['status']) && $r['status'] != '') {
+            $data = $data->where('pd.ispelayananpasien', '=', $r['status']);
+        }
+        if (isset($r['search']) && $r['search'] != '') {
+            $searchTerm = '%' . $r['search'] . '%';
+            $data = $data->where(function ($query) use ($searchTerm) {
+                $query->where('mt.namaperusahaan', 'ilike', $searchTerm)
+                      ->orWhere('mt.nopendaftaran', 'ilike', $searchTerm);
+            });
+        }
+        // if (isset($r['statuspanggil']) && $r['statuspanggil'] != '') {
+        //     if ($r['statuspanggil'] == 'true') {
+        //         $data = $data->whereNotNull('pd.tglpulang');
+        //     } elseif ($r['statuspanggil'] == 'rawat') {
+        //         $data = $data->whereNull('pd.tglpulang')
+        //                      ->whereNull('apd.tglkeluar');
+        //     }
+        // }
+        $data = $data->orderBy('mtr.tglregistrasi');
+        if(isset($r['limit'])){
+            $data = $data->limit($r['limit']);
+        }
+        $data = $data->get();
+
+        $res['data'] = $data;
+        return $this->respond($res);
     }
 
     public function listMitraAsmanGrid(Request $r)
@@ -232,12 +313,28 @@ class AsmanCtrl extends Controller
         DB::beginTransaction();
         try {
             $VI = $r['verif'];
-            DB::table('mitraregistrasi_t')
+
+            $dataMitra = DB::table('mitraregistrasi_t')
                 ->where('norec', $VI['norec'])
+                ->where('statusenabled', true)
+                ->first();
+
+            $norecMitra = $dataMitra->norec;
+            DB::table('mitraregistrasi_t')
+                ->where('norec', $norecMitra)
                 ->update([
                     'statusorder' => true,
-                    'asmanveriffk' => $this->getPegawaiId(),
+                    'asmanveriffk' => $this->getUserId(),
                 ]);
+
+            if ($VI['durasiSemuaKalibrasi'] !== null) {
+                DB::table('mitraregistrasidetail_t')
+                    ->where('noregistrasifk', $norecMitra)
+                    ->update([
+                        'durasikalbrasi' => $VI['durasiSemuaKalibrasi'],
+                        'asmanveriffk' => $this->getUserId(),
+                    ]);
+            }
 
             $transMessage = "Simpan Verif Sukses";
             DB::commit();

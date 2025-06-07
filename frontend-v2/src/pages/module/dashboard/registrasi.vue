@@ -31,7 +31,7 @@
             <div class="column is-12">
               <VCard radius="rounded">
                 <div class="columns is-multiline">
-                  <div class="column is-4">
+                  <div class="column is-3">
                     <VField label="Periode">
                       <VControl class="prime-auto">
                         <Calendar inputId="range" v-model="item.qPeriode" selectionMode="range" :manualInput="false"
@@ -39,7 +39,7 @@
                       </VControl>
                     </VField>
                   </div>
-                  <div class="column is-6">
+                  <div class="column is-4">
                     <VField label="Cari Registrasi Mitra">
                       <VControl icon="fas fa-id-card" fullwidth>
                         <VInput type="text" placeholder="Nama Oerusahaan, No Pendaftaran" autocomplete="off"
@@ -52,19 +52,19 @@
                       @click="cari()" :loading="isLoading">
                     </VIconButton>
                   </div>
-                </div>
-                <div class="column is-6">
-                  <VField class="h-hidden-mobile">
-                    <RouterLink :to="{ name: 'module-registrasi-mitra-lama', }">
-                      <VIconButton class="ml-3 is-pulled-right" type="button" color="info" rounded circle raised
-                        icon="fas fa-users" v-tooltip.bubble="'Mitra Lama'">
-                      </VIconButton>
-                    </RouterLink>
-                    <VButton class="ml-3 is-pulled-right" type="button" color="info" rounded raised
-                      icon="fas fa-long-arrow-alt-right" @click="mitraBaru()">
-                      Mitra Baru
-                    </VButton>
-                  </VField>
+                  <div class="column is-3 mt-5">
+                    <VField class="h-hidden-mobile">
+                      <RouterLink :to="{ name: 'module-registrasi-mitra-lama', }">
+                        <VIconButton class="ml-3 is-pulled-right" type="button" color="info" rounded circle raised
+                          icon="fas fa-users" v-tooltip.bubble="'Mitra Lama'">
+                        </VIconButton>
+                      </RouterLink>
+                      <VButton class="ml-3 is-pulled-right" type="button" color="info" rounded raised
+                        icon="fas fa-long-arrow-alt-right" @click="mitraBaru()">
+                        Mitra Baru
+                      </VButton>
+                    </VField>
+                  </div>
                 </div>
               </VCard>
             </div>

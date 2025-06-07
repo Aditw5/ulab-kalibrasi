@@ -353,14 +353,6 @@
                         </div>
                         <div class="timeline-wrapper" v-else>
                             <div class="timeline-wrapper-inner">
-                                <div class="column is-2 ml-6">
-                                    <VField label="Semua Durasi Hari">
-                                        <VControl icon="lnir lnir-repeat-one">
-                                            <VInput type="number" v-model="item.durasiSemuaKalibrasi"
-                                                placeholder="Jumlah" class="is-rounded" />
-                                        </VControl>
-                                    </VField>
-                                </div>
                                 <div class="timeline-container">
                                     <div class="timeline-item is-unread" v-for="(items, index) in detailOrderLayanan"
                                         :key="items.norec">
@@ -380,27 +372,27 @@
                                                         </p>
                                                         <table class="tb-order">
                                                             <tr>
-                                                                <td style="font-weight: bold;">Lingkup Kalibrasi</td>
+                                                                <td>Lingkup</td>
                                                                 <td>:</td>
                                                                 <td>{{ items.lingkupkalibrasi }} </td>
                                                             </tr>
                                                             <tr>
-                                                                <td style="font-weight: bold">Lokasi Kalibrasi</td>
+                                                                <td>Lokasi</td>
                                                                 <td>:</td>
                                                                 <td>{{ items.lokasi }} </td>
                                                             </tr>
                                                             <tr>
-                                                                <td style="font-weight: bold">Penyelias Teknik </td>
+                                                                <td>Penyelias Teknik </td>
                                                                 <td>:</td>
                                                                 <td class="font-values">{{ items.penyeliateknik }}</td>
                                                             </tr>
                                                             <tr>
-                                                                <td style="font-weight: bold">Pelaksana Teknik</td>
+                                                                <td>Pelaksana Teknik</td>
                                                                 <td>:</td>
                                                                 <td>{{ items.pelaksanateknik }} </td>
                                                             </tr>
                                                             <tr>
-                                                                <td style="font-weight: bold">Durasi</td>
+                                                                <td>Durasi</td>
                                                                 <td>:</td>
                                                                 <td>
                                                                     <VTag v-if="items.durasikalbrasi" color="warning"
@@ -779,7 +771,6 @@ const save = async (e: any) => {
     let json = {
         'verif': {
             'norec': e.norec ?? '',
-            'durasiSemuaKalibrasi': e.durasiSemuaKalibrasi ?? null,
         }
     }
     isLoadingSave.value = true

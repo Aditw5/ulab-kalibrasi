@@ -22,6 +22,7 @@ use App\Http\Controllers\EMR\ProfilePasienCtrl;
 use App\Http\Controllers\Registrasi\PasienCtrl;
 use App\Http\Controllers\Registrasi\MitraCtrl;
 use App\Http\Controllers\Asman\AsmanCtrl;
+use App\Http\Controllers\Penyelia\PenyeliaCtrl;
 use App\Http\Controllers\Farmasi\InputResepCtrl;
 use App\Http\Controllers\Farmasi\OrderResepCtrl;
 use App\Http\Controllers\Logistik\KartuStokCtrl;
@@ -590,6 +591,10 @@ Route::middleware(['log'])->group(function () {
         Route::get('asman/layanan-verif', 'LayananVerif');
         Route::post('asman/save-verif-item', 'saveVerifItem');
         Route::post('asman/save-verif', 'saveVerif');
+    });
+
+    Route::controller(PenyeliaCtrl::class)->group(function () {
+        Route::get('penyelia/get-alat-penyelia', 'getAlatPenyelia');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {
