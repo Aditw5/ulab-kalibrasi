@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Penyelia;
+namespace App\Http\Controllers\Pelaksana;
 
 use App\Http\Controllers\Controller;
 use App\Traits\Valet;
@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
-class PenyeliaCtrl extends Controller
+class PelaksanaCtrl extends Controller
 {
     use Valet;
     public function __construct()
@@ -17,7 +17,7 @@ class PenyeliaCtrl extends Controller
         parent::__construct($is_encrypt = true);
     }
 
-    public function getAlatPenyelia(Request $r)
+    public function getAlatPelaksana(Request $r)
     {
         $data = DB::table('mitraregistrasi_t as mtr')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
@@ -37,7 +37,7 @@ class PenyeliaCtrl extends Controller
                 'mtrd.durasikalbrasi',
                 'mtrd.namafile',
                 'mtrd.keterangan',
-                'mtrd.statusorderpenyelia',
+                'mtrd.statusorderpelaksana',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -58,7 +58,7 @@ class PenyeliaCtrl extends Controller
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
             )
-            ->where('pg.id', $this->getPegawaiId())
+            ->where('pg2.id', $this->getPegawaiId())
             ->where('mtr.statusorder', 1)
             ->where('mtr.iskaji', true)
             ->where('mtr.statusenabled', true)
@@ -77,12 +77,12 @@ class PenyeliaCtrl extends Controller
         if (isset($r['search']) && $r['search'] != '') {
             $searchTerm = '%' . $r['search'] . '%';
             $data = $data->where(function ($query) use ($searchTerm) {
-                $query->where('mt.namaperusahaan', 'ilike', $searchTerm)
+                $query->where('prd.namaproduk', 'ilike', $searchTerm)
                     ->orWhere('mt.nopendaftaran', 'ilike', $searchTerm);
             });
         }
-        if (isset($r['statusorderpenyelia']) && $r['statusorderpenyelia'] != '') {
-            $data = $data->where('mtrd.statusorderpenyelia', '=', $r['statusorderpenyelia']);
+        if (isset($r['statusorderpelaksana']) && $r['statusorderpelaksana'] != '') {
+            $data = $data->where('mtrd.statusorderpelaksana', '=', $r['statusorderpelaksana']);
         }
         // if (isset($r['statuspanggil']) && $r['statuspanggil'] != '') {
         //     if ($r['statuspanggil'] == 'true') {
@@ -102,7 +102,7 @@ class PenyeliaCtrl extends Controller
         return $this->respond($res);
     }
 
-    public function LayananVerifPenyelia(Request $r)
+    public function LayananVerifPelaksana(Request $r)
     {
         $data = DB::table('mitraregistrasi_t as mtr')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
@@ -142,7 +142,7 @@ class PenyeliaCtrl extends Controller
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
             )
-            ->where('pg.id', $this->getPegawaiId())
+            ->where('pg2.id', $this->getPegawaiId())
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
             ->where('mtrd.statusenabled', true)
@@ -221,9 +221,9 @@ class PenyeliaCtrl extends Controller
             DB::table('mitraregistrasidetail_t')
                 ->where('norec', $VI['norec'])
                 ->update([
-                    'statusorderpenyelia' => 1,
-                    'penyeliaveriffk' => $this->getPegawaiId(),
-                    'tglverifpenyelia' => now(),
+                    'statusorderpelaksana' => 1,
+                    'pelaksanaveriffk' => $this->getPegawaiId(),
+                    'tglverifpelaksana' => now(),
                 ]);
 
 

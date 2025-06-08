@@ -1,17 +1,17 @@
 <template>
   <div class="business-dashboard hr-dashboard">
     <div class="columns">
-      <div class="column is-8">
+      <div class="column is-12">
         <div class="columns is-multiline">
           <!--Header-->
           <div class="column is-12">
             <div class="illustration-header-2">
               <div class="header-image">
-                <img src="/@src/assets/illustrations/dashboards/lifestyle/Picture5.png" alt=""
+                <img src="/@src/assets/illustrations/dashboards/lifestyle/Picture6.png" alt=""
                   style="max-width:75%; margin-left: 2rem; margin-bottom: 1rem;" />
               </div>
               <div class="header-meta">
-                <h3 style="color:white"><i class="fas fa-home"></i> Dashboard Penyelia</h3>
+                <h3 style="color:white"><i class="fas fa-home"></i> Dashboard Pelaksana</h3>
                 <p>
                   Selamat Datang , {{ userLogin.pegawai.namaLengkap }}
                 </p>
@@ -56,13 +56,15 @@
                         <input type="text" placeholder="Cari Nama Alat" v-model="item.qsearch"
                           v-on:keyup.enter="fetchAlatKalibrasi(order)" />
                       </div>
-                      <VButton raised class="search-button-igd" @click="fetchAlatKalibrasi(order)" :loading="isLoading">
-                        Cari Data
+                      <VButton raised class="search-button-igd" @click="fetchAlatKalibrasi(order)" :loading="isLoading"> Cari
+                        Data
                       </VButton>
                     </div>
                     <VCard class="text-center pt-0 pb-0 mt-0">
-                      <VRadio v-model="order" value="0" label="Belum Verif" name="outlined_radio" color="success" />
-                      <VRadio v-model="order" value="1" label="Sudah Verif" name="outlined_radio" color="info" />
+                      <VRadio v-model="order" value="0" label="Belum Verif" name="outlined_radio"
+                        color="success" />
+                      <VRadio v-model="order" value="1" label="Sudah   Verif" name="outlined_radio"
+                        color="info" />
                     </VCard>
                     <VPlaceholderPage :class="[dataAlatKalibrasi.length !== 0 && 'is-hidden']"
                       title="Tidak Ada Alat Hari Ini." subtitle="Silakan Pilih Tanggal" larger>
@@ -139,7 +141,7 @@
                                     </VIconButton>
                                   </RouterLink> -->
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
-                                    circle icon="pi pi-check-circle" v-if="item.statusorderpenyelia == 0"
+                                    circle icon="pi pi-check-circle" v-if="item.statusorderpelaksana == 0"
                                     @click="orderVerify(item)" style="margin-right: 15px;" />
                                   <VIconButton color="primary" circle icon="pi pi-ellipsis-v" raised
                                     @click="toggleOP($event, item)" v-tooltip.bottom.left="'TINDAKAN'">
@@ -160,93 +162,8 @@
           </div>
         </div>
       </div>
-
-      <div class="column is-4">
-        <VCard>
-          <VIconButton circle class="is-pulled-right" icon="feather:refresh-cw" raised bold @click="fetchDataChart()"
-            :loading="isLoadingCall" />
-          <div class="dashboard-card is-gauge">
-            <div class="column border-custom mb-2">
-              <span style="font-weight: bold; font-size: 16px; font-family: var(--font-alt);">Grafik
-              </span>
-            </div>
-            <ApexChart id="apex-chart-22" :height="270" :type="'pie'" :series="chartStatus.series"
-              :options="chartStatus">
-            </ApexChart>
-          </div>
-        </VCard>
-        <UIWidget class="search-widget" style="margin-top: 1.7rem;">
-          <template #body>
-            <div class="field">
-              <div class="control">
-                <input v-model="filters" class="input custom-text-filter" placeholder="Cari Pelaksana" />
-                <button class="searcv-button" @click="fetchJadwalDokter()">
-                  <i aria-hidden="true" class="iconify" data-icon="feather:search"></i>
-                </button>
-              </div>
-            </div>
-          </template>
-        </UIWidget>
-
-        <div class="column border-custom mb-2 mt-5-min">
-          <span style="font-weight: bold; font-size: 16px; font-family: var(--font-alt);">Pelaksana
-          </span>
-        </div>
-        <div class="tile-grid tile-grid-v2">
-          <VPlaceholderPage :class="[dataDokter.length !== 0 && 'is-hidden']" title="Tidak Ada Pelaksana." larger>
-            <template #image>
-              <img class="light-image" src="/@src/assets/illustrations/placeholders/search-4.png" alt="" />
-              <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
-            </template>
-          </VPlaceholderPage>
-
-          <!--Tile Grid v1-->
-
-          <div name="list" tag="div" class="columns is-multiline">
-            <!--Grid item-->
-            <div class="columns is-multiline p-2" style="max-height:500px;overflow: auto;">
-              <div v-for="item in dataDokter" :key="item.id" class="column is-12 p-0 pb-2 pl-2 pr-2 ">
-                <div class="tile-grid-item">
-                  <div class="tile-grid-item-inner">
-                    <VAvatar size="small" picture="/images/avatars/svg/dokter.svg" color="primary" bordered />
-                    <div class="meta">
-                      <span class="dark-inverted text-elipsis-wrap" style="width:200px !important">{{ item.namalengkap
-                      }}</span>
-                      <span>
-                        <i aria-hidden="true" class="iconify" data-icon="feather:clock" style="padding-right: 3px;"></i>
-                        {{ item.jammulai }} s.d {{ item.jamakhir }}</span>
-                    </div>
-                    <VTag style="margin-left: auto;" color="info" label="Tag Label" rounded elevated> {{ item.hari }}
-                    </VTag>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
     </div>
   </div>
-
-  <Dialog v-model:visible="modalChangeDokter" modal header="Form Ubah Dokter" :style="{ width: '25vw' }">
-    <div class="column">
-      <span style="font-weight: 500;">Dokter </span>
-      <VField class="is-autocomplete-select pt-3">
-        <VControl icon="feather:search">
-          <AutoComplete v-model="item.dokterPemeriksa" :suggestions="d_Dokter" @complete="fetchDokter($event)"
-            :optionLabel="'label'" :dropdown="true" :minLength="3" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
-            :field="'label'" placeholder="ketik Nama Dokter" />
-        </VControl>
-      </VField>
-    </div>
-    <template #footer>
-      <VButton color="danger" icon="pi pi-times" outlined raised @click="modalChangeDokter = false"> Batal </VButton>
-      <VButton color="primary" icon="pi pi-check" raised @click="saveChangeDokter()" :loading="btnLoadSimpan"> Update
-      </VButton>
-    </template>
-  </Dialog>
-
   <Dialog v-model:visible="modalPenanda" modal header="Form Penanda Pasien" :style="{ width: '50vw' }">
     <div class="column">
       <span style="font-weight: 500;">Penanda Pasien </span> <br>
@@ -306,41 +223,21 @@
         :loading="btnLoadSimpan"> Update </VButton>
     </template>
   </Dialog>
-
-
-  <Dialog v-model:visible="modalPesanRuangan" modal header="Form Pesan Ruangan" :style="{ width: '25vw' }">
-    <div class="column">
-      <span style="font-weight: 500;">Pesan Ruangan Ranap</span>
-      <VField class="is-autocomplete-select pt-3">
-        <VControl icon="fas fa-bed">
-          <AutoComplete v-model="item.ruangPesanan" :suggestions="d_Ranap" @complete="fetchRanap($event)"
-            :optionLabel="'label'" :dropdown="true" :minLength="3" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
-            :field="'label'" placeholder="ketik Ruangan" />
-        </VControl>
-      </VField>
-    </div>
-    <template #footer>
-      <VButton color="danger" icon="pi pi-times" outlined raised @click="modalPesanRuangan = false"> Batal </VButton>
-      <VButton color="primary" icon="pi pi-check" raised @click="savePesanRuangan()" :loading="btnLoadSimpan"> Pesan
-      </VButton>
-    </template>
-  </Dialog>
-
   <OverlayPanel ref="op" appendTo="body" style="width:300px">
     <div class="columns is-multiline">
-      <div class="column is-6 pt-1 pb-1">
+      <!-- <div class="column is-6 pt-1 pb-1">
         <VButton type="button" icon="fas fa-print" class="w-100" light circle outlined color="success" raised
           @click="cetakSEP()">
           Cetak SEP
         </VButton>
-      </div>
-      <div class="column is-6 pt-1 pb-1">
+      </div> -->
+      <div class="column is-12 pt-1 pb-1">
         <VButton type="button" icon="fas fa-pen" class="w-100" light circle outlined color="warning" raised
           @click="openModalDpjp()">
-          Ubah DPJP
+          Form Lembar Kerja
         </VButton>
       </div>
-      <div class="column is-12 pt-1 pb-1">
+      <!-- <div class="column is-12 pt-1 pb-1">
         <VButton type="button" icon="lucide:tag" class="w-100" light circle outlined color="purple" raised
           @click="openModalPenanda()">
           Penanda Pasien
@@ -357,8 +254,8 @@
           @click="openModalPesanRuangan()">
           Pesan Ruangan
         </VButton>
-      </div>
-      <div class="column is-12 pt-1">
+      </div> -->
+      <!-- <div class="column is-12 pt-1">
         <VButton type="button" icon="feather:log-in" class="w-100" circle outlined color="danger" raised
           v-if="selectedItem.tglpulang == null" @click="PulangPindah">
           Pulang atau Pindah
@@ -379,7 +276,7 @@
           @click="kirimWASuratKeteranganDokter(selectedItem)">
           Kirim WA Surat Dokter
         </VButton>
-      </div>
+      </div> -->
     </div>
 
   </OverlayPanel>
@@ -488,7 +385,7 @@ import { state, socket } from "/@src/socket.js";
 import * as qzService from '/@src/utils/qzTrayService'
 
 useHead({
-  title: 'Dashboard Penyelia - ' + import.meta.env.VITE_PROJECT,
+  title: 'Dashboard Pelaksana - ' + import.meta.env.VITE_PROJECT,
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
 useViewWrapper().setFullWidth(false)
@@ -522,14 +419,14 @@ const route = useRoute()
 const rowGroupMetadata = ref({})
 const selectedItem: any = ref({})
 const isLoadingPop: any = ref(false)
-const order: any = ref(0)
 let modalDetailOrder: any = ref(false)
 let isLoadDataOrder: any = ref(false)
 let isLoadingSave: any = ref(false)
 let detailOrderLayanan: any = ref(0)
+const order: any = ref(0)
 const item: any = ref({
   aktif: true,
-  fStatusOrder: 0,
+  fStatusVerif: 0,
   filterTgl: reactive({
     start: new Date(),
     end: new Date(),
@@ -543,22 +440,10 @@ const currentPage: any = ref({
   limit: 5,
   rows: 50,
 })
-let ID_RUANGAN = useRoute().query.id as string
 let dataSource: any = ref([])
-let dataStok: any = ref([])
-let dataObat: any = ref([])
-let dataDokter: any = ref([])
 let dataAlatKalibrasi: any = ref([])
-let dataReservasi: any = ref([])
-let d_Ruangan: any = ref([])
-let d_Ranap: any = ref([])
-let d_Dokter: any = ref([])
 let isLoading: any = ref(false)
 let isLoadingTT: any = ref(false)
-let chartStatus: any = ref({
-  series: [],
-})
-let countRuangan: any = ref([])
 const filters = ref('')
 
 const fetchAlatKalibrasi = async (q: any) => {
@@ -572,18 +457,18 @@ const fetchAlatKalibrasi = async (q: any) => {
   }
   let status = ''
 
-  let statusorderpenyelia = ''
+  let statusorderpelaksana = ''
     , search = ''
-  item.value.statusorderpenyelia = q
-  if (order) statusorderpenyelia = '&statusorderpenyelia=' + q
+  item.value.statusorderpelaksana = q
+  if (order) statusorderpelaksana = '&statusorderpelaksana=' + q
   if (item.value.qsearch) search = item.value.qsearch
   isLoading.value = true
   dataAlatKalibrasi.value = []
   const response = await useApi().get(
-    '/penyelia/get-alat-penyelia?dari=' + dari
+    '/pelaksana/get-alat-pelaksana?dari=' + dari
     + '&sampai=' + sampai
     + '&search=' + search
-    + statusorderpenyelia
+    + statusorderpelaksana
   )
   isLoading.value = false
   response.data.sort(compare);
@@ -601,7 +486,7 @@ const orderVerify = async (e: any) => {
   item.value.norec_detail = e.norec_detail
   // getListPelayanan(data)
   isLoadDataOrder.value = true
-  const response = await useApi().get(`/penyelia/layanan-verif-penyelia?norec_pd=${e.norec}`)
+  const response = await useApi().get(`/pelaksana/layanan-verif-pelaksana?norec_pd=${e.norec}`)
   response.detail.forEach((element: any, i: any) => {
     element.no = i + 1
   });
@@ -622,7 +507,7 @@ const save = async (e: any) => {
     }
   }
   isLoadingSave.value = true
-  await useApi().post('/penyelia/save-verif', json).then((r) => {
+  await useApi().post('/pelaksana/save-verif', json).then((r) => {
     isLoadingSave.value = false
     modalDetailOrder.value = false
     fetchAlatKalibrasi(0)
@@ -654,82 +539,11 @@ const compare = (a: any, b: any) => {
   return 0;
 }
 
-const fetchJadwalDokter = async () => {
-  let ruanganid = ''
-  if (item.value.filterRuangan) {
-    ruanganid = item.value.filterRuangan
+const klikTab = (e: any) => {
+  activeTab.value = e.index
+  if (activeTab.value == 0) {
+    fetchAlatKalibrasi(0)
   }
-  let namaDokter = ''
-  if (filters.value != undefined) {
-    namaDokter = filters.value
-  }
-  dataDokter.value = []
-  dataStok.value = []
-
-  const response = await useApi().get(
-    '/dashboard/igd-detail?ruanganid=' + ruanganid + '&namadokter=' + namaDokter + '&limit=10'
-  )
-  dataDokter.value = response.dokter
-  dataStok.value = response.produk
-}
-
-const fetchDataChart = async () => {
-  let dari = ''
-  if (item.value.filterTgl.start) {
-    dari = H.formatDate(item.value.filterTgl.start, 'YYYY-MM-DD')
-  }
-  let sampai = ''
-  if (item.value.filterTgl.end) {
-    sampai = H.formatDate(item.value.filterTgl.end, 'YYYY-MM-DD')
-  }
-  let ruanganid = ''
-  if (item.value.filterRuangan) {
-    ruanganid = item.value.filterRuangan
-  }
-  isLoadingCall.value = true
-  await useApi()
-    .get(`/dashboard/get-pelayanan-igd?ruanganid=${ruanganid}&dari=${dari}&sampai=${sampai}`)
-    .then((response: any) => {
-      isLoadingCall.value = false
-      chart.value = response
-      chartStatus.value = {
-        series: response.chartStatus.series,
-        chart: {
-          height: 300,
-          type: 'pie',
-        },
-        colors: [
-          'rgb(250, 173, 66)',
-          'rgb(3, 152, 226)',
-          'rgb(230, 41, 100)',
-          themeColors.purple,
-          themeColors.orange,
-        ],
-        labels: response.chartStatus.labels,
-        responsive: [
-          {
-            breakpoint: 270,
-            options: {
-              chart: {
-                width: 300,
-                toolbar: {
-                  show: false,
-                },
-              },
-              legend: {
-                position: 'bottom',
-              },
-            },
-          },
-        ],
-        legend: {
-          position: 'bottom',
-          horizontalAlign: 'center',
-        },
-      }
-      countRuangan.value = response
-      countRuangan.value.total = response.length
-    })
 }
 
 const emr = (e: any) => {
@@ -744,72 +558,33 @@ const emr = (e: any) => {
   })
 }
 
-const updateRowGroupMetaData = () => {
-  rowGroupMetadata.value = {};
-
-  if (dataAlatKalibrasi.value) {
-    for (let i = 0; i < dataAlatKalibrasi.value.length; i++) {
-      let rowData = dataAlatKalibrasi.value[i];
-      let lingkupkalibrasi = rowData.lingkupkalibrasi;
-
-      if (i == 0) {
-        rowGroupMetadata.value[lingkupkalibrasi] = { index: 0, size: 1 };
-      }
-      else {
-        let previousRowData = dataAlatKalibrasi.value[i - 1];
-        let previousRowGroup = previousRowData.lingkupkalibrasi;
-        if (lingkupkalibrasi === previousRowGroup) {
-          rowGroupMetadata.value[lingkupkalibrasi].size++;
-        }
-        else {
-          rowGroupMetadata.value[lingkupkalibrasi] = { index: i, size: 1 };
-        }
-      }
-    }
-  }
-}
-
-const fetchDokter = async (filter: any) => {
-  await useApi().get(
-    `emr/dropdown/pegawai_m?select=id,namalengkap&param_search=namalengkap&query=${filter.query}&settingdatafix=objectjenispegawaifk,idJenisPegawaiDokter&limit=10`
-  ).then((response) => {
-    d_Dokter.value = response
-  })
-}
 
 const toggleOP = (event: any, item: any) => {
   selectedItem.value = item
   op.value.toggle(event);
 }
 
+const openModalDpjp = (data: any) => {
+  modalChangeDokter.value = true
+  item.value.dokterPemeriksa = selectedItem.value.objectpegawaifk ? { value: selectedItem.value.objectpegawaifk, label: selectedItem.value.namalengkap } : ''
+}
+
+const openModalPenanda = (data: any) => {
+  modalPenanda.value = true
+  item.value.modalPenanda = selectedItem.value.penanda
+  item.value.modalPenandaUsia = selectedItem.value.kategoriUsia
+  item.value.modalPenandaInsiden = selectedItem.value.kategoriInsiden
+}
+
+const openModalPesanRuangan = (data: any) => {
+  modalPesanRuangan.value = true
+  item.value.ruangPesanan = selectedItem.value.ruangannextschedule ? { value: selectedItem.value.ruangannextschedule, label: selectedItem.value.namaruanganpesanan } : ''
+}
 
 const cetakSEP = (e: any) => {
   isbtnLoadPrint.value = true
   qzService.printData('registrasi/pemakaian-asuransi/sep?noregistrasi=' + selectedItem.value.noregistrasi + "&pdf=true", 'SEP', 1)
   isbtnLoadPrint.value = false
-}
-
-
-const PulangPindah = async () => {
-  router.push({
-    name: 'module-rawat-inap-pindah-pulang',
-    query: {
-      nocmfk: selectedItem.value.nocmfk,
-      norec_pd: selectedItem.value.norec_pd,
-      departemenfk: selectedItem.value.objectdepartemenfk
-    },
-  })
-}
-
-
-
-const cetakSuratKeteranganDokter = async (e: any) => {
-  let dokter = `&dokter=${e.namalengkap}`
-  let kelompokpasien = `&kelompokpasien=${e.kelompokpasien}`
-  let objectdepartemenfk = `&objectdepartemenfk=9`
-  let tglregistrasi = `&tglregistrasi=${e.tglregistrasi}`
-  let norec_pd = `&norec_pd=${e.norec_pd}`
-  H.printBlade(`dashboard/registrasi/cetak-surat-keterangan-dokter?noregistrasi=${e.noregistrasi}${dokter}${kelompokpasien}${objectdepartemenfk}${tglregistrasi}${norec_pd}`);
 }
 
 const kirimWASuratKeteranganDokter = async (e: any) => {
@@ -840,24 +615,47 @@ const kirimWASuratKeteranganDokter = async (e: any) => {
   }
 }
 
+const updateRowGroupMetaData = () => {
+  rowGroupMetadata.value = {};
+
+  if (dataAlatKalibrasi.value) {
+    for (let i = 0; i < dataAlatKalibrasi.value.length; i++) {
+      let rowData = dataAlatKalibrasi.value[i];
+      let lingkupkalibrasi = rowData.lingkupkalibrasi;
+
+      if (i == 0) {
+        rowGroupMetadata.value[lingkupkalibrasi] = { index: 0, size: 1 };
+      }
+      else {
+        let previousRowData = dataAlatKalibrasi.value[i - 1];
+        let previousRowGroup = previousRowData.lingkupkalibrasi;
+        if (lingkupkalibrasi === previousRowGroup) {
+          rowGroupMetadata.value[lingkupkalibrasi].size++;
+        }
+        else {
+          rowGroupMetadata.value[lingkupkalibrasi] = { index: i, size: 1 };
+        }
+      }
+    }
+  }
+}
+
+
 const changeSwitch = (e: any) => {
-  fetchAlatKalibrasi(e)
+    fetchAlatKalibrasi(e)
 }
 
 
 watch(
-  () => [
-    order.value
-  ], () => {
-    changeSwitch(order.value)
-  }
+    () => [
+        order.value
+    ], () => {
+        changeSwitch(order.value)
+    }
 )
 
-
 fetchAlatKalibrasi(0)
-fetchDataChart()
 </script>
-
 <style lang="scss">
 @import '/@src/scss/abstracts/all';
 @import '/@src/scss/custom/config';

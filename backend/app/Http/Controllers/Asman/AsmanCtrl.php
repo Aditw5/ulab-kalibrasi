@@ -188,7 +188,6 @@ class AsmanCtrl extends Controller
         return $this->respond($result);
     }
 
-
     public function saveVerifItem(Request $r)
     {
         DB::beginTransaction();
@@ -204,6 +203,8 @@ class AsmanCtrl extends Controller
                     'pelaksanateknikfk' => $VI['pelaksana'],
                     'durasikalbrasi' => $VI['durasikalbrasi'],
                     'asmanveriffk' => $this->getUserId(),
+                    'statusorderpelaksana' => 0,
+                    'statusorderpenyelia' => 0,
                 ]);
 
             $transMessage = "Simpan Verif Item Sukses";
@@ -235,7 +236,7 @@ class AsmanCtrl extends Controller
             DB::table('mitraregistrasi_t')
                 ->where('norec', $VI['norec'])
                 ->update([
-                    'statusorder' => true,
+                    'statusorder' => 1,
                     'asmanveriffk' => $this->getPegawaiId(),
                 ]);
 

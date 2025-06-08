@@ -23,6 +23,7 @@ use App\Http\Controllers\Registrasi\PasienCtrl;
 use App\Http\Controllers\Registrasi\MitraCtrl;
 use App\Http\Controllers\Asman\AsmanCtrl;
 use App\Http\Controllers\Penyelia\PenyeliaCtrl;
+use App\Http\Controllers\Pelaksana\PelaksanaCtrl;
 use App\Http\Controllers\Farmasi\InputResepCtrl;
 use App\Http\Controllers\Farmasi\OrderResepCtrl;
 use App\Http\Controllers\Logistik\KartuStokCtrl;
@@ -595,6 +596,14 @@ Route::middleware(['log'])->group(function () {
 
     Route::controller(PenyeliaCtrl::class)->group(function () {
         Route::get('penyelia/get-alat-penyelia', 'getAlatPenyelia');
+        Route::get('penyelia/layanan-verif-penyelia', 'LayananVerifPenyelia');
+        Route::post('penyelia/save-verif', 'saveVerif');
+    });
+
+    Route::controller(PelaksanaCtrl::class)->group(function () {
+        Route::get('pelaksana/get-alat-pelaksana', 'getAlatPelaksana');
+        Route::get('pelaksana/layanan-verif-pelaksana', 'LayananVerifPelaksana');
+        Route::post('pelaksana/save-verif', 'saveVerif');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {
