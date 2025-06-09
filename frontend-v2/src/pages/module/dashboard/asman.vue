@@ -690,21 +690,33 @@ const orderVerify = async (e: any) => {
     detailOrderLayanan.value = response.detail
 }
 
-const getDetailVerify = async (e: any) => {
-    console.log(e)
-    isLoadDataSoNorec = false
-    item.value.inisial = e.initials
-    item.value.tglregistrasi = e.tglregistrasi
 
-    modalDetailOrderVerify.value = true
-    // const response = await useApi().get(`/dashboard/radiologi/get-order-verify?norec_so=${e.norec}`)
-    // const diagnosa = await useApi().get(`/dashboard/radiologi?tglAwal=${e.tglregistrasi}&tglAkhir=${e.tglregistrasi}&statusorder=${statusOrder.value}&noorder=${e.noorder}`)
-    // detailDiagnosa.value = diagnosa ? diagnosa[0].detailDiagnosa : ''
-    // response.forEach((element: any, i: any) => {
-    //     element.no = i + 1
-    // });
-    // detailOrderVerify.value = response
+const getDetailVerify = (e: any) => {
+    console.log(e)
+
+  router.push({
+    name: 'module-asman-detail-registrasi',
+    query: {
+      norec_pd: e.iddetail,
+    },
+  })
 }
+
+// const getDetailVerify = async (e: any) => {
+//     console.log(e)
+//     isLoadDataSoNorec = false
+//     item.value.inisial = e.initials
+//     item.value.tglregistrasi = e.tglregistrasi
+
+//     modalDetailOrderVerify.value = true
+//     // const response = await useApi().get(`/dashboard/radiologi/get-order-verify?norec_so=${e.norec}`)
+//     // const diagnosa = await useApi().get(`/dashboard/radiologi?tglAwal=${e.tglregistrasi}&tglAkhir=${e.tglregistrasi}&statusorder=${statusOrder.value}&noorder=${e.noorder}`)
+//     // detailDiagnosa.value = diagnosa ? diagnosa[0].detailDiagnosa : ''
+//     // response.forEach((element: any, i: any) => {
+//     //     element.no = i + 1
+//     // });
+//     // detailOrderVerify.value = response
+// }
 
 const edit = (e: any) => {
     item.value.lokasikalibrasi = {
