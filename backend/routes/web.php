@@ -600,12 +600,14 @@ Route::middleware(['log'])->group(function () {
         Route::get('penyelia/get-alat-penyelia', 'getAlatPenyelia');
         Route::get('penyelia/layanan-verif-penyelia', 'LayananVerifPenyelia');
         Route::post('penyelia/save-verif', 'saveVerif');
+        Route::get('penyelia/detail-produk', 'detailProduk');
     });
 
     Route::controller(PelaksanaCtrl::class)->group(function () {
         Route::get('pelaksana/get-alat-pelaksana', 'getAlatPelaksana');
         Route::get('pelaksana/layanan-verif-pelaksana', 'LayananVerifPelaksana');
         Route::post('pelaksana/save-verif', 'saveVerif');
+        Route::get('pelaksana/detail-produk', 'detailProduk');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {

@@ -247,4 +247,87 @@ class PelaksanaCtrl extends Controller
 
         return $this->respond($result['result'], $result['status'], $transMessage);
     }
+
+    public function detailProduk(Request $r)
+    {
+        $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtrd.asmanveriffk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->select(
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.durasikalbrasi',
+                'mtrd.namafile',
+                'mtrd.keterangan',
+                'mtrd.statusorderasman',
+                'mtrd.statusorderpenyelia',
+                'mtrd.statusorderpelaksana',
+                'mtrd.tglverifasman',
+                'mtrd.tglverifpenyelia',
+                'mtrd.tglverifpelaksana',
+                'prd.namaproduk',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'mt.namaperusahaan',
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as asmanfk',
+                'pg3.namalengkap as asamanverifikasi',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.norec', $r['norec_pd'])
+            ->orderByDesc('prd.namaproduk')
+            ->get();
+
+        $asman = [];
+        $penyelia = [];
+        $pelaksana = [];
+
+        foreach ($data as $item) {
+            if ($item->statusorderasman == 1 && !is_null($item->tglverifasman)) {
+                $asman[] = $item;
+            }
+            if ($item->statusorderpenyelia == 1 && !is_null($item->tglverifpenyelia)) {
+                $penyelia[] = $item;
+            }
+            if ($item->statusorderpelaksana == 1 && !is_null($item->tglverifpelaksana)) {
+                $pelaksana[] = $item;
+            }
+        }
+
+        $result = [
+            'length' => count($data),
+            'verif_asman' => $asman,
+            'verif_penyelia' => $penyelia,
+            'verif_pelaksana' => $pelaksana,
+            'as' => '@adit'
+        ];
+
+        return $this->respond($result);
+    }
 }

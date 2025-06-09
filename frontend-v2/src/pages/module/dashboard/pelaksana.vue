@@ -56,15 +56,14 @@
                         <input type="text" placeholder="Cari Nama Alat" v-model="item.qsearch"
                           v-on:keyup.enter="fetchAlatKalibrasi(order)" />
                       </div>
-                      <VButton raised class="search-button-igd" @click="fetchAlatKalibrasi(order)" :loading="isLoading"> Cari
+                      <VButton raised class="search-button-igd" @click="fetchAlatKalibrasi(order)" :loading="isLoading">
+                        Cari
                         Data
                       </VButton>
                     </div>
                     <VCard class="text-center pt-0 pb-0 mt-0">
-                      <VRadio v-model="order" value="0" label="Belum Verif" name="outlined_radio"
-                        color="success" />
-                      <VRadio v-model="order" value="1" label="Sudah   Verif" name="outlined_radio"
-                        color="info" />
+                      <VRadio v-model="order" value="0" label="Belum Verif" name="outlined_radio" color="success" />
+                      <VRadio v-model="order" value="1" label="Sudah   Verif" name="outlined_radio" color="info" />
                     </VCard>
                     <VPlaceholderPage :class="[dataAlatKalibrasi.length !== 0 && 'is-hidden']"
                       title="Tidak Ada Alat Hari Ini." subtitle="Silakan Pilih Tanggal" larger>
@@ -127,22 +126,25 @@
                               </div>
                               <div class="meta-right flex justify-center items-center">
                                 <div class="buttons">
-                                  <!-- <RouterLink :to="{
+                                  <RouterLink :to="{
                                     // H.cacheHelper().set('xxx_cache_menu', undefined)
-                                    name: 'module-emr-profile-pasien',
+                                    name: 'module-pelaksana-lembar-kerja',
                                     query: {
                                       nocmfk: item.nocmfk,
                                       norec_pd: item.norec_pd,
                                       norec_apd: item.norec_apd,
                                     }
                                   }">
-                                    <VIconButton color="primary" circle icon="fas fa-stethoscope" outlined raised
-                                      @click="emr(item)" v-tooltip.bottom.left="'EMR'">
-                                    </VIconButton>
-                                  </RouterLink> -->
+                                    <VIconButton v-if="item.statusorderpelaksana == 1" color="info" circle
+                                      icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
+                                      v-tooltip.bottom.left="'Lembar Kerja'" />
+                                  </RouterLink>
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
                                     circle icon="pi pi-check-circle" v-if="item.statusorderpelaksana == 0"
-                                    @click="orderVerify(item)" style="margin-right: 15px;" />
+                                    @click="orderVerify(item)" style="margin-right: 20px;" />
+                                  <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity" v-if="item.statusorderpelaksana == 1"
+                                    @click="detailOrder(item)" color="info" raised circle class="ml-2 mr-2">
+                                  </VIconButton>
                                   <VIconButton color="primary" circle icon="pi pi-ellipsis-v" raised
                                     @click="toggleOP($event, item)" v-tooltip.bottom.left="'TINDAKAN'">
                                   </VIconButton>
@@ -164,65 +166,6 @@
       </div>
     </div>
   </div>
-  <Dialog v-model:visible="modalPenanda" modal header="Form Penanda Pasien" :style="{ width: '50vw' }">
-    <div class="column">
-      <span style="font-weight: 500;">Penanda Pasien </span> <br>
-      <div class="flex gap-4 my-2">
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenanda" inputId="bedah" name="bedah" value="bedah" />
-          <label for="bedah" class="mx-2">Bedah</label>
-        </div>
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenanda" inputId="non-bedah" name="non-bedah" value="non-bedah" />
-          <label for="non-bedah" class="mx-2">Non Bedah</label>
-        </div>
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenanda" inputId="kebidanan" name="kebidanan" value="kebidanan" />
-          <label for="kebidanan" class="mx-2">Kebidanan</label>
-        </div>
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenanda" inputId="psikiatri" name="psikiatri" value="psikiatri" />
-          <label for="psikiatri" class="mx-2">Psikiatri</label>
-        </div>
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenanda" inputId="geriatri" name="geriatri" value="geriatri" />
-          <label for="geriatri" class="mx-2">Geriatri</label>
-        </div>
-      </div>
-      <span style="font-weight: 500;">Kategori Usia </span> <br>
-      <div class="flex gap-4 my-2">
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenandaUsia" inputId="bayi" name="bayi" value="bayi" />
-          <label for="bayi" class="mx-2">Bayi</label>
-        </div>
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenandaUsia" inputId="anak" name="anak" value="anak" />
-          <label for="anak" class="mx-2">Anak</label>
-        </div>
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenandaUsia" inputId="dewasa" name="dewasa" value="dewasa" />
-          <label for="dewasa" class="mx-2">Dewasa</label>
-        </div>
-      </div>
-      <span style="font-weight: 500;">Kategori Insiden </span> <br>
-      <div class="flex gap-4 my-2">
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenandaInsiden" inputId="kecelakaan" name="kecelakaan" value="kecelakaan" />
-          <label for="kecelakaan" class="mx-2">Kecelakaan</label>
-        </div>
-        <div class="flex align-items-center">
-          <RadioButton v-model="item.modalPenandaInsiden" inputId="non-kecelakaan" name="non-kecelakaan"
-            value="non-kecelakaan" />
-          <label for="non-kecelakaan" class="mx-2">Non Kecelakaan</label>
-        </div>
-      </div>
-    </div>
-    <template #footer>
-      <VButton color="danger" icon="pi pi-times" outlined raised @click="modalPenanda = false"> Batal </VButton>
-      <VButton color="primary" icon="pi pi-check" class="ml-2" raised @click="savePenandaPasien()"
-        :loading="btnLoadSimpan"> Update </VButton>
-    </template>
-  </Dialog>
   <OverlayPanel ref="op" appendTo="body" style="width:300px">
     <div class="columns is-multiline">
       <!-- <div class="column is-6 pt-1 pb-1">
@@ -231,12 +174,12 @@
           Cetak SEP
         </VButton>
       </div> -->
-      <div class="column is-12 pt-1 pb-1">
+      <!-- <div class="column is-12 pt-1 pb-1">
         <VButton type="button" icon="fas fa-pen" class="w-100" light circle outlined color="warning" raised
-          @click="openModalDpjp()">
+          @click="emr()">
           Form Lembar Kerja
         </VButton>
-      </div>
+      </div> -->
       <!-- <div class="column is-12 pt-1 pb-1">
         <VButton type="button" icon="lucide:tag" class="w-100" light circle outlined color="purple" raised
           @click="openModalPenanda()">
@@ -361,6 +304,105 @@
       </VButton>
     </template>
   </VModal>
+  <VModal :open="modalRiwayat" noclose size="big" actions="right" @close="modalRiwayat = false, clear()"
+    cancelLabel="Tutup">
+    <template #content>
+      <div class="business-dashboard hr-dashboard">
+        <div class="columns is-multiline">
+          <div class="column is-12 p-0">
+            <div class="illustration-header-2">
+              <div class="left column is-12 ">
+                <div class="header-meta">
+                  <h3>{{ item.namaproduk }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="column is-12">
+        <Fieldset legend="Data Alat" :toggleable="true">
+          <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataDeatilOrder">
+            <div class="columns is-multiline">
+              <div class="column is-2" style="margin-top: 27px;">
+                <VPlaceload class="mx-2" />
+              </div>
+              <div class="column">
+                <VPlaceloadText :lines="4" width="75%" last-line-width="20%" />
+              </div>
+
+            </div>
+          </div>
+          <div class="timeline-wrapper" v-else>
+            <div class="timeline-wrapper-inner">
+              <div class="timeline-container">
+                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItem" :key="items.norec">
+                  <div class="date">
+                    <span>{{ H.formatDateIndo(items.tglverifasman) }}</span>
+                  </div>
+                  <div :class="'dot is-' + listColor[index + 1]"></div>
+
+                  <div class="content-wrap is-grey">
+                    <div class="content-box">
+                      <div class="status"></div>
+                      <div class="box-text" style="width:70%">
+                        <div class="meta-text">
+                          <p>
+                            <span>Diverifikasi Oleh Asman : {{ items.asamanverifikasi }}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItemPenyelia"
+                  :key="items.norec">
+                  <div class="date">
+                    <span>{{ H.formatDateIndo(items.tglverifpenyelia) }}</span>
+                  </div>
+                  <div :class="'dot is-' + listColor[index + 1]"></div>
+                  <div class="content-wrap is-grey">
+                    <div class="content-box">
+                      <div class="status"></div>
+                      <div class="box-text" style="width:70%">
+                        <div class="meta-text">
+                          <p>
+                            <span>Diverifikasi Oleh Penyelia Teknik : {{ items.penyeliateknik }}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItemPelaksana"
+                  :key="items.norec">
+                  <div class="date">
+                    <span>{{ H.formatDateIndo(items.tglverifpelaksana) }}</span>
+                  </div>
+                  <div :class="'dot is-' + listColor[index + 1]"></div>
+
+                  <div class="content-wrap is-grey">
+                    <div class="content-box">
+                      <div class="status"></div>
+                      <div class="box-text" style="width:70%">
+                        <div class="meta-text">
+                          <p>
+                            <span> Diverifikasi Oleh Pelaksana Teknik : {{ items.pelaksanateknik }}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Fieldset>
+      </div>
+    </template>
+    <template #action>
+    </template>
+  </VModal>
 </template>
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
@@ -420,9 +462,14 @@ const rowGroupMetadata = ref({})
 const selectedItem: any = ref({})
 const isLoadingPop: any = ref(false)
 let modalDetailOrder: any = ref(false)
+let modalRiwayat: any = ref(false)
 let isLoadDataOrder: any = ref(false)
 let isLoadingSave: any = ref(false)
 let detailOrderLayanan: any = ref(0)
+let isLoadDataDeatilOrder: any = ref(false)
+let detailOrderItem: any = ref(0)
+let detailOrderItemPenyelia: any = ref(0)
+let detailOrderItemPelaksana: any = ref(0)  
 const order: any = ref(0)
 const item: any = ref({
   aktif: true,
@@ -494,6 +541,19 @@ const orderVerify = async (e: any) => {
   detailOrderLayanan.value = response.detail
 }
 
+const detailOrder = async (e: any) => {
+  console.log(e)
+  modalRiwayat.value = true
+  item.value.namaproduk = e.namaproduk
+  isLoadDataDeatilOrder.value = true
+  const response = await useApi().get(`/pelaksana/detail-produk?norec_pd=${e.norec_detail}`)
+  detailOrderItem.value = response.verif_asman
+  detailOrderItemPenyelia.value = response.verif_penyelia
+  detailOrderItemPelaksana.value = response.verif_pelaksana
+  isLoadDataDeatilOrder.value = false
+}
+
+
 const filter = async () => {
   item.isDate = false;
   fetchAlatKalibrasi();
@@ -546,10 +606,10 @@ const klikTab = (e: any) => {
   }
 }
 
-const emr = (e: any) => {
+const lembarKerja = (e: any) => {
   H.cacheHelper().set('xxx_cache_menu', undefined)
   router.push({
-    name: 'module-emr-profile-pasien',
+    name: 'module-pelaksana-lembar-kerja',
     query: {
       nocmfk: e.nocmfk,
       norec_pd: e.norec_pd,
@@ -642,16 +702,16 @@ const updateRowGroupMetaData = () => {
 
 
 const changeSwitch = (e: any) => {
-    fetchAlatKalibrasi(e)
+  fetchAlatKalibrasi(e)
 }
 
 
 watch(
-    () => [
-        order.value
-    ], () => {
-        changeSwitch(order.value)
-    }
+  () => [
+    order.value
+  ], () => {
+    changeSwitch(order.value)
+  }
 )
 
 fetchAlatKalibrasi(0)

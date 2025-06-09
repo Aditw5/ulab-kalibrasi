@@ -271,7 +271,6 @@ class AsmanCtrl extends Controller
         return $this->respond($result);
     }
 
-
     public function saveVerifItem(Request $r)
     {
         DB::beginTransaction();
