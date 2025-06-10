@@ -408,29 +408,9 @@
           <div class="timeline-wrapper" v-else>
             <div class="timeline-wrapper-inner">
               <div class="timeline-container">
-                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItem" :key="items.norec">
+                <div class="timeline-item is-unread" v-for="(item, index) in timelineItems" :key="index">
                   <div class="date">
-                    <span>{{ H.formatDateIndo(items.tglverifasman) }}</span>
-                  </div>
-                  <div :class="'dot is-' + listColor[index + 1]"></div>
-
-                  <div class="content-wrap is-grey">
-                    <div class="content-box">
-                      <div class="status"></div>
-                      <div class="box-text" style="width:70%">
-                        <div class="meta-text">
-                          <p>
-                            <span>Diverifikasi Oleh Asman : {{ items.asamanverifikasi }}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItemPenyelia"
-                  :key="items.norec">
-                  <div class="date">
-                    <span>{{ H.formatDateIndo(items.tglverifpenyelia) }}</span>
+                    <span>{{ H.formatDateIndo(item.date) }}</span>
                   </div>
                   <div :class="'dot is-' + listColor[index + 1]"></div>
                   <div class="content-wrap is-grey">
@@ -439,67 +419,9 @@
                       <div class="box-text" style="width:70%">
                         <div class="meta-text">
                           <p>
-                            <span>Diverifikasi Oleh Penyelia Teknik : {{ items.penyeliateknik }}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItemPelaksana"
-                  :key="items.norec">
-                  <div class="date">
-                    <span>{{ H.formatDateIndo(items.tglverifpelaksana) }}</span>
-                  </div>
-                  <div :class="'dot is-' + listColor[index + 1]"></div>
-
-                  <div class="content-wrap is-grey">
-                    <div class="content-box">
-                      <div class="status"></div>
-                      <div class="box-text" style="width:70%">
-                        <div class="meta-text">
-                          <p>
-                            <span> Diverifikasi Oleh Pelaksana Teknik : {{ items.pelaksanateknik }}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item is-unread" v-for="(items, index) in detailIsiLembarKerjaPenyelia"
-                  :key="items.norec">
-                  <div class="date">
-                    <span>{{ H.formatDateIndo(items.tglisilembarkerjapenyelia) }}</span>
-                  </div>
-                  <div :class="'dot is-' + listColor[index + 1]"></div>
-
-                  <div class="content-wrap is-grey">
-                    <div class="content-box">
-                      <div class="status"></div>
-                      <div class="box-text" style="width:70%">
-                        <div class="meta-text">
-                          <p>
-                            <span> Diisi Lembar Kerja Oleh Penyelia Teknik : {{ items.penyeliateknik }}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item is-unread" v-for="(items, index) in detailIsiLembarKerjaPelaksana"
-                  :key="items.norec">
-                  <div class="date">
-                    <span>{{ H.formatDateIndo(items.tglisilembarkerjapelaksana) }}</span>
-                  </div>
-                  <div :class="'dot is-' + listColor[index + 1]"></div>
-
-                  <div class="content-wrap is-grey">
-                    <div class="content-box">
-                      <div class="status"></div>
-                      <div class="box-text" style="width:70%">
-                        <div class="meta-text">
-                          <p>
-                            <span> Diisi Lembar Kerja Oleh Pelaksana Teknik : {{ items.pelaksanateknik }}</span>
+                            <span>
+                              {{ item.type }} : {{ item.nama }}
+                            </span>
                           </p>
                         </div>
                       </div>
@@ -564,11 +486,7 @@ let isLoadingSave: any = ref(false)
 let detailOrderLayanan: any = ref(0)
 let modalRiwayat: any = ref(false)
 let isLoadDataDeatilOrder: any = ref(false)
-let detailOrderItem: any = ref(0)
-let detailOrderItemPenyelia: any = ref(0)
-let detailOrderItemPelaksana: any = ref(0)
-let detailIsiLembarKerjaPelaksana: any = ref(0) 
-let detailIsiLembarKerjaPenyelia: any = ref(0) 
+const timelineItems = ref([])
 const item: any = ref({
   aktif: true,
   fStatusOrder: 0,
@@ -646,17 +564,12 @@ const orderVerify = async (e: any) => {
   detailOrderLayanan.value = response.detail
 }
 
-const detailOrder = async (e: any) => {
-  console.log(e)
+const detailOrder = async (e) => {
   modalRiwayat.value = true
   item.value.namaproduk = e.namaproduk
   isLoadDataDeatilOrder.value = true
   const response = await useApi().get(`/penyelia/detail-produk?norec_pd=${e.norec_detail}`)
-  detailOrderItem.value = response.verif_asman
-  detailOrderItemPenyelia.value = response.verif_penyelia
-  detailOrderItemPelaksana.value = response.verif_pelaksana
-  detailIsiLembarKerjaPelaksana.value = response.pelaksanaLembarKerja
-  detailIsiLembarKerjaPenyelia.value = response.penyeliaLembarKerja
+  timelineItems.value = response.timeline 
   isLoadDataDeatilOrder.value = false
 }
 
