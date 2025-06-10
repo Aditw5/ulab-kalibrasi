@@ -215,6 +215,10 @@ class AsmanCtrl extends Controller
                 'mtrd.tglverifasman',
                 'mtrd.tglverifpenyelia',
                 'mtrd.tglverifpelaksana',
+                'mtrd.tglisilembarkerjapelaksana',
+                'mtrd.pelaksanaisilembarkerjafk',
+                'mtrd.tglisilembarkerjapenyelia',
+                'mtrd.penyeliaisilembarkerjafk',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -244,27 +248,53 @@ class AsmanCtrl extends Controller
             ->orderByDesc('prd.namaproduk')
             ->get();
 
-        $asman = [];
-        $penyelia = [];
-        $pelaksana = [];
+        $timeline = [];
 
         foreach ($data as $item) {
-            if ($item->statusorderasman == 1 && !is_null($item->tglverifasman)) {
-                $asman[] = $item;
+            if (!is_null($item->tglverifasman)) {
+                $timeline[] = [
+                    'date' => $item->tglverifasman,
+                    'type' => 'Diverifikasi Oleh Asman',
+                    'nama' => $item->asamanverifikasi ?? '-',
+                ];
             }
-            if ($item->statusorderpenyelia == 1 && !is_null($item->tglverifpenyelia)) {
-                $penyelia[] = $item;
+            if (!is_null($item->tglverifpenyelia)) {
+                $timeline[] = [
+                    'date' => $item->tglverifpenyelia,
+                    'type' => 'Diverifikasi Oleh Penyelia Teknik',
+                    'nama' => $item->penyeliateknik ?? '-',
+                ];
             }
-            if ($item->statusorderpelaksana == 1 && !is_null($item->tglverifpelaksana)) {
-                $pelaksana[] = $item;
+            if (!is_null($item->tglverifpelaksana)) {
+                $timeline[] = [
+                    'date' => $item->tglverifpelaksana,
+                    'type' => 'Diverifikasi Oleh Pelaksana Teknik',
+                    'nama' => $item->pelaksanateknik ?? '-',
+                ];
+            }
+            if (!is_null($item->tglisilembarkerjapelaksana)) {
+                $timeline[] = [
+                    'date' => $item->tglisilembarkerjapelaksana,
+                    'type' => 'Diisi Lembar Kerja Oleh Pelaksana Teknik',
+                    'nama' => $item->pelaksanateknik ?? '-',
+                ];
+            }
+            if (!is_null($item->tglisilembarkerjapenyelia)) {
+                $timeline[] = [
+                    'date' => $item->tglisilembarkerjapenyelia,
+                    'type' => 'Diisi Lembar Kerja Oleh Penyelia Teknik',
+                    'nama' => $item->penyeliateknik ?? '-',
+                ];
             }
         }
 
+        usort($timeline, function ($a, $b) {
+            return strtotime($a['date']) <=> strtotime($b['date']);
+        });
+
         $result = [
             'length' => count($data),
-            'verif_asman' => $asman,
-            'verif_penyelia' => $penyelia,
-            'verif_pelaksana' => $pelaksana,
+            'timeline' => $timeline,
             'as' => '@adit'
         ];
 

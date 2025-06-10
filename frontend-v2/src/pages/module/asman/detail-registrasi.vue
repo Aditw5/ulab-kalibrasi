@@ -109,8 +109,8 @@
       </div>
     </div>
   </div>
-  <VModal :open="modalDetailOrder" noclose size="big" actions="right"
-    @close="modalDetailOrder = false, clear()" cancelLabel="Tutup">
+  <VModal :open="modalDetailOrder" noclose size="big" actions="right" @close="modalDetailOrder = false, clear()"
+    cancelLabel="Tutup">
     <template #content>
       <div class="business-dashboard hr-dashboard">
         <div class="columns is-multiline">
@@ -152,29 +152,9 @@
           <div class="timeline-wrapper" v-else>
             <div class="timeline-wrapper-inner">
               <div class="timeline-container">
-                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItem" :key="items.norec">
+                <div class="timeline-item is-unread" v-for="(item, index) in timelineItems" :key="index">
                   <div class="date">
-                    <span>{{ H.formatDateIndo(items.tglverifasman) }}</span>
-                  </div>
-                  <div :class="'dot is-' + listColor[index + 1]"></div>
-
-                  <div class="content-wrap is-grey">
-                    <div class="content-box">
-                      <div class="status"></div>
-                      <div class="box-text" style="width:70%">
-                        <div class="meta-text">
-                          <p>
-                            <span>Diverifikasi Oleh Asman : {{ items.asamanverifikasi }}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItemPenyelia"
-                  :key="items.norec">
-                  <div class="date">
-                    <span>{{ H.formatDateIndo(items.tglverifpenyelia) }}</span>
+                    <span>{{ H.formatDateIndo(item.date) }}</span>
                   </div>
                   <div :class="'dot is-' + listColor[index + 1]"></div>
                   <div class="content-wrap is-grey">
@@ -183,27 +163,9 @@
                       <div class="box-text" style="width:70%">
                         <div class="meta-text">
                           <p>
-                            <span>Diverifikasi Oleh Penyelia Teknik : {{ items.penyeliateknik }}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderItemPelaksana"
-                  :key="items.norec">
-                  <div class="date">
-                    <span>{{ H.formatDateIndo(items.tglverifpelaksana) }}</span>
-                  </div>
-                  <div :class="'dot is-' + listColor[index + 1]"></div>
-
-                  <div class="content-wrap is-grey">
-                    <div class="content-box">
-                      <div class="status"></div>
-                      <div class="box-text" style="width:70%">
-                        <div class="meta-text">
-                          <p>
-                            <span> Diverifikasi Oleh Pelaksana Teknik : {{ items.pelaksanateknik }}</span>
+                            <span>
+                              {{ item.type }} : {{ item.nama }}
+                            </span>
                           </p>
                         </div>
                       </div>
@@ -261,10 +223,8 @@ const isLoadingTT: any = ref(false)
 const isPlaceLoadHead: any = ref(true)
 const isDisabled: any = ref(true)
 const isLoadingKonsul: any = ref(false)
+const timelineItems = ref([])
 let detailOrderLayanan: any = ref(0)
-let detailOrderItem: any = ref(0)
-let detailOrderItemPenyelia: any = ref(0)
-let detailOrderItemPelaksana: any = ref(0)
 let isLoadDataOrder: any = ref(false)
 let isLoadDataDeatilOrder: any = ref(false)
 let listColor: any = ref(Object.keys(useThemeColors()))
@@ -295,14 +255,12 @@ const orderVerify = async () => {
   detailOrderLayanan.value = response.detail
 }
 
-const detailOrder = async (e: any) => {
+const detailOrder = async (e) => {
   modalDetailOrder.value = true
   item.value.namaproduk = e.namaproduk
   isLoadDataDeatilOrder.value = true
   const response = await useApi().get(`/asman/detail-produk?norec_pd=${e.norec_detail}`)
-  detailOrderItem.value = response.verif_asman
-  detailOrderItemPenyelia.value = response.verif_penyelia
-  detailOrderItemPelaksana.value = response.verif_pelaksana
+  timelineItems.value = response.timeline // <-- satu array urut, langsung untuk v-for
   isLoadDataDeatilOrder.value = false
 }
 

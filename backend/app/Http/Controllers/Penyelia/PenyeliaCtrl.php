@@ -315,37 +315,53 @@ class PenyeliaCtrl extends Controller
             ->orderByDesc('prd.namaproduk')
             ->get();
 
-        $asman = [];
-        $penyelia = [];
-        $pelaksana = [];
-        $pelaksanaLembarKerja = [];
-        $penyeliaLembarKerja = [];
+        $timeline = [];
 
         foreach ($data as $item) {
-            if ($item->statusorderasman == 1 && !is_null($item->tglverifasman)) {
-                $asman[] = $item;
+            if (!is_null($item->tglverifasman)) {
+                $timeline[] = [
+                    'date' => $item->tglverifasman,
+                    'type' => 'Diverifikasi Oleh Asman',
+                    'nama' => $item->asamanverifikasi ?? '-',
+                ];
             }
-            if ($item->statusorderpenyelia == 1 && !is_null($item->tglverifpenyelia)) {
-                $penyelia[] = $item;
+            if (!is_null($item->tglverifpenyelia)) {
+                $timeline[] = [
+                    'date' => $item->tglverifpenyelia,
+                    'type' => 'Diverifikasi Oleh Penyelia Teknik',
+                    'nama' => $item->penyeliateknik ?? '-',
+                ];
             }
-            if ($item->statusorderpelaksana == 1 && !is_null($item->tglverifpelaksana)) {
-                $pelaksana[] = $item;
+            if (!is_null($item->tglverifpelaksana)) {
+                $timeline[] = [
+                    'date' => $item->tglverifpelaksana,
+                    'type' => 'Diverifikasi Oleh Pelaksana Teknik',
+                    'nama' => $item->pelaksanateknik ?? '-',
+                ];
             }
-            if (!is_null($item->pelaksanaisilembarkerjafk) && !is_null($item->tglisilembarkerjapelaksana)) {
-                $pelaksanaLembarKerja[] = $item;
+            if (!is_null($item->tglisilembarkerjapelaksana)) {
+                $timeline[] = [
+                    'date' => $item->tglisilembarkerjapelaksana,
+                    'type' => 'Diisi Lembar Kerja Oleh Pelaksana Teknik',
+                    'nama' => $item->pelaksanateknik ?? '-',
+                ];
             }
-            if (!is_null($item->penyeliaisilembapenyeliaisilembarkerjafkrkerjafk) && !is_null($item->tglisilembarkerjapenyelia)) {
-                $penyeliaLembarKerja[] = $item;
+            if (!is_null($item->tglisilembarkerjapenyelia)) {
+                $timeline[] = [
+                    'date' => $item->tglisilembarkerjapenyelia,
+                    'type' => 'Diisi Lembar Kerja Oleh Penyelia Teknik',
+                    'nama' => $item->penyeliateknik ?? '-',
+                ];
             }
         }
 
+        usort($timeline, function ($a, $b) {
+            return strtotime($a['date']) <=> strtotime($b['date']);
+        });
+
         $result = [
             'length' => count($data),
-            'verif_asman' => $asman,
-            'verif_penyelia' => $penyelia,
-            'verif_pelaksana' => $pelaksana,
-            'pelaksanaLembarKerja' => $pelaksanaLembarKerja,
-            'penyeliaLembarKerja' => $penyeliaLembarKerja,
+            'timeline' => $timeline,
             'as' => '@adit'
         ];
 
@@ -453,7 +469,7 @@ class PenyeliaCtrl extends Controller
         return $this->respond($result['result'], $result['status'], $result['message']);
     }
 
-      public function detailProdukLembarKerjaPenyelia(Request $r)
+    public function detailProdukLembarKerjaPenyelia(Request $r)
     {
         $data = DB::table('mitraregistrasi_t as mtr')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
