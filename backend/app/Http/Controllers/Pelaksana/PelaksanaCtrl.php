@@ -43,6 +43,7 @@ class PelaksanaCtrl extends Controller
                 'mtrd.statusorderpelaksana',
                 'mtrd.tglisilembarkerjapelaksana',
                 'mtrd.pelaksanaisilembarkerjafk',
+                'mtrd.tglverifasman',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',

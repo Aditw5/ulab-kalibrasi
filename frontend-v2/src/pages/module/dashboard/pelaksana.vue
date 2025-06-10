@@ -92,7 +92,7 @@
                                 </h3>
                                 <span>
                                   <i aria-hidden="true" class="iconify" data-icon="feather:calendar"></i>
-                                  <span>{{ item.tglregistrasi }}</span>
+                                  <span>{{ item.tglverifasman }}</span>
                                   <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
                                   <i aria-hidden="true" class="iconify" data-icon="feather:check-circle"></i>
                                   <span>{{ item.nopendaftaran }}</span>
@@ -310,15 +310,38 @@
   <VModal :open="modalRiwayat" noclose size="big" actions="right" @close="modalRiwayat = false, clear()"
     cancelLabel="Tutup">
     <template #content>
-      <div class="business-dashboard hr-dashboard">
-        <div class="columns is-multiline">
-          <div class="column is-12 p-0">
-            <div class="illustration-header-2">
-              <div class="left column is-12 ">
-                <div class="header-meta">
-                  <h3>{{ item.namaproduk }}</h3>
+      <div class="column">
+        <div class="business-dashboard hr-dashboard">
+          <div class="columns is-multiline">
+            <div class="column is-12 p-0">
+              <div class="block-header">
+                <div class="left column is-6 p-0">
+                  <div class="current-user">
+                    <h3>{{ item.namaproduk }}</h3>
+                  </div>
+                </div>
+                <div class="left column is-6 p-0">
+                  <div>
+                    <div>
+                      <h4 class="block-heading">Merk</h4>
+                      <p class="block-hext">{{ item.namamerk }}</p>
+                      <h4 class="block-heading">Tipe</h4>
+                      <p class="block-hext">{{ item.namatipe }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="center column is-6 p-0">
+                  <div>
+                    <div>
+                      <h4 class="block-heading">S/N</h4>
+                      <p class="block-hext">{{ item.namaserialnumber }}</p>
+                      <h4 class="block-heading">Durasi</h4>
+                      <p class="block-hext">{{ item.durasikalbrasi }}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -508,9 +531,13 @@ const orderVerify = async (e: any) => {
 const detailOrder = async (e) => {
   modalRiwayat.value = true
   item.value.namaproduk = e.namaproduk
+  item.value.namamerk = e.namamerk
+  item.value.namatipe = e.namatipe
+  item.value.namaserialnumber = e.namaserialnumber
+  item.value.durasikalbrasi = e.durasikalbrasi
   isLoadDataDeatilOrder.value = true
   const response = await useApi().get(`/pelaksana/detail-produk?norec_pd=${e.norec_detail}`)
-  timelineItems.value = response.timeline 
+  timelineItems.value = response.timeline
   isLoadDataDeatilOrder.value = false
 }
 
@@ -680,6 +707,7 @@ fetchAlatKalibrasi(0)
 @import '/@src/scss/abstracts/all';
 @import '/@src/scss/custom/config';
 @import '/@src/scss/module/dashboard/penyelia.scss';
+@import '/@src/scss/module/dashboard/bedah.scss';
 
 .hide {
   display: hidden !important;

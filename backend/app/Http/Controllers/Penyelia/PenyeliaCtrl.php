@@ -42,6 +42,7 @@ class PenyeliaCtrl extends Controller
                 'mtrd.statusorderpenyelia',
                 'mtrd.tglisilembarkerjapelaksana',
                 'mtrd.pelaksanaisilembarkerjafk',
+                'mtrd.tglverifasman',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -70,10 +71,10 @@ class PenyeliaCtrl extends Controller
             ->where('mtrd.statusenabled', true);
 
         if (isset($r['dari']) && $r['dari'] != '') {
-            $data = $data->where(DB::raw("mtr.tglregistrasi::date"), '>=', $r->dari);
+            $data = $data->where(DB::raw("mtrd.tglverifasman::date"), '>=', $r->dari);
         }
         if (isset($r['sampai']) && $r['sampai'] != '') {
-            $data = $data->where(DB::raw("mtr.tglregistrasi::date"), '<=', $r->sampai);
+            $data = $data->where(DB::raw("mtrd.tglverifasman::date"), '<=', $r->sampai);
         }
         if (isset($r['status']) && $r['status'] != '') {
             $data = $data->where('pd.ispelayananpasien', '=', $r['status']);
