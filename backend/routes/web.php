@@ -608,6 +608,10 @@ Route::middleware(['log'])->group(function () {
         Route::get('pelaksana/layanan-verif-pelaksana', 'LayananVerifPelaksana');
         Route::post('pelaksana/save-verif', 'saveVerif');
         Route::get('pelaksana/detail-produk', 'detailProduk');
+        Route::get('pelaksana/get-lembar-kerja', 'getLembarKerja');
+        Route::get('pelaksana/download-template-lembar-kerja', 'downloadTemplateLembarKerja');
+        Route::post('pelaksana/save-data-upload-lembar-kerja', 'simpanUploadLembaKerja');
+        Route::get('pelaksana/detail-produk-lembar-kerja', 'detailProdukLembarKeerja');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {

@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\File;
+use App\Models\Transaksi\LembarKerja;
 
 class PelaksanaCtrl extends Controller
 {
@@ -325,6 +327,161 @@ class PelaksanaCtrl extends Controller
             'verif_asman' => $asman,
             'verif_penyelia' => $penyelia,
             'verif_pelaksana' => $pelaksana,
+            'as' => '@adit'
+        ];
+
+        return $this->respond($result);
+    }
+
+    public function getLembarKerja(Request $request)
+    {
+        $data = DB::table('lembarkerja_t as lk')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
+            ->select('lk.*')
+            ->where('mtrd.norec', $request->norecdetail)
+            ->where('lk.statusenabled', true)
+            ->get();
+
+        return $this->respond($data);
+    }
+
+    public function downloadTemplateLembarKerja(Request $request)
+    {
+
+        $pathbundle = 'import/lembarkerja/template_lembar_kerja.xlsx';
+        $name = 'Template Lembar Kerja.xlsx';
+        $path =  public_path($pathbundle);
+        if (File::exists($path)) {
+            $file = File::get($path);
+
+            $type = File::mimeType($path);
+
+            $response = response()->make($file, 200);
+            $response->header("Content-Type", $type)
+                ->header('Content-disposition', 'attachment; filename="' . $name . '"');
+            return $response;
+        } else {
+            return '
+            <script language="javascript">
+                window.alert("Tidak ada data.");
+                window.close()
+            </script>';
+        }
+    }
+
+    public function simpanUploadLembaKerja(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $result = [];
+            LembarKerja::where('detailregistraifk', $request['norec_detail'])->delete();
+            foreach ($request['data'] as $item) {
+                if ($item['isGroupHeader'] === true) {
+                    continue;
+                }
+                $data1 = new LembarKerja();
+                $data1->norec = $data1->generateNewId();
+                $data1->statusenabled = true;
+
+                $data1->detailregistraifk = $request['norec_detail'];
+                $data1->group = $item['group'];
+                $data1->rentang = $item['rentang'];
+                $data1->rentang_satuan = $item['rentang_satuan'];
+                $data1->penunjukan_standar = $item['penunjukan_standar'];
+                $data1->penunjukan_standar_satuan = $item['penunjukan_standar_satuan'];
+                $data1->penunjukan_standar_2 = $item['penunjukan_standar_2'];
+                $data1->penunjukan_standar_satuan_2 = $item['penunjukan_standar_satuan_2'];
+                $data1->pembacaan_alat = $item['pembacaan_alat'];
+                $data1->pembacaan_alat_satuan = $item['pembacaan_alat_satuan'];
+                $data1->koreksi = $item['koreksi'];
+                $data1->koreksi_satuan = $item['koreksi_satuan'];
+                $data1->ketidakpastian = $item['ketidakpastian'];
+                $data1->ketidakpastian_standar = $item['ketidakpastian_standar'];
+                $data1->excelfilename = $request['fileName'];
+                $data1->tglupload = now();
+                $data1->save();
+                $result[] = $data1;
+            }
+            $transStatus = 'true';
+        } catch (Exception $e) {
+            $transStatus = 'false';
+        }
+
+        $transMessage = "Simpan Lembar Kerja";
+        if ($transStatus != 'false') {
+            DB::commit();
+            $result = array(
+                "status" => 201,
+                "message" => $transMessage . ' Berhasil',
+                "result" => $result
+            );
+        } else {
+            DB::rollBack();
+            $result = array(
+                "status" => 400,
+                "message" => $transMessage . ' Gagal' . $e->getMessage(),
+                "result" => $result
+            );
+        }
+        return $this->respond($result['result'], $result['status'], $result['message']);
+    }
+
+      public function detailProdukLembarKeerja(Request $r)
+    {
+        $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtrd.asmanveriffk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->select(
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.durasikalbrasi',
+                'mtrd.namafile',
+                'mtrd.keterangan',
+                'mtrd.statusorderasman',
+                'mtrd.statusorderpenyelia',
+                'mtrd.statusorderpelaksana',
+                'mtrd.tglverifasman',
+                'mtrd.tglverifpenyelia',
+                'mtrd.tglverifpelaksana',
+                'prd.namaproduk',
+                'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as asmanfk',
+                'pg3.namalengkap as asamanverifikasi',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.norec', $r['norec_pd'])
+            ->orderByDesc('prd.namaproduk')
+            ->get();
+
+        $result = [
+            'length' => count($data),
+            'data' => $data,
             'as' => '@adit'
         ];
 

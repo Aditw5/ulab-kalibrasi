@@ -53,9 +53,7 @@ class MitraLamaCtrl extends Controller
         }
 
         $data = $data->orderByDesc('mt.namaperusahaan');
-        // $data = $data->get();
         $data = $data ->paginate(isset($r['limit'])?$r['limit']: 10, ['*'], 'page', $page);
-        // dd(DB::getQueryLog());
 
         foreach ($data as $d) {
             $d->foto = null;

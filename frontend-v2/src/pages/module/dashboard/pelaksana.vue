@@ -126,7 +126,7 @@
                               </div>
                               <div class="meta-right flex justify-center items-center">
                                 <div class="buttons">
-                                  <RouterLink :to="{
+                                  <!-- <RouterLink :to="{
                                     // H.cacheHelper().set('xxx_cache_menu', undefined)
                                     name: 'module-pelaksana-lembar-kerja',
                                     query: {
@@ -134,11 +134,11 @@
                                       norec_pd: item.norec_pd,
                                       norec_apd: item.norec_apd,
                                     }
-                                  }">
+                                  }"> -->
                                     <VIconButton v-if="item.statusorderpelaksana == 1" color="info" circle
                                       icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
                                       v-tooltip.bottom.left="'Lembar Kerja'" />
-                                  </RouterLink>
+                                  <!-- </RouterLink> -->
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
                                     circle icon="pi pi-check-circle" v-if="item.statusorderpelaksana == 0"
                                     @click="orderVerify(item)" style="margin-right: 20px;" />
@@ -607,13 +607,12 @@ const klikTab = (e: any) => {
 }
 
 const lembarKerja = (e: any) => {
-  H.cacheHelper().set('xxx_cache_menu', undefined)
+  console.log(e)
   router.push({
     name: 'module-pelaksana-lembar-kerja',
     query: {
-      nocmfk: e.nocmfk,
-      norec_pd: e.norec_pd,
-      norec_apd: e.norec_apd,
+      norec: e.norec,
+      norec_detail: e.norec_detail,
     }
   })
 }
