@@ -584,6 +584,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('registrasi/save-kajian-ulang-item', 'saveKajianUlangItem');
         Route::post('registrasi/save-kaji-ulang', 'saveKajiUlang');
         Route::post('registrasi/save-batal-regis-mitra', 'saveBatalRegis');
+        Route::get('registrasi/cetak-tanda-terima', 'cetakTandaTerima');
     });
 
     Route::controller(AsmanCtrl::class)->group(function () {

@@ -84,7 +84,8 @@
                 Batal
               </VButton>
               <VButton type="button" color="primary" rounded outlined raised icon="feather:save"
-                @click="saveRegistrasi()"> Simpan </VButton>
+                @click="saveRegistrasi()"> Simpan
+              </VButton>
 
             </div>
           </div>
@@ -110,6 +111,16 @@
                 </template>
               </VDatePicker>
             </VField>
+            <VField horizontal label="Nama Penanggung Jawab">
+              <VControl fullwidth>
+                <VInput v-model="item.namapenanggungjawab" placeholder="Nama Penanggung Jawab" />
+              </VControl>
+            </VField>
+            <VField horizontal label="Jabatan Penanggung Jawab">
+              <VControl fullwidth>
+                <VInput v-model="item.jabatanpenanggungjawab" placeholder="Jabatan Penanggung Jawab" />
+              </VControl>
+            </VField>
             <VField horizontal label="Catatan">
               <VControl fullwidth>
                 <VTextarea class="textarea" v-model="item.catatan" rows="4"
@@ -117,13 +128,14 @@
                   spellcheck="true" />
               </VControl>
             </VField>
-              <VField horizontal label="Lokasi Kalibrasi" class="is-rounded-select_Z  is-autocomplete-select">
-                <VControl icon="fa:user-md" fullwidth class="prime-auto ">
-                  <AutoComplete v-model="item.lokasi" :suggestions="d_lokasikalibrasi" @complete="fetchlokasiKalibrasi($event)"
-                      :optionLabel="'label'" :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
-                      :loadingIcon="'pi pi-spinner'" :field="'label'" placeholder="ketik untuk mencari..." />
-                </VControl>
-              </VField>
+            <VField horizontal label="Lokasi Kalibrasi" class="is-rounded-select_Z  is-autocomplete-select">
+              <VControl icon="fa:user-md" fullwidth class="prime-auto ">
+                <AutoComplete v-model="item.lokasi" :suggestions="d_lokasikalibrasi"
+                  @complete="fetchlokasiKalibrasi($event)" :optionLabel="'label'" :dropdown="true" :minLength="3"
+                  class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'" :field="'label'"
+                  placeholder="ketik untuk mencari..." />
+              </VControl>
+            </VField>
           </div>
           <Fieldset legend="- Order Alat" :toggleable="true">
             <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
@@ -347,7 +359,7 @@ const saveRegistrasi = async () => {
   if (!item.tglregistrasi) { H.alert('warning', 'Tgl Registrasi harus di isi'); return }
 
   const mappedOrderAlat = input.value.detailOrderAlat.map((alat: any) => ({
-    namaalatfk: alat.alat?.value || null,    
+    namaalatfk: alat.alat?.value || null,
     namamerkfk: alat.merkalat?.value || null,
     namatipefk: alat.tipealat?.value || null,
     serialnumberfk: alat.serialnumber?.value || null
@@ -362,6 +374,8 @@ const saveRegistrasi = async () => {
       'statusmitra': STATUSMITRA ? STATUSMITRA : 'LAMA',
       'namaperusahaan': mitra.value.namaperusahaan,
       'lokasikalibrasi': item.lokasi.value,
+      'namapenanggungjawab': item.namapenanggungjawab,
+      'jabatanpenanggungjawab': item.jabatanpenanggungjawab,
     },
     'mitraregistrasidetail': mappedOrderAlat
   }

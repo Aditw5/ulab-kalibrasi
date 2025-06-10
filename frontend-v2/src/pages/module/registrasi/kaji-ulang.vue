@@ -43,7 +43,7 @@
                     <div class="column is-6">
                       <div class="columns is-multiline is-pulled-right">
                         <div class="column is-5">
-                          <VButton icon="feather:printer" raised bold @click="cetakLabel(item)" :loading="isLoadingBill"
+                          <VButton icon="feather:printer" raised bold @click="cetakTandaTerima(item)" :loading="isLoadingBill"
                             color="purple">
                             Cetak Tanda Terima
                           </VButton>
@@ -832,6 +832,11 @@ watch(
 const cetakLabel = async (e: any) => {
   let so_norec = e.NOREC_PD;
   H.printBlade(`report/cetak-label-tindakan?norec=${so_norec}&type=radiologi`);
+}
+
+const cetakTandaTerima = (item) => {
+  console.log(item.NOREC_PD)
+    H.printBlade(`registrasi/cetak-tanda-terima?pdf=true&norec=${item.NOREC_PD}`);
 }
 
 headerPasien(ID_MITRA, NOREC_PD, TGLREGISTRASI)
