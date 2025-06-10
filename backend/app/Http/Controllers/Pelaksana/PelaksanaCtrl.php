@@ -30,6 +30,7 @@ class PelaksanaCtrl extends Controller
             ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
             ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftjoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftjoin('pegawai_m as pg3', 'pg3.id', '=', 'mtrd.pelaksanaisilembarkerjafk')
             ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
@@ -40,6 +41,8 @@ class PelaksanaCtrl extends Controller
                 'mtrd.namafile',
                 'mtrd.keterangan',
                 'mtrd.statusorderpelaksana',
+                'mtrd.tglisilembarkerjapelaksana',
+                'mtrd.pelaksanaisilembarkerjafk',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -55,6 +58,8 @@ class PelaksanaCtrl extends Controller
                 'pg.namalengkap as penyeliateknik',
                 'pg2.id as pelaksanateknikfk',
                 'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as pelaksanaisilembarkerjafk',
+                'pg3.namalengkap as pelaksanaisilembarkerja',
                 'lk.id as lokasikalibrasifk',
                 'lk.lokasi',
                 'lp.id as lingkupfk',
@@ -68,10 +73,10 @@ class PelaksanaCtrl extends Controller
             ->where('mtrd.statusenabled', true);
 
         if (isset($r['dari']) && $r['dari'] != '') {
-            $data = $data->where(DB::raw("mtr.tglregistrasi::date"), '>=', $r->dari);
+            $data = $data->where(DB::raw("mtrd.tglverifasman::date"), '>=', $r->dari);
         }
         if (isset($r['sampai']) && $r['sampai'] != '') {
-            $data = $data->where(DB::raw("mtr.tglregistrasi::date"), '<=', $r->sampai);
+            $data = $data->where(DB::raw("mtrd.tglverifasman::date"), '<=', $r->sampai);
         }
         if (isset($r['status']) && $r['status'] != '') {
             $data = $data->where('pd.ispelayananpasien', '=', $r['status']);
@@ -262,6 +267,7 @@ class PelaksanaCtrl extends Controller
             ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
             ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtrd.asmanveriffk')
+            ->leftJoin('pegawai_m as pg4', 'pg4.id', '=', 'mtrd.pelaksanaisilembarkerjafk')
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
@@ -277,6 +283,10 @@ class PelaksanaCtrl extends Controller
                 'mtrd.tglverifasman',
                 'mtrd.tglverifpenyelia',
                 'mtrd.tglverifpelaksana',
+                'mtrd.tglisilembarkerjapelaksana',
+                'mtrd.pelaksanaisilembarkerjafk',
+                'mtrd.tglisilembarkerjapenyelia',
+                'mtrd.penyeliaisilembarkerjafk',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -294,6 +304,8 @@ class PelaksanaCtrl extends Controller
                 'pg2.namalengkap as pelaksanateknik',
                 'pg3.id as asmanfk',
                 'pg3.namalengkap as asamanverifikasi',
+                'pg4.id as pelaksanaisilembarkerjafk',
+                'pg4.namalengkap as pelaksanaisilembarkerja',
                 'lk.id as lokasikalibrasifk',
                 'lk.lokasi',
                 'lp.id as lingkupfk',
@@ -309,6 +321,8 @@ class PelaksanaCtrl extends Controller
         $asman = [];
         $penyelia = [];
         $pelaksana = [];
+        $pelaksanaLembarKerja = [];
+        $penyeliaLembarKerja = [];
 
         foreach ($data as $item) {
             if ($item->statusorderasman == 1 && !is_null($item->tglverifasman)) {
@@ -320,6 +334,12 @@ class PelaksanaCtrl extends Controller
             if ($item->statusorderpelaksana == 1 && !is_null($item->tglverifpelaksana)) {
                 $pelaksana[] = $item;
             }
+            if (!is_null($item->pelaksanaisilembarkerjafk) && !is_null($item->tglisilembarkerjapelaksana)) {
+                $pelaksanaLembarKerja[] = $item;
+            }
+            if (!is_null($item->penyeliaisilembarkerjafk) && !is_null($item->tglisilembarkerjapenyelia)) {
+                $penyeliaLembarKerja[] = $item;
+            }
         }
 
         $result = [
@@ -327,6 +347,8 @@ class PelaksanaCtrl extends Controller
             'verif_asman' => $asman,
             'verif_penyelia' => $penyelia,
             'verif_pelaksana' => $pelaksana,
+            'pelaksanaLembarKerja' => $pelaksanaLembarKerja,
+            'penyeliaLembarKerja' => $penyeliaLembarKerja,
             'as' => '@adit'
         ];
 
@@ -373,6 +395,13 @@ class PelaksanaCtrl extends Controller
     {
         DB::beginTransaction();
         try {
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $request['norec_detail'])
+                ->update([
+                    'pelaksanaisilembarkerjafk' => $this->getPegawaiId(),
+                    'tglisilembarkerjapelaksana' => now(),
+                ]);
+
             $result = [];
             LembarKerja::where('detailregistraifk', $request['norec_detail'])->delete();
             foreach ($request['data'] as $item) {
@@ -399,6 +428,7 @@ class PelaksanaCtrl extends Controller
                 $data1->ketidakpastian_standar = $item['ketidakpastian_standar'];
                 $data1->excelfilename = $request['fileName'];
                 $data1->tglupload = now();
+                $data1->pengisifk = $this->getPegawaiId();
                 $data1->save();
                 $result[] = $data1;
             }

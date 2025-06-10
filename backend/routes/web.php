@@ -601,6 +601,10 @@ Route::middleware(['log'])->group(function () {
         Route::get('penyelia/layanan-verif-penyelia', 'LayananVerifPenyelia');
         Route::post('penyelia/save-verif', 'saveVerif');
         Route::get('penyelia/detail-produk', 'detailProduk');
+        Route::get('penyelia/get-lembar-kerja', 'getLembarKerjaPenyelia');
+        Route::get('penyelia/download-template-lembar-kerja', 'downloadTemplateLembarKerjaPenyelia');
+        Route::post('penyelia/save-data-upload-lembar-kerja', 'simpanUploadLembaKerjaPenyelia');
+        Route::get('penyelia/detail-produk-lembar-kerja', 'detailProdukLembarKerjaPenyelia');
     });
 
     Route::controller(PelaksanaCtrl::class)->group(function () {

@@ -451,13 +451,13 @@ const onUpload = () => {
 }
 
 const downloadTemplate = () => {
-  window.open(import.meta.env.VITE_API_BASE_URL + 'pelaksana/download-template-lembar-kerja?token=' + useUserSession().token, '_blank');
+  window.open(import.meta.env.VITE_API_BASE_URL + 'penyelia/download-template-lembar-kerja?token=' + useUserSession().token, '_blank');
 }
 
 
 const fetchData = async () => {
   loadSearch.value = true
-  await useApi().get(`pelaksana/get-lembar-kerja?norecdetail=${NOREC_DETAIL}`).then((response: any) => {
+  await useApi().get(`penyelia/get-lembar-kerja?norecdetail=${NOREC_DETAIL}`).then((response: any) => {
     response.forEach((element: any, i: any) => {
       element.no = i + 1
     });
@@ -607,7 +607,7 @@ const Save = async () => {
   }
   isLoadingSave.value = true;
   await useApi().post(
-    `/pelaksana/save-data-upload-lembar-kerja`, json).then((response: any) => {
+    `/penyelia/save-data-upload-lembar-kerja`, json).then((response: any) => {
       isLoadingSave.value = false
       totalSizePercent.value = 0
       dataSource.value = []
@@ -638,7 +638,7 @@ const collection = () => {
   })
 }
 const detailOrder = async () => {
-  const response = await useApi().get(`/pelaksana/detail-produk-lembar-kerja?norec_pd=${NOREC_DETAIL}`)
+  const response = await useApi().get(`/penyelia/detail-produk-lembar-kerja?norec_pd=${NOREC_DETAIL}`)
   item.value.namaproduk = response.data[0].namaproduk
   item.value.namamerk = response.data[0].namamerk
   item.value.namatipe = response.data[0].namatipe

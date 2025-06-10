@@ -108,6 +108,8 @@
                                     v-if="item.penanda != null" :color="'info'" class="ml-2" /> -->
                                   <VTag :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                     class="ml-2" />
+                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null" :label="'Sudah Isi Lembar Kerja'" :color="'info'"
+                                    class="ml-2" />
                                   <!-- <VTag
                                     :label="item.kategoriInsiden.charAt(0).toUpperCase() + item.kategoriInsiden.slice(1)"
                                     v-if="item.kategoriInsiden != null" :color="'purple'" class="ml-2" /> -->
@@ -138,6 +140,9 @@
                                       @click="emr(item)" v-tooltip.bottom.left="'EMR'">
                                     </VIconButton>
                                   </RouterLink> -->
+                                  <VIconButton v-if="item.statusorderpenyelia == 1" color="info" circle
+                                    icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
+                                    v-tooltip.bottom.left="'Lembar Kerja'" />
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
                                     circle icon="pi pi-check-circle" v-if="item.statusorderpenyelia == 0"
                                     @click="orderVerify(item)" style="margin-right: 15px;" />
@@ -461,6 +466,46 @@
                     </div>
                   </div>
                 </div>
+                <div class="timeline-item is-unread" v-for="(items, index) in detailIsiLembarKerjaPenyelia"
+                  :key="items.norec">
+                  <div class="date">
+                    <span>{{ H.formatDateIndo(items.tglisilembarkerjapenyelia) }}</span>
+                  </div>
+                  <div :class="'dot is-' + listColor[index + 1]"></div>
+
+                  <div class="content-wrap is-grey">
+                    <div class="content-box">
+                      <div class="status"></div>
+                      <div class="box-text" style="width:70%">
+                        <div class="meta-text">
+                          <p>
+                            <span> Diisi Lembar Kerja Oleh Penyelia Teknik : {{ items.penyeliateknik }}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item is-unread" v-for="(items, index) in detailIsiLembarKerjaPelaksana"
+                  :key="items.norec">
+                  <div class="date">
+                    <span>{{ H.formatDateIndo(items.tglisilembarkerjapelaksana) }}</span>
+                  </div>
+                  <div :class="'dot is-' + listColor[index + 1]"></div>
+
+                  <div class="content-wrap is-grey">
+                    <div class="content-box">
+                      <div class="status"></div>
+                      <div class="box-text" style="width:70%">
+                        <div class="meta-text">
+                          <p>
+                            <span> Diisi Lembar Kerja Oleh Pelaksana Teknik : {{ items.pelaksanateknik }}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -522,6 +567,8 @@ let isLoadDataDeatilOrder: any = ref(false)
 let detailOrderItem: any = ref(0)
 let detailOrderItemPenyelia: any = ref(0)
 let detailOrderItemPelaksana: any = ref(0)
+let detailIsiLembarKerjaPelaksana: any = ref(0) 
+let detailIsiLembarKerjaPenyelia: any = ref(0) 
 const item: any = ref({
   aktif: true,
   fStatusOrder: 0,
@@ -608,7 +655,20 @@ const detailOrder = async (e: any) => {
   detailOrderItem.value = response.verif_asman
   detailOrderItemPenyelia.value = response.verif_penyelia
   detailOrderItemPelaksana.value = response.verif_pelaksana
+  detailIsiLembarKerjaPelaksana.value = response.pelaksanaLembarKerja
+  detailIsiLembarKerjaPenyelia.value = response.penyeliaLembarKerja
   isLoadDataDeatilOrder.value = false
+}
+
+const lembarKerja = (e: any) => {
+  console.log(e)
+  router.push({
+    name: 'module-penyelia-lembar-kerja',
+    query: {
+      norec: e.norec,
+      norec_detail: e.norec_detail,
+    }
+  })
 }
 
 
