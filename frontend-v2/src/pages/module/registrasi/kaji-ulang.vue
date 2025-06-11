@@ -252,7 +252,7 @@
               </VControl>
             </VField>
           </div>
-          <div class="column is-4">
+          <!-- <div class="column is-4">
             <VField>
               <VLabel>Pelaksana Teknik</VLabel>
               <VControl>
@@ -261,7 +261,7 @@
                   :loadingIcon="'pi pi-spinner'" :field="'label'" placeholder="ketik untuk mencari..." />
               </VControl>
             </VField>
-          </div>
+          </div> -->
           <div class="column is-12">
             <VField>
               <VLabel>Keterangan</VLabel>
@@ -509,10 +509,10 @@ const simpan = async () => {
     H.alert('error', 'Penyelia Teknik harus di isi')
     return
   }
-  if (!input.value.pelaksana.value) {
-    H.alert('error', 'Pelaksana Teknik harus di isi')
-    return
-  }
+  // if (!input.value.pelaksana.value) {
+  //   H.alert('error', 'Pelaksana Teknik harus di isi')
+  //   return
+  // }
   if (!fileMitra.value) {
     H.alert('error', 'File harus di unggah')
     return
@@ -526,7 +526,7 @@ const simpan = async () => {
   formData.append('lokasikalibrasi', input.value.lokasikalibrasi.value)
   formData.append('lingkupkalibrasi', input.value.lingkupkalibrasi.value)
   formData.append('penyeliateknik', input.value.penyeliateknik.value)
-  formData.append('pelaksana', input.value.pelaksana.value)
+  // formData.append('pelaksana', input.value.pelaksana.value)
   isLoadingPop.value = true
   await useApi().post('/registrasi/save-kajian-ulang-item', formData).then((r) => {
     isLoadingPop.value = false

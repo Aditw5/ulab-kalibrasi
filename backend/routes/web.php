@@ -594,10 +594,12 @@ Route::middleware(['log'])->group(function () {
         Route::get('asman/detail-produk', 'detailProduk');
         Route::post('asman/save-verif-item', 'saveVerifItem');
         Route::post('asman/save-verif', 'saveVerif');
+        Route::post('asman/save-penolakan', 'savePenolakanAsman');
         Route::get('asman/header-mitra', 'HeaderMitra');
     });
 
     Route::controller(PenyeliaCtrl::class)->group(function () {
+        Route::post('penyelia/save-verif-item', 'saveVerifItem');
         Route::get('penyelia/get-alat-penyelia', 'getAlatPenyelia');
         Route::get('penyelia/layanan-verif-penyelia', 'LayananVerifPenyelia');
         Route::post('penyelia/save-verif', 'saveVerif');
