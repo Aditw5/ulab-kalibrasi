@@ -111,6 +111,14 @@
                                   <span>Batal Registrasi</span>
                                 </div>
                               </a>
+                              <a v-if="item.iskaji !== null" role="menuitem" @click="cetakTandaTerima(item)" class="dropdown-item is-media">
+                                <div class="icon">
+                                  <i aria-hidden="true" class="lnil lnil-printer"></i>
+                                </div>
+                                <div class="meta">
+                                  <span>Cetak </span>
+                                </div>
+                              </a>
 
                             </template>
                           </VDropdown>
@@ -429,6 +437,13 @@ const editRegistrasi = async (e: any) => {
     },
   })
 }
+
+
+const cetakTandaTerima = (e) => {
+  // console.log(e)
+  H.printBlade(`registrasi/cetak-tanda-terima?pdf=true&norec=${e.iddetail}`);
+}
+
 const cetakSEP = (e: any) => {
   H.printBlade('registrasi/pemakaian-asuransi/sep?noregistrasi=' + e.noregistrasi + "&pdf=false")
   // qzService.printData('registrasi/pemakaian-asuransi/sep?noregistrasi=' + e.noregistrasi + "&pdf=true", 'SEP', 1)

@@ -92,6 +92,7 @@ class MitraCtrl extends Controller
                 'mtr.nopendaftaran',
                 'mtr.lokasikalibrasi',
                 'mtr.norec as norec_pd',
+                'mtr.iskaji',
             )
             ->where('mt.statusenabled', true)
             ->where('mtr.statusenabled', true)

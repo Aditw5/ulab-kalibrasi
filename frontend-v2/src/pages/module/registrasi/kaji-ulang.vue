@@ -42,19 +42,13 @@
                     </div>
                     <div class="column is-6">
                       <div class="columns is-multiline is-pulled-right">
-                        <div class="column is-5">
-                          <VButton icon="feather:printer" raised bold @click="cetakTandaTerima(item)" :loading="isLoadingBill"
-                            color="purple">
-                            Cetak Tanda Terima
-                          </VButton>
-                        </div>
-                        <div class="column is-3">
+                        <div class="column is-6">
                           <VButton icon="feather:plus-circle" raised bold class="w-100" @click="inputTindakan(item)"
                             :loading="isLoadingBill" color="info">
                             Input Alat
                           </VButton>
                         </div>
-                        <div class="column is-3">
+                        <div class="column is-6">
                           <VButton icon="feather:plus-circle" raised bold class="w-100" @click="simpanKaji(item)"
                             :loading="isLoadingBill" color="primary">
                             Simpan Kaji
