@@ -247,13 +247,10 @@ class MitraCtrl extends Controller
                     'lokasikajifk' => $r->lokasikalibrasi,
                     'lingkupkalibrasifk' => $r->lingkupkalibrasi,
                     'penyeliateknikfk' => $r->penyeliateknik,
-                    // 'pelaksanateknikfk' => $r->pelaksana,
+                    'pelaksanateknikfk' => $r->pelaksana,
                     'iskaji' => true,
                     'namafile' => $filename,
-                    'updated_at' => now(),
-                    'statusorderpenyelia' => 0,
-                    'statusorderpelaksana' => 0,
-                    'statusorderasman' => 0,
+                    'updated_at' => now()
                 ]);
 
             $transMessage = "Simpan Kajian Ulang Alat Sukses";

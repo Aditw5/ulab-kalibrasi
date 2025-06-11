@@ -64,16 +64,17 @@ class PenyeliaCtrl extends Controller
                 'lp.lingkupkalibrasi',
             )
             ->where('pg.id', $this->getPegawaiId())
-            // ->where('mtr.statusorder', 1)
+            ->where('mtr.statusorder', 1)
             ->where('mtr.iskaji', true)
             ->where('mtr.statusenabled', true)
+            ->where('mtrd.statusenabled', true)
             ->where('mtrd.statusenabled', true);
 
         if (isset($r['dari']) && $r['dari'] != '') {
-            $data = $data->where(DB::raw("mtr.tglkajiulang::date"), '>=', $r->dari);
+            $data = $data->where(DB::raw("mtrd.tglverifasman::date"), '>=', $r->dari);
         }
         if (isset($r['sampai']) && $r['sampai'] != '') {
-            $data = $data->where(DB::raw("mtr.tglkajiulang::date"), '<=', $r->sampai);
+            $data = $data->where(DB::raw("mtrd.tglverifasman::date"), '<=', $r->sampai);
         }
         if (isset($r['status']) && $r['status'] != '') {
             $data = $data->where('pd.ispelayananpasien', '=', $r['status']);
@@ -104,45 +105,6 @@ class PenyeliaCtrl extends Controller
 
         $res['data'] = $data;
         return $this->respond($res);
-    }
-
-     public function saveVerifItem(Request $r)
-    {
-        DB::beginTransaction();
-        try {
-            $VI = $r['veriItem'];
-            DB::table('mitraregistrasidetail_t')
-                ->where('norec', $VI['norec'])
-                ->update([
-                    'lokasikajifk' => $VI['lokasikalibrasi'],
-                    'lingkupkalibrasifk' => $VI['lingkupkalibrasi'],
-                    'penyeliateknikfk' => $VI['penyeliateknik'],
-                    'pelaksanateknikfk' => $VI['pelaksana'],
-                    'durasikalbrasi' => $VI['durasikalbrasi'],
-                    'penyeliaveriffk' => $this->getPegawaiId(),
-                    'tglverifpenyelia' => now(),
-                    'statusorderpenyelia' => 1
-                ]);
-
-            $transMessage = "Simpan Verif Item Sukses";
-            DB::commit();
-
-            $result = [
-                "status" => 200,
-                "result" => [
-                    "as" => '@adit',
-                ],
-            ];
-        } catch (\Exception $e) {
-            $transMessage = "Simpan Gagal";
-            DB::rollBack();
-            $result = [
-                "status" => 400,
-                "result"  => $e->getMessage()
-            ];
-        }
-
-        return $this->respond($result['result'], $result['status'], $transMessage);
     }
 
     public function LayananVerifPenyelia(Request $r)

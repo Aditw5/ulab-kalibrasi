@@ -108,8 +108,8 @@
                                     v-if="item.penanda != null" :color="'info'" class="ml-2" /> -->
                                   <VTag :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                     class="ml-2" />
-                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null" :label="'Sudah Isi Lembar Kerja'"
-                                    :color="'info'" class="ml-2" />
+                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null" :label="'Sudah Isi Lembar Kerja'" :color="'info'"
+                                    class="ml-2" />
                                   <!-- <VTag
                                     :label="item.kategoriInsiden.charAt(0).toUpperCase() + item.kategoriInsiden.slice(1)"
                                     v-if="item.kategoriInsiden != null" :color="'purple'" class="ml-2" /> -->
@@ -295,199 +295,9 @@
     </div>
 
   </OverlayPanel>
-  <!-- <VModal :open="modalDetailOrder" title="Verifikasi" noclose size="big" actions="right"
-    @close="modalDetailOrder = false, clear()" cancelLabel="Tutup">
-    <template #content>
-      <div class="column is-12">
-        <Fieldset legend="Data Alat" :toggleable="true">
-          <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataOrder">
-            <div class="columns is-multiline">
-              <div class="column is-2" style="margin-top: 27px;">
-                <VPlaceload class="mx-2" />
-              </div>
-              <div class="column">
-                <VPlaceloadText :lines="4" width="75%" last-line-width="20%" />
-              </div>
-
-            </div>
-          </div>
-          <div class="timeline-wrapper" v-else>
-            <div class="timeline-wrapper-inner">
-              <div class="timeline-container">
-                <div class="timeline-item is-unread" v-for="(items, index) in detailOrderLayanan" :key="items.norec">
-                  <div :class="'dot is-' + listColor[index + 1]"></div>
-
-                  <div class="content-wrap is-grey">
-                    <div class="content-box">
-                      <div class="status"></div>
-                      <VIconBox size="medium" :color="listColor[index + 1]" rounded>
-                        <i class="iconify" data-icon="feather:package" aria-hidden="true"></i>
-                      </VIconBox>
-                      <div class="box-text" style="width:70%">
-                        <div class="meta-text">
-                          <p>
-                            <span>{{ items.namaproduk }}</span>
-                          </p>
-                          <table class="tb-order">
-                            <tr>
-                              <td>Lingkup</td>
-                              <td>:</td>
-                              <td>{{ items.lingkupkalibrasi }} </td>
-                            </tr>
-                            <tr>
-                              <td>Lokasi</td>
-                              <td>:</td>
-                              <td>{{ items.lokasi }} </td>
-                            </tr>
-                            <tr>
-                              <td>Penyelias Teknik </td>
-                              <td>:</td>
-                              <td class="font-values">{{ items.penyeliateknik }}</td>
-                            </tr>
-                            <tr>
-                              <td>Pelaksana Teknik</td>
-                              <td>:</td>
-                              <td>{{ items.pelaksanateknik }} </td>
-                            </tr>
-                            <tr>
-                              <td>Durasi</td>
-                              <td>:</td>
-                              <td>
-                                <VTag v-if="items.durasikalbrasi" color="warning" rounded> {{ items.durasikalbrasi }}
-                                </VTag>
-                              </td>
-                            </tr>
-                          </table>
-
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Fieldset>
-      </div>
-    </template>
-    <template #action>
-      <VButton icon="feather:save" @click="save(item)" color="info" :loading="isLoadingSave" raised>Simpan
-        Verif
-      </VButton>
-    </template>
-  </VModal> -->
   <VModal :open="modalDetailOrder" title="Verifikasi" noclose size="big" actions="right"
     @close="modalDetailOrder = false, clear()" cancelLabel="Tutup">
     <template #content>
-      <div class="business-dashboard hr-dashboard">
-        <div class="columns is-multiline">
-          <div class="column is-12 p-0">
-            <div class="block-header">
-              <div class="left column is-6 p-0">
-                <div class="current-user">
-                  <h3>{{ item.namaperusahaan }}</h3>
-                </div>
-              </div>
-              <div class="left column is-6 p-0">
-                <div>
-                  <div>
-                    <h4 class="block-heading">No. Pendaftaran</h4>
-                    <p class="block-hext">{{ item.nopendaftaran }}</p>
-                    <h4 class="block-heading">Tgl Registrasi</h4>
-                    <p class="block-hext">{{ item.tglregistrasi }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <div class="column is-12 p-4 mt-5">
-        <Fieldset legend="Edit Tindakan" :toggleable="true">
-          <div class="columns pl-3">
-            <div class="column is-1 pr-0" style="padding-left: 0px;margin-right: -38px">
-              <VField label="No">
-                <VAvatar initials="1" />
-              </VField>
-            </div>
-            <div class="column is-11 ml-5">
-              <div class="columns">
-                <div class="column is-4">
-                  <VField>
-                    <VLabel>Lokasi Kalibrasi</VLabel>
-                    <VControl>
-                      <AutoComplete v-model="item.lokasikalibrasi" :suggestions="d_lokasikalibrasi" disabled
-                        @complete="fetchLokasi($event)" :optionLabel="'label'" :dropdown="true" :minLength="3"
-                        class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'" :field="'label'"
-                        placeholder="ketik untuk mencari..." />
-                    </VControl>
-                  </VField>
-                </div>
-                <div class="column is-4">
-                  <VField>
-                    <VLabel>Lingkup Kalibrasi</VLabel>
-                    <VControl>
-                      <AutoComplete v-model="item.lingkupkalibrasi" :suggestions="d_lingkup" disabled
-                        @complete="fetchLingkup($event)" :optionLabel="'label'" :dropdown="true" :minLength="3"
-                        class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'" :field="'label'"
-                        placeholder="ketik untuk mencari..." />
-                    </VControl>
-                  </VField>
-                </div>
-                <div class="column is-4">
-                  <VField>
-                    <VLabel>Penyelia Teknik</VLabel>
-                    <VControl>
-                      <AutoComplete v-model="item.penyeliateknik" :suggestions="d_penyelia" disabled
-                        @complete="fetchPenyelia($event)" :optionLabel="'label'" :dropdown="true" :minLength="3"
-                        class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'" :field="'label'"
-                        placeholder="ketik untuk mencari..." />
-
-                    </VControl>
-                  </VField>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="columns pl-3">
-            <div class="column is-1 pr-0" style="padding-left: 0px;margin-right: -38px">
-            </div>
-            <div class="column is-11 ml-5">
-              <div class="columns">
-                <div class="column is-4">
-                  <VField>
-                    <VLabel>Pelaksana Teknik</VLabel>
-                    <VControl>
-                      <AutoComplete v-model="item.pelaksana" :suggestions="d_pelaksana"
-                        @complete="fetchPelaksana($event)" :optionLabel="'label'" :dropdown="true" :minLength="3"
-                        class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'" :field="'label'"
-                        placeholder="ketik untuk mencari..." />
-                    </VControl>
-                  </VField>
-                </div>
-                <div class="column is-2">
-                  <VField label="Durasi Hari">
-                    <VControl icon="lnir lnir-repeat-one">
-                      <VInput type="number" v-model="item.durasikalbrasi" placeholder="Jumlah" class="is-rounded" />
-                    </VControl>
-                  </VField>
-                </div>
-                <div class="columns mt-2" style="margin-left:40px">
-                  <VButtons>
-                    <VButton color="success" raised icon="feather:edit" v-if="item.pelaksana" @click="update(item)"
-                      :loading="isLoadingSave"> Update
-                    </VButton>
-                    <VButton raised @click="clear()"> Batal </VButton>
-                  </VButtons>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </Fieldset>
-      </div>
       <div class="column is-12">
         <Fieldset legend="Data Alat" :toggleable="true">
           <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataOrder">
@@ -551,18 +361,6 @@
 
                         </div>
                       </div>
-                      <div class="box-end" style="width: 30%">
-                        <div class="columns is-multiline">
-                          <div class="column is-6" style="margin-top: 0.5rem;">
-                            <VIconButton v-tooltip.bottom.left="'Edit'" icon="feather:edit" @click="edit(items)"
-                              color="warning" raised circle class="mr-2">
-                            </VIconButton>
-                            <VIconButton v-tooltip.bottom.right="'Tolak'" icon="feather:trash"
-                              @click="hapusItems(items)" color="danger" raised circle>
-                            </VIconButton>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -573,8 +371,6 @@
       </div>
     </template>
     <template #action>
-      <VButton v-if="isLoadDataSoNorec" icon="feather:printer" @click="cetakBuktiOrder(norec)" color="info"
-        :loading="isLoadingSave" raised>Cetak</VButton>
       <VButton icon="feather:save" @click="save(item)" color="info" :loading="isLoadingSave" raised>Simpan
         Verif
       </VButton>
@@ -584,41 +380,41 @@
     cancelLabel="Tutup">
     <template #content>
       <div class="column">
-        <div class="business-dashboard hr-dashboard">
-          <div class="columns is-multiline">
-            <div class="column is-12 p-0">
-              <div class="block-header">
-                <div class="left column is-6 p-0">
-                  <div class="current-user">
-                    <h3>{{ item.namaproduk }}</h3>
+          <div class="business-dashboard hr-dashboard">
+            <div class="columns is-multiline">
+              <div class="column is-12 p-0">
+                <div class="block-header">
+                  <div class="left column is-6 p-0">
+                    <div class="current-user">
+                      <h3>{{ item.namaproduk }}</h3>
+                    </div>
                   </div>
-                </div>
-                <div class="left column is-6 p-0">
-                  <div>
+                  <div class="left column is-6 p-0">
                     <div>
-                      <h4 class="block-heading">Merk</h4>
-                      <p class="block-hext">{{ item.namamerk }}</p>
-                      <h4 class="block-heading">Tipe</h4>
-                      <p class="block-hext">{{ item.namatipe }}</p>
+                      <div>
+                        <h4 class="block-heading">Merk</h4>
+                        <p class="block-hext">{{ item.namamerk }}</p>
+                        <h4 class="block-heading">Tipe</h4>
+                        <p class="block-hext">{{ item.namatipe }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="center column is-6 p-0">
+                    <div>
+                      <div>
+                        <h4 class="block-heading">S/N</h4>
+                        <p class="block-hext">{{ item.namaserialnumber }}</p>
+                        <h4 class="block-heading">Durasi</h4>
+                        <p class="block-hext">{{ item.durasikalbrasi }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="center column is-6 p-0">
-                  <div>
-                    <div>
-                      <h4 class="block-heading">S/N</h4>
-                      <p class="block-hext">{{ item.namaserialnumber }}</p>
-                      <h4 class="block-heading">Durasi</h4>
-                      <p class="block-hext">{{ item.durasikalbrasi }}</p>
-                    </div>
-                  </div>
-                </div>
+      
               </div>
-
             </div>
           </div>
         </div>
-      </div>
       <div class="column is-12">
         <Fieldset legend="Data Alat" :toggleable="true">
           <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataDeatilOrder">
@@ -714,10 +510,6 @@ let detailOrderLayanan: any = ref(0)
 let modalRiwayat: any = ref(false)
 let isLoadDataDeatilOrder: any = ref(false)
 const timelineItems = ref([])
-const d_lokasikalibrasi = ref([])
-const d_lingkup = ref([])
-const d_penyelia = ref([])
-const d_pelaksana = ref([])
 const item: any = ref({
   aktif: true,
   fStatusOrder: 0,
@@ -795,14 +587,6 @@ const orderVerify = async (e: any) => {
   detailOrderLayanan.value = response.detail
 }
 
-const reloadItemVerify = async (e: any) => {
-    const response = await useApi().get(`/penyelia/layanan-verif-penyelia?norec_pd=${e}`)
-    response.detail.forEach((element: any, i: any) => {
-        element.no = i + 1
-    });
-    detailOrderLayanan.value = response.detail
-}
-
 const detailOrder = async (e) => {
   console.log(e)
   modalRiwayat.value = true
@@ -813,7 +597,7 @@ const detailOrder = async (e) => {
   item.value.durasikalbrasi = e.durasikalbrasi
   isLoadDataDeatilOrder.value = true
   const response = await useApi().get(`/penyelia/detail-produk?norec_pd=${e.norec_detail}`)
-  timelineItems.value = response.timeline
+  timelineItems.value = response.timeline 
   isLoadDataDeatilOrder.value = false
 }
 
@@ -828,120 +612,12 @@ const lembarKerja = (e: any) => {
   })
 }
 
-const fetchLokasi = async (filter: any) => {
-    await useApi().get(
-        `emr/dropdown/lokasikalibrasi_m?select=id,lokasi&param_search=lokasi&query=${filter.query}&limit=10`
-    ).then((response) => {
-        d_lokasikalibrasi.value = response
-    })
-}
 
-const fetchLingkup = async (filter: any) => {
-    await useApi().get(
-        `emr/dropdown/lingkupkalibrasi_m?select=id,lingkupkalibrasi&param_search=lingkupkalibrasi&query=${filter.query}&limit=10`
-    ).then((response) => {
-        d_lingkup.value = response
-    })
-}
 
-const fetchPenyelia = async (filter: any) => {
-    let lokasi = item.value.lokasikalibrasi.value
-    await useApi().get(
-        `registrasi/pegawai-lokasi-kalibrasi?lokasi=${lokasi}&param_search=namalengkap&query=${filter.query}`).then((response) => {
-            d_penyelia.value = response.data.map((e: any) => {
-                return { label: e.namalengkap, value: e.id }
-            })
-        })
-}
-
-const fetchPelaksana = async (filter: any) => {
-    let lokasi = item.value.lokasikalibrasi.value
-    await useApi().get(
-        `registrasi/pegawai-lokasi-kalibrasi?lokasi=${lokasi}&param_search=namalengkap&query=${filter.query}`).then((response) => {
-            d_pelaksana.value = response.data.map((e: any) => {
-                return { label: e.namalengkap, value: e.id }
-            })
-        })
-}
 const filter = async () => {
   item.isDate = false;
   fetchAlatKalibrasi();
 }
-
-const edit = (e: any) => {
-    item.value.lokasikalibrasi = {
-        value: e.lokasikalibrasifk ?? '',
-        label: e.lokasi ?? ''
-    };
-    item.value.lingkupkalibrasi = {
-        value: e.lingkupfk ?? '',
-        label: e.lingkupkalibrasi ?? ''
-    };
-    item.value.penyeliateknik = {
-        value: e.penyeliateknikfk ?? '',
-        label: e.penyeliateknik ?? ''
-    };
-    item.value.pelaksana = {
-        value: e.pelaksanateknikfk ?? '',
-        label: e.pelaksanateknik ?? ''
-    };
-    item.value.norec_detail = e.norec_detail
-    item.value.norec = e.norec
-    item.value.durasikalbrasi = e.durasikalbrasi
-}
-
-const update = async (e: any) => {
-    // console.log(e)
-    if (!e.pelaksana.value) {
-        H.alert('error', 'Pelaksana harus di isi')
-        return
-    }
-    if (!e.durasikalbrasi) {
-        H.alert('error', 'Durasi harus di isi')
-        return
-    }
-    let json = {
-        'veriItem': {
-            'norec': e.norec_detail ? e.norec_detail : '',
-            'lokasikalibrasi': e.lokasikalibrasi.value,
-            'lingkupkalibrasi': e.lingkupkalibrasi.value,
-            'penyeliateknik': e.penyeliateknik.value,
-            'pelaksana': e.pelaksana.value,
-            'durasikalbrasi': e.durasikalbrasi,
-        }
-    }
-    isLoadingSave.value = true
-    await useApi().post('/penyelia/save-verif-item', json).then((r) => {
-        isLoadingSave.value = false
-        reloadItemVerify(e.norec)
-        clear()
-    }).catch((error: any) => {
-        isLoadingSave.value = false
-        console.error('Error saat menyimpan berkas mitra:', error);
-
-        if (error.response) {
-
-            H.alert('error', `Kesalahan: ${error.response.status} - ${error.response.data.message || 'Gagal menyimpan berkas mitra'}`);
-        } else if (error.request) {
-
-            H.alert('error', 'Tidak ada respons dari server. Silakan coba lagi.');
-        } else {
-
-            H.alert('error', `Terjadi kesalahan: ${error.message}`);
-        }
-    })
-}
-
-const clear = () => {
-    item.value.id = ''
-    delete item.value.no
-    item.value.pelaksana = ''
-    item.value.lokasikalibrasi = ''
-    item.value.lingkupkalibrasi = ''
-    item.value.penyeliateknik = ''
-    item.value.durasikalbrasi = ''
-}
-
 
 const save = async (e: any) => {
   console.log(e)
@@ -1168,7 +844,6 @@ fetchDataChart()
 @import '/@src/scss/custom/config';
 @import '/@src/scss/module/dashboard/penyelia.scss';
 @import '/@src/scss/module/dashboard/bedah.scss';
-
 .hide {
   display: hidden !important;
 }
