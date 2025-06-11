@@ -89,6 +89,9 @@
                               <div class="box-end" style="width: 30%">
                                 <div class="columns is-multiline">
                                   <div class="column is-6" style="margin-top: 0.5rem;">
+                                    <VIconButton v-tooltip.bottom.left="'Kirim SPK'" icon="feather:printer"
+                                      @click="cetakSpk(items)" color="success" raised circle class="mr-2">
+                                    </VIconButton>
                                     <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity"
                                       @click="detailOrder(items)" color="info" raised circle class="mr-2">
                                     </VIconButton>
@@ -262,6 +265,12 @@ const detailOrder = async (e) => {
   const response = await useApi().get(`/asman/detail-produk?norec_pd=${e.norec_detail}`)
   timelineItems.value = response.timeline // <-- satu array urut, langsung untuk v-for
   isLoadDataDeatilOrder.value = false
+}
+
+const cetakSpk = (e) => {
+  console.log(e.pelaksanateknikfk)
+
+  H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
 }
 
 

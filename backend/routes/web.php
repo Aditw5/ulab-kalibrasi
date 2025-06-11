@@ -596,6 +596,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('asman/save-verif', 'saveVerif');
         Route::post('asman/save-penolakan', 'savePenolakanAsman');
         Route::get('asman/header-mitra', 'HeaderMitra');
+        Route::get('asman/cetak-spk', 'cetakSPK');
     });
 
     Route::controller(PenyeliaCtrl::class)->group(function () {

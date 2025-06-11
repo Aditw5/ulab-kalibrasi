@@ -748,7 +748,8 @@ const update = async (e: any) => {
     }
     let json = {
         'veriItem': {
-            'norec': e.norec_detail ? e.norec_detail : '',
+            'norec': e.norec ? e.norec : '',
+            'norec_detail': e.norec_detail ? e.norec_detail : '',
             'lokasikalibrasi': e.lokasikalibrasi.value,
             'lingkupkalibrasi': e.lingkupkalibrasi.value,
             'penyeliateknik': e.penyeliateknik.value,

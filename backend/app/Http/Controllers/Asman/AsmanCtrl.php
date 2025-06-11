@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\App;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AsmanCtrl extends Controller
 {
@@ -306,9 +308,39 @@ class AsmanCtrl extends Controller
         DB::beginTransaction();
         try {
             $VI = $r['veriItem'];
+
+            $lokasi = DB::table('lokasikalibrasi_m')
+                ->where('id', $VI['lokasikalibrasi'])
+                ->first();
+            $lokasiInisial = '';
+            if ($lokasi) {
+                $lokasiInisial = $lokasi->inisial ?? strtoupper(substr($lokasi->lokasi, 0, 1));
+            }
+
+            $lingkup = DB::table('lingkupkalibrasi_m')
+                ->where('id', $VI['lingkupkalibrasi'])
+                ->first();
+            $lingkupInisial = '';
+            if ($lingkup) {
+                $lingkupInisial = $lingkup->inisial ?? strtoupper(substr($lingkup->lingkupkalibrasi, 0, 1));
+            }
+
+            $tahun = date('y');
+            $bulan = date('m');
+
+            $urut = DB::table('mitraregistrasidetail_t')
+                ->where('noregistrasifk', $VI['norec'])
+                ->whereYear('tglverifasman', date('Y'))
+                ->whereMonth('tglverifasman', date('m'))
+                ->count() + 1;
+
+            $urutStr = str_pad($urut, 3, '0', STR_PAD_LEFT);
+            $noorderalat = "{$lokasiInisial}{$lingkupInisial}-{$tahun}.{$bulan}.{$urutStr}";
+
             DB::table('mitraregistrasidetail_t')
-                ->where('norec', $VI['norec'])
+                ->where('norec', $VI['norec_detail'])
                 ->update([
+                    'noorderalat' => $noorderalat,
                     'iskaji' => true,
                     'lokasikajifk' => $VI['lokasikalibrasi'],
                     'lingkupkalibrasifk' => $VI['lingkupkalibrasi'],
@@ -404,5 +436,132 @@ class AsmanCtrl extends Controller
         $result['as'] = '@epic';
 
         return $this->respond($result);
+    }
+
+     public function cetakSPK(Request $r)
+    {
+
+        $profile = $this->profile();
+        $print = false;
+        $pageWidth = 950;
+
+        $res['identitas'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.petugaskaji')
+            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+            ->select(
+                'jb.id as idjabatan',
+                'jb.namajabatanulab as namajabanpetugaskaji',
+                'mtr.norec',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mt.namaperusahaan',
+                'mt.alamatktr',
+                'pg.id as petugaskajifk',
+                'pg.namalengkap as namapetugaskaji',
+                'lk.lokasi',
+                'mtr.jabatanpenanggungjawab',
+                'mtr.namapenanggungjawab'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtr.norec', $r['norec'])
+            ->first();
+
+        $res['alat'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtrd.asmanveriffk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg2.jabatan1fk')
+            ->select(
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.keterangan',
+                'mtrd.namafile',
+                'mtrd.pelaksanateknikfk',
+                'mtrd.noorderalat',
+                'mtrd.durasikalbrasi',
+                'prd.namaproduk',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi',
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as asmanfk',
+                'pg3.namalengkap as asamanverifikasi',
+                'jb.namajabatanulab as jabatanpelaksana',
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtr.norec', $r['norec'])
+            ->where('mtrd.pelaksanateknikfk', $r['pelaksanateknikfk'])
+            ->orderByDesc('prd.namaproduk')
+            ->get();
+
+        $res['totalDurasi'] = $res['alat']->sum('durasikalbrasi'); 
+        $res['pdf']  = $r['pdf'];
+        $res['ttdPetugas'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['identitas']->namapetugaskaji));
+        $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->pelaksanateknik));
+
+
+        $blade = 'report.asman.surat-perintah-kerja';
+
+        if ($res['pdf'] == 'true') {
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf->stream();
+        }
+        if (isset($r['storage'])) {
+            $res['storage']  = true;
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade,
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf;
+        }
+
+        return view(
+            $blade,
+            compact('profile', 'pageWidth', 'print', 'res')
+        );
     }
 }
