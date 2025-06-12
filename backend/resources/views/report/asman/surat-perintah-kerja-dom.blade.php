@@ -712,7 +712,7 @@
                  <td >
                 </td>
                 <td align="center">
-                    <img src="data:image/png;base64, {!! $res['ttdPetugas'] !!}"
+                    <img src="data:image/png;base64, {!! $res['ttdManager'] !!}"
                         style="margin-top: 5px; margin-bottom: 5px">
                     {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
                 </td>
@@ -726,8 +726,8 @@
                  <td >
                 </td>
                 <td height="10" valign="bottom" height="100" width="15%" class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa">(
-                                                )</span>
+                    <span style="font-size: 10pt;" class="text-biasa">
+                        ( {{$res['alat'][0]->namamanager}}  )</span>
                 </td>
                 <td height="10" valign="bottom" height="100" width="15%" class="text-center">
                     <span style="font-size: 10pt;" class="text-biasa">( {{$res['alat'][0]->penyeliateknik}}

@@ -83,7 +83,7 @@
               <VButton icon="lnir lnir-arrow-left rem-100" light dark-outlined @click="cancelRegistrasi()">
                 Batal
               </VButton>
-              <VButton type="button" color="primary" rounded outlined raised icon="feather:save"
+              <VButton type="button" color="primary" rounded outlined raised icon="feather:save" :loading="isLoading"
                 @click="saveRegistrasi()"> Simpan
               </VButton>
 

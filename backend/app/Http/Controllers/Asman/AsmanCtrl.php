@@ -491,6 +491,7 @@ class AsmanCtrl extends Controller
                 'mtrd.pelaksanateknikfk',
                 'mtrd.noorderalat',
                 'mtrd.durasikalbrasi',
+                'mtrd.namamanager',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -523,7 +524,7 @@ class AsmanCtrl extends Controller
 
         $res['totalDurasi'] = $res['alat']->sum('durasikalbrasi'); 
         $res['pdf']  = $r['pdf'];
-        $res['ttdPetugas'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['identitas']->namapetugaskaji));
+        $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->namamanager));
         $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->pelaksanateknik));
 
 

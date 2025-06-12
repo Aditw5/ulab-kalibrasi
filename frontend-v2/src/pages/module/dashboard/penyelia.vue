@@ -108,8 +108,8 @@
                                     v-if="item.penanda != null" :color="'info'" class="ml-2" /> -->
                                   <VTag :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                     class="ml-2" />
-                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null" :label="'Sudah Isi Lembar Kerja'" :color="'info'"
-                                    class="ml-2" />
+                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null" :label="'Sudah Isi Lembar Kerja'"
+                                    :color="'info'" class="ml-2" />
                                   <!-- <VTag
                                     :label="item.kategoriInsiden.charAt(0).toUpperCase() + item.kategoriInsiden.slice(1)"
                                     v-if="item.kategoriInsiden != null" :color="'purple'" class="ml-2" /> -->
@@ -140,15 +140,18 @@
                                       @click="emr(item)" v-tooltip.bottom.left="'EMR'">
                                     </VIconButton>
                                   </RouterLink> -->
+                                  <VIconButton v-tooltip.bottom.left="'SPK'" icon="feather:printer"
+                                    @click="cetakSpk(item)" color="warning" raised circle class="mr-2">
+                                  </VIconButton>
                                   <VIconButton v-if="item.statusorderpenyelia == 1" color="info" circle
                                     icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
                                     v-tooltip.bottom.left="'Lembar Kerja'" />
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
                                     circle icon="pi pi-check-circle" v-if="item.statusorderpenyelia == 0"
-                                    @click="orderVerify(item)" style="margin-right: 15px;" />
+                                    @click="orderVerify(item)"/>
                                   <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity"
                                     v-if="item.statusorderpenyelia == 1" @click="detailOrder(item)" color="info" raised
-                                    circle class="ml-2 mr-2">
+                                    circle class="mr-2">
                                   </VIconButton>
                                   <VIconButton color="primary" circle icon="pi pi-ellipsis-v" raised
                                     @click="toggleOP($event, item)" v-tooltip.bottom.left="'TINDAKAN'">
@@ -380,41 +383,41 @@
     cancelLabel="Tutup">
     <template #content>
       <div class="column">
-          <div class="business-dashboard hr-dashboard">
-            <div class="columns is-multiline">
-              <div class="column is-12 p-0">
-                <div class="block-header">
-                  <div class="left column is-6 p-0">
-                    <div class="current-user">
-                      <h3>{{ item.namaproduk }}</h3>
-                    </div>
+        <div class="business-dashboard hr-dashboard">
+          <div class="columns is-multiline">
+            <div class="column is-12 p-0">
+              <div class="block-header">
+                <div class="left column is-6 p-0">
+                  <div class="current-user">
+                    <h3>{{ item.namaproduk }}</h3>
                   </div>
-                  <div class="left column is-6 p-0">
+                </div>
+                <div class="left column is-6 p-0">
+                  <div>
                     <div>
-                      <div>
-                        <h4 class="block-heading">Merk</h4>
-                        <p class="block-hext">{{ item.namamerk }}</p>
-                        <h4 class="block-heading">Tipe</h4>
-                        <p class="block-hext">{{ item.namatipe }}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="center column is-6 p-0">
-                    <div>
-                      <div>
-                        <h4 class="block-heading">S/N</h4>
-                        <p class="block-hext">{{ item.namaserialnumber }}</p>
-                        <h4 class="block-heading">Durasi</h4>
-                        <p class="block-hext">{{ item.durasikalbrasi }}</p>
-                      </div>
+                      <h4 class="block-heading">Merk</h4>
+                      <p class="block-hext">{{ item.namamerk }}</p>
+                      <h4 class="block-heading">Tipe</h4>
+                      <p class="block-hext">{{ item.namatipe }}</p>
                     </div>
                   </div>
                 </div>
-      
+                <div class="center column is-6 p-0">
+                  <div>
+                    <div>
+                      <h4 class="block-heading">S/N</h4>
+                      <p class="block-hext">{{ item.namaserialnumber }}</p>
+                      <h4 class="block-heading">Durasi</h4>
+                      <p class="block-hext">{{ item.durasikalbrasi }}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
+
             </div>
           </div>
         </div>
+      </div>
       <div class="column is-12">
         <Fieldset legend="Data Alat" :toggleable="true">
           <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataDeatilOrder">
@@ -579,7 +582,7 @@ const orderVerify = async (e: any) => {
   item.value.norec_detail = e.norec_detail
   // getListPelayanan(data)
   isLoadDataOrder.value = true
-  const response = await useApi().get(`/penyelia/layanan-verif-penyelia?norec_pd=${e.norec}`)
+  const response = await useApi().get(`/penyelia/layanan-verif-penyelia?norec_pd=${e.norec_detail}`)
   response.detail.forEach((element: any, i: any) => {
     element.no = i + 1
   });
@@ -597,7 +600,7 @@ const detailOrder = async (e) => {
   item.value.durasikalbrasi = e.durasikalbrasi
   isLoadDataDeatilOrder.value = true
   const response = await useApi().get(`/penyelia/detail-produk?norec_pd=${e.norec_detail}`)
-  timelineItems.value = response.timeline 
+  timelineItems.value = response.timeline
   isLoadDataDeatilOrder.value = false
 }
 
@@ -775,6 +778,12 @@ const toggleOP = (event: any, item: any) => {
   op.value.toggle(event);
 }
 
+const cetakSpk = (e) => {
+  console.log(e)
+
+  H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
+}
+
 
 const cetakSEP = (e: any) => {
   isbtnLoadPrint.value = true
@@ -844,6 +853,7 @@ fetchDataChart()
 @import '/@src/scss/custom/config';
 @import '/@src/scss/module/dashboard/penyelia.scss';
 @import '/@src/scss/module/dashboard/bedah.scss';
+
 .hide {
   display: hidden !important;
 }

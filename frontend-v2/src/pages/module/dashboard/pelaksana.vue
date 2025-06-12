@@ -137,16 +137,19 @@
                                       norec_apd: item.norec_apd,
                                     }
                                   }"> -->
+                                  <VIconButton v-tooltip.bottom.left="'SPK'" icon="feather:printer"
+                                      @click="cetakSpk(item)" color="warning" raised circle class="mr-2">
+                                  </VIconButton>
                                   <VIconButton v-if="item.statusorderpelaksana == 1" color="info" circle
                                     icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
                                     v-tooltip.bottom.left="'Lembar Kerja'" />
                                   <!-- </RouterLink> -->
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
                                     circle icon="pi pi-check-circle" v-if="item.statusorderpelaksana == 0"
-                                    @click="orderVerify(item)" style="margin-right: 20px;" />
+                                    @click="orderVerify(item)"/>
                                   <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity"
                                     v-if="item.statusorderpelaksana == 1" @click="detailOrder(item)" color="info" raised
-                                    circle class="ml-2 mr-2">
+                                    circle class="mr-2">
                                   </VIconButton>
                                   <VIconButton color="primary" circle icon="pi pi-ellipsis-v" raised
                                     @click="toggleOP($event, item)" v-tooltip.bottom.left="'TINDAKAN'">
@@ -519,7 +522,7 @@ const orderVerify = async (e: any) => {
   item.value.norec_detail = e.norec_detail
   // getListPelayanan(data)
   isLoadDataOrder.value = true
-  const response = await useApi().get(`/pelaksana/layanan-verif-pelaksana?norec_pd=${e.norec}`)
+  const response = await useApi().get(`/pelaksana/layanan-verif-pelaksana?norec_pd=${e.norec_detail}`)
   response.detail.forEach((element: any, i: any) => {
     element.no = i + 1
   });
@@ -575,6 +578,14 @@ const save = async (e: any) => {
     }
   })
 }
+
+const cetakSpk = (e) => {
+  // console.log(e)
+
+  H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
+}
+
+
 
 
 const compare = (a: any, b: any) => {

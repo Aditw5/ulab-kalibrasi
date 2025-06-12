@@ -609,6 +609,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('penyelia/download-template-lembar-kerja', 'downloadTemplateLembarKerjaPenyelia');
         Route::post('penyelia/save-data-upload-lembar-kerja', 'simpanUploadLembaKerjaPenyelia');
         Route::get('penyelia/detail-produk-lembar-kerja', 'detailProdukLembarKerjaPenyelia');
+        Route::get('penyelia/cetak-spk', 'cetakSPK');
     });
 
     Route::controller(PelaksanaCtrl::class)->group(function () {
@@ -620,6 +621,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('pelaksana/download-template-lembar-kerja', 'downloadTemplateLembarKerja');
         Route::post('pelaksana/save-data-upload-lembar-kerja', 'simpanUploadLembaKerja');
         Route::get('pelaksana/detail-produk-lembar-kerja', 'detailProdukLembarKeerja');
+        Route::get('pelaksana/cetak-spk', 'cetakSPK');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {

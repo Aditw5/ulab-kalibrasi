@@ -527,6 +527,7 @@ const simpan = async () => {
   formData.append('lingkupkalibrasi', input.value.lingkupkalibrasi.value)
   formData.append('penyeliateknik', input.value.penyeliateknik.value)
   formData.append('pelaksana', input.value.pelaksana.value)
+  formData.append('manager', input.value.namamanager)
   isLoadingPop.value = true
   await useApi().post('/registrasi/save-kajian-ulang-item', formData).then((r) => {
     isLoadingPop.value = false
@@ -754,7 +755,7 @@ const fetchLingkup = async (filter: any) => {
 const fetchPenyelia = async (filter: any) => {
   let lokasi = input.value.lokasikalibrasi.value
   await useApi().get(
-    `registrasi/pegawai-lokasi-kalibrasi?lokasi=${lokasi}&param_search=namalengkap&query=${filter.query}`).then((response) => {
+    `registrasi/pegawai-lokasi-kalibrasi?lokasi=${lokasi}&param_search=namalengkap&query=${filter.query}&jenispegawai=${1}`).then((response) => {
       d_penyelia.value = response.data.map((e: any) => {
         return { label: e.namalengkap, value: e.id }
       })
@@ -764,7 +765,7 @@ const fetchPenyelia = async (filter: any) => {
 const fetchPelaksana = async (filter: any) => {
   let lokasi = input.value.lokasikalibrasi.value
   await useApi().get(
-    `registrasi/pegawai-lokasi-kalibrasi?lokasi=${lokasi}&param_search=namalengkap&query=${filter.query}`).then((response) => {
+    `registrasi/pegawai-lokasi-kalibrasi?lokasi=${lokasi}&param_search=namalengkap&query=${filter.query}&jenispegawai=${2}`).then((response) => {
       d_pelaksana.value = response.data.map((e: any) => {
         return { label: e.namalengkap, value: e.id }
       })

@@ -146,6 +146,9 @@ class MitraCtrl extends Controller
         if (isset($r['lokasi']) && $r['lokasi'] != "" && $r['lokasi'] != "undefined") {
             $data = $data->where('pg.lokasikalibrasifk', '=', $r['lokasi']);
         };
+        if (isset($r['jenispegawai']) && $r['jenispegawai'] != "" && $r['jenispegawai'] != "undefined") {
+            $data = $data->where('pg.objectjenispegawaifk', '=', $r['jenispegawai']);
+        };
         if (isset($r['param_search']) && $r['param_search'] != '') {
             $exp = explode(',', $r['param_search']);
             foreach ($exp as $items) {
@@ -248,6 +251,7 @@ class MitraCtrl extends Controller
                     'lingkupkalibrasifk' => $r->lingkupkalibrasi,
                     'penyeliateknikfk' => $r->penyeliateknik,
                     'pelaksanateknikfk' => $r->pelaksana,
+                    'namamanager' => $r->manager,
                     'iskaji' => true,
                     'namafile' => $filename,
                     'updated_at' => now()
