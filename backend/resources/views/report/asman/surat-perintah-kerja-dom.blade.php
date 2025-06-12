@@ -277,7 +277,7 @@
                     </span>
                 </td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td width="15%">
                 </td>
                 <td width="15%">
@@ -314,7 +314,7 @@
                         {{ $res['identitas']->alamatktr }}
                     </span>
                 </td>
-            </tr>
+            </tr> --}}
         </table>
         <table width="100%" style="margin-top: 5px; ">
             <tr>

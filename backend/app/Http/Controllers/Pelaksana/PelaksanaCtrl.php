@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\File;
 use App\Models\Transaksi\LembarKerja;
 use Illuminate\Support\Facades\App;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Barryvdh\Snappy\Facades\SnappyPdf;
 
 class PelaksanaCtrl extends Controller
 {
@@ -374,7 +375,8 @@ class PelaksanaCtrl extends Controller
     {
         $data = DB::table('lembarkerja_t as lk')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
-            ->select('lk.*')
+            ->join('mitraregistrasi_t as mtr', 'mtr.norec', '=', 'mtrd.noregistrasifk')
+            ->select('lk.*', 'mtr.norec as norecregis')
             ->where('mtrd.norec', $request->norecdetail)
             ->where('lk.statusenabled', true)
             ->get();
@@ -660,4 +662,209 @@ class PelaksanaCtrl extends Controller
             compact('profile', 'pageWidth', 'print', 'res')
         );
     }
+
+    public function cetakSertifikatLembarKerja(Request $r)
+    {
+
+        $profile = $this->profile();
+        $print = false;
+        $pageWidth = 950;
+
+        $res['identitas'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.petugaskaji')
+            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+            ->select(
+                'jb.id as idjabatan',
+                'jb.namajabatanulab as namajabanpetugaskaji',
+                'mtr.norec',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mt.namaperusahaan',
+                'mt.alamatktr',
+                'pg.id as petugaskajifk',
+                'pg.namalengkap as namapetugaskaji',
+                'lk.lokasi',
+                'mtr.jabatanpenanggungjawab',
+                'mtr.namapenanggungjawab'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtr.norec', $r['norec'])
+            ->first();
+
+        $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
+            ->select('lk.*',)
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->where('lk.statusenabled', true)
+            ->get();
+        $res['pdf']  = $r['pdf'];        
+
+        $blade = 'report.pelaksana.sertifikat-lembar-kerja';
+
+        if ($res['pdf'] == 'true') {
+            $pdf = App::make('dompdf.wrapper');
+            // $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf->stream();
+        }
+        if (isset($r['storage'])) {
+            $res['storage']  = true;
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade,
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf;
+        }
+
+        return view(
+            $blade,
+            compact('profile', 'pageWidth', 'print', 'res')
+        );
+    }
+
+//     public function cetakSertifikatLembarKerja(Request $r)
+//     {
+//         $profile = $this->profile();
+//         $print = false;
+//         $pageWidth = 950;
+
+//         // Query identitas
+//         $res['identitas'] = $data = DB::table('mitraregistrasi_t as mtr')
+//             ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+//             ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.petugaskaji')
+//             ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
+//             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+//             ->select(
+//                 'jb.id as idjabatan',
+//                 'jb.namajabatanulab as namajabanpetugaskaji',
+//                 'mtr.norec',
+//                 'mtr.tglregistrasi',
+//                 'mtr.nopendaftaran',
+//                 'mtr.catatan',
+//                 'mt.namaperusahaan',
+//                 'mt.alamatktr',
+//                 'pg.id as petugaskajifk',
+//                 'pg.namalengkap as namapetugaskaji',
+//                 'lk.lokasi',
+//                 'mtr.jabatanpenanggungjawab',
+//                 'mtr.namapenanggungjawab'
+//             )
+//             ->where('mtr.statusenabled', true)
+//             ->where('mtr.iskaji', true)
+//             ->where('mtr.norec', $r['norec'])
+//             ->first();
+
+//         // Query lembar kerja
+//         $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
+//             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
+//             ->select('lk.*')
+//             ->where('mtrd.norec', $r['norec_detail'])
+//             ->where('lk.statusenabled', true)
+//             ->get();
+
+//         $res['pdf'] = $r['pdf'] ?? false;
+//         $blade = 'report.pelaksana.sertifikat-lembar-kerja';
+
+//         // PDF EXPORT
+//         if ($res['pdf'] === 'true' || $res['pdf'] === true) {
+
+//             // Render main html
+//             $html = view($blade, [
+//                 'profile' => $profile,
+//                 'pageWidth' => $pageWidth,
+//                 'print' => $print,
+//                 'res' => $res,
+//             ])->render();
+
+//             // Render header html
+//             $header = view('report.pelaksana.sertifikat-header', [
+//                 'profile' => $profile,
+//                 'res' => $res,
+//             ])->render();
+
+//             // dd($header);
+
+//             // Render footer html
+//             $footer = view('report.pelaksana.sertifikat-footer', [
+//                 'profile' => $profile,
+//                 'res' => $res,
+//             ])->render();
+
+//             // Generate PDF with header & footer
+//            $pdf = SnappyPdf::loadHTML($html)
+//             ->setOption('header-html', $header)
+//             ->setOption('footer-html', $footer)
+//             ->setOption('margin-top', 200)
+//             ->setOption('margin-bottom', 40)
+//             ->setOption('header-spacing', 5)
+//             ->setOption('footer-spacing', 5)
+//             ->setPaper('a4', 'portrait');
+//  // jarak antara footer dan konten
+
+//             return $pdf->inline('sertifikat.pdf');
+//             // atau bisa juga pakai: return $pdf->download('sertifikat.pdf');
+//         }
+
+//         // JIKA MAU SIMPAN PDF DI STORAGE, MIRIP SAJA
+//         if (isset($r['storage'])) {
+//             $res['storage'] = true;
+
+//             $html = view($blade, [
+//                 'profile' => $profile,
+//                 'pageWidth' => $pageWidth,
+//                 'print' => $print,
+//                 'res' => $res,
+//             ])->render();
+
+//             $header = view('report.pelaksana.sertifikat-header', [
+//                 'profile' => $profile,
+//                 'res' => $res,
+//             ])->render();
+            
+
+//             $footer = view('report.pelaksana.sertifikat-footer', [
+//                 'profile' => $profile,
+//                 'res' => $res,
+//             ])->render();
+
+//             $pdf = SnappyPdf::loadHTML($html)
+//                 ->setPaper('a4', 'portrait')
+//                 ->setOption('margin-top', 50)
+//                 ->setOption('margin-bottom', 35)
+//                 ->setOption('header-html', $header)
+//                 ->setOption('header-spacing', 5)
+//                 ->setOption('footer-html', $footer)
+//                 ->setOption('footer-spacing', 3);
+
+//             // contoh save ke storage, jika mau
+//             // Storage::put('public/pdf/sertifikat.pdf', $pdf->output());
+
+//             return $pdf;
+//         }
+
+//         // TAMPILKAN DI BROWSER SAJA (HTML, BUKAN PDF)
+//         return view(
+//             $blade,
+//             compact('profile', 'pageWidth', 'print', 'res')
+//         );
+//     }
 }

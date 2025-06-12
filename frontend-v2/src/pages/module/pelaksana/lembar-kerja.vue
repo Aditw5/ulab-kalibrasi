@@ -183,12 +183,21 @@
                 <h3 class="title is-5 mb-2 mr-1">Data Upload Lembar Kerja </h3>
               </div>
             </div>
-            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceDataKlaim" :paginator="true"
+            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceHasilLembarKerja" :paginator="true"
               :rows="10" :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm"
               filterDisplay="menu"
               paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
               responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
+              <template #header>
+                <div class="column pt-0 pb-0">
+                  <VButtons style="justify-content: space-between;">
+                    <VButton color="primary" @click="cetakSertifikatLembarKerja()" outlined icon="feather:printer">
+                      Cetak Sertifikat  
+                    </VButton>
+                  </VButtons>
+                </div>
+              </template>
               <ColumnGroup type="header">
                 <Row>
                   <Column header="No" />
@@ -362,7 +371,7 @@
                 <h3 class="title is-5 mb-2 mr-1">Data Upload Lembar Kerja </h3>
               </div>
             </div>
-            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceDataKlaim" :paginator="true"
+            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceHasilLembarKerja" :paginator="true"
               :rows="10" :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm"
               filterDisplay="menu"
               paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
@@ -435,7 +444,7 @@ const totalSize: Number = ref(0)
 const valueProgress: Number = ref(0)
 let loadSearch: any = ref(false)
 const dataSource: any = ref([])
-const dataSourceDataKlaim: any = ref([])
+const dataSourceHasilLembarKerja: any = ref([])
 const filterd = ref('')
 const arr3 = ref([])
 const router = useRouter()
@@ -461,9 +470,9 @@ const fetchData = async () => {
     response.forEach((element: any, i: any) => {
       element.no = i + 1
     });
-    dataSourceDataKlaim.value = response
+    dataSourceHasilLembarKerja.value = response
   }).catch((err) => {
-    dataSourceDataKlaim.value = []
+    dataSourceHasilLembarKerja.value = []
   })
   loadSearch.value = false
 }
@@ -644,6 +653,12 @@ const detailOrder = async () => {
   item.value.namatipe = response.data[0].namatipe
   item.value.namaserialnumber = response.data[0].namaserialnumber
   item.value.durasikalbrasi = response.data[0].durasikalbrasi
+}
+
+const cetakSertifikatLembarKerja = () => {
+  console.log(dataSourceHasilLembarKerja.value)
+
+  H.printBlade(`pelaksana/cetak-sertifikat-lembar-kerja?pdf=true&norec=${dataSourceHasilLembarKerja.value[0].norecregis}&norec_detail=${dataSourceHasilLembarKerja.value[0].detailregistraifk}`);
 }
 
 

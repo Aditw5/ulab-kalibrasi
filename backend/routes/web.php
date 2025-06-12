@@ -622,6 +622,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('pelaksana/save-data-upload-lembar-kerja', 'simpanUploadLembaKerja');
         Route::get('pelaksana/detail-produk-lembar-kerja', 'detailProdukLembarKeerja');
         Route::get('pelaksana/cetak-spk', 'cetakSPK');
+        Route::get('pelaksana/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {
