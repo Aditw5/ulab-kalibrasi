@@ -9,231 +9,97 @@
 </head>
 <style>
     @page {
-        margin: 0
+        margin-top: 110px;
+        margin-bottom: 60px;
+        margin-left: 35px;
+        margin-right: 35px;
     }
 
     body {
-        margin: 0
-    }
-
-    .sheet {
-        margin: 0;
-        overflow: auto;
-        position: relative;
-        box-sizing: border-box;
-        page-break-after: always;
-    }
-
-    /** Paper sizes **/
-    body.A3 .sheet {
-        width: 297mm;
-        height: 419mm
-    }
-
-    body.A3.landscape .sheet {
-        width: 420mm;
-        height: 296mm
-    }
-
-    body.A4 .sheet {
-        width: 210mm;
-        height: 296mm
-    }
-
-    body.G4 .sheet {
-        width: 210mm;
-        height: 296mm
-    }
-
-    body.A4.landscape .sheet {
-        width: 297mm;
-        height: 209mm
-    }
-
-    body.A5 .sheet {
-        width: 148mm;
-        height: 209mm
-    }
-
-    body.A5.landscape .sheet {
-        width: 210mm;
-        height: 147mm
-    }
-
-    body.F4 .sheet {
-        width: 210mm;
-        height: 330mm
-    }
-
-    body.letter .sheet {
-        width: 216mm;
-        height: 279mm
-    }
-
-    body.letter.landscape .sheet {
-        width: 280mm;
-        height: 215mm
-    }
-
-    body.legal .sheet {
-        width: 216mm;
-        height: 356mm
-    }
-
-    body.legal.landscape .sheet {
-        width: 357mm;
-        height: 215mm
-    }
-
-    /** Padding area **/
-    .sheet.padding-10mm {
-        padding: 10mm
-    }
-
-    .sheet.padding-15mm {
-        padding: 15mm
-    }
-
-    .sheet.padding-20mm {
-        padding: 20mm
-    }
-
-    .sheet.padding-25mm {
-        padding: 25mm
-    }
-
-    /** For screen preview **/
-    @media screen {
-        body {
-            background: white
-        }
-
-        .sheet {
-            background: white;
-            box-shadow: 0 .5mm 2mm rgba(0.3, 0.3, 0.3, .3);
-            margin: 5mm auto;
-        }
-    }
-
-    /** Fix for Chrome issue #273306 **/
-    @media print {
-        body.A3.landscape {
-            width: 420mm
-        }
-
-        body.A3,
-        body.A4.landscape {
-            width: 297mm
-        }
-
-        body.A4,
-        body.A5.landscape {
-            width: 210mm
-        }
-
-        body.A5 {
-            width: 148mm
-        }
-
-        body.F4 {
-            width: 210mm
-        }
-
-        body.letter,
-        body.legal {
-            width: 216mm
-        }
-
-        body.letter.landscape {
-            width: 280mm
-        }
-
-        body.legal.landscape {
-            width: 357mm
-        }
-    }
-
-
-    body,
-    td,
-    th,
-    span {
         font-family: Arial, Helvetica, sans-serif;
+        color: #111;
+    }
+
+    .pdf-header {
+        position: fixed;
+        top: -90px;
+        /* Negatif dari margin-top, biar header pas */
+        left: 0;
+        right: 0;
+        height: 100px;
+        width: 100%;
+        z-index: 10;
+    }
+
+    /* Supaya konten tidak nabrak header/footer */
+    .pdf-content {
+        /* kosong, gunakan margin @page */
     }
 </style>
 
 <body style="padding:25px">
-    <table width="100%" cellspacing="0" cellpadding="0" border="0">
-        <thead style="display: none"></thead>
-        <tbody>
-            <tr>
-                <td rowspan="5">
-                    <img src="img/pln.png" width="80px" border="0" style="margin-top:-20px">
-                </td>
-                <td class="text-center">
-                    <span style="font-size: 13pt;font-weight: 600;color:#000000"><b>
-                            LABORATORIUM KALIBRASI PT PLN NP UMRO
-                        </b></span>
-                </td>
-                <td rowspan="5">
-                    <img src="img/ulab.png" width="80px" border="0" style="margin-top:-20px">
-                </td>
-            </tr>
+    <div class="pdf-header">
+        <table width="100%" cellspacing="0" cellpadding="0" border="0">
+            <thead style="display: none"></thead>
+            <tbody>
+                <tr>
+                    <td rowspan="5">
+                        <img src="img/pln.png" width="80px" border="0" style="margin-top:-20px">
+                    </td>
+                    <td class="text-center">
+                        <span style="font-size: 13pt;font-weight: 600;color:#000000"><b>
+                                LABORATORIUM KALIBRASI PT PLN NP UMRO
+                            </b></span>
+                    </td>
+                    <td rowspan="5">
+                        <img src="img/ulab.png" width="80px" border="0" style="margin-top:-20px">
+                    </td>
+                </tr>
 
-            <tr>
-                <td class="text-center">
-                    <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
-                            FORMULIR
-                        </b></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="text-center">
-                    <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
-                            SURAT PERINTAH KERJA {{ strtoupper($res['alat'][0]->lingkupkalibrasi) }}
-                        </b></span>
-                </td>
-            </tr>
+                <tr>
+                    <td class="text-center">
+                        <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
+                                FORMULIR
+                            </b></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
+                                SURAT PERINTAH KERJA {{ strtoupper($res['alat'][0]->lingkupkalibrasi) }}
+                            </b></span>
+                    </td>
+                </tr>
 
-            <tr>
+                <tr>
 
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
-                    <thead style="display: none"></thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-centar">
-                                <span style="font-size: 9pt;color:#000000; font-weight: 600">
-                                    No.Dok : FMMO-163-25-74.4
-                                    </a>
-                                </span>
-                            </td>
-                            <td class="text-centar">
-                                <span style="font-size: 9pt;color:#000000; font-weight: 600">
+                    <table width="100%" cellspacing="0" cellpadding="0" border="0"
+                        style="border-collapse: collapse;">
+                        <tbody>
+                            <tr>
+                                <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
+                                    No.Dok : FMMO-163-14.4.3.b-74.4
+                                </td>
+                                <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
                                     Revisi : 01
-                                    </a>
-                                </span>
-                            </td>
-                            <td class="text-centar">
-                                <span style="font-size: 9pt;color:#000000; font-weight: 600">
+                                </td>
+                                <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
                                     Tanggal : {{ now()->locale('id')->isoFormat('D MMMM Y') }}
-                                    </a>
-                                </span>
-                            </td>
-                            <td class="text-centar">
-                                <span style="font-size: 9pt;color:#000000; font-weight: 600">
+                                </td>
+                                <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
                                     Halaman: 1 dari 2
-                                    </a>
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </tr>
-        </tbody>
-    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-    <hr class="baris1" style="margin-top:1px">
-    <hr class="baris1" style="margin-top:-5px">
+                </tr>
+            </tbody>
+        </table>
+
+        <hr class="baris1" style="margin-top:1px">
+        <hr class="baris1" style="margin-top:-5px">
+    </div>
 
     {{-- {{ dd($res) }} --}}
 
@@ -534,77 +400,6 @@
 
 <!-- Halaman Kedua -->
 <div class="sheet" style="padding:25px">
-    <table width="100%" cellspacing="0" cellpadding="0" border="0">
-        <thead style="display: none"></thead>
-        <tbody>
-            <tr>
-                <td rowspan="5">
-                    <img src="img/pln.png" width="80px" border="0" style="margin-top:-20px">
-                </td>
-                <td class="text-center">
-                    <span style="font-size: 13pt;font-weight: 600;color:#000000"><b>
-                            LABORATORIUM KALIBRASI PT PLN NP UMRO
-                        </b></span>
-                </td>
-                <td rowspan="5">
-                    <img src="img/ulab.png" width="80px" border="0" style="margin-top:-20px">
-                </td>
-            </tr>
-
-            <tr>
-                <td class="text-center">
-                    <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
-                            FORMULIR
-                        </b></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="text-center">
-                    <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
-                            SURAT PERINTAH KERJA {{ strtoupper($res['alat'][0]->lingkupkalibrasi) }}
-                        </b></span>
-                </td>
-            </tr>
-
-            <tr>
-
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
-                    <thead style="display: none"></thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-centar">
-                                <span style="font-size: 9pt;color:#000000; font-weight: 600">
-                                    No.Dok : FMMO-163-25-74.4
-                                    </a>
-                                </span>
-                            </td>
-                            <td class="text-centar">
-                                <span style="font-size: 9pt;color:#000000; font-weight: 600">
-                                    Revisi : 01
-                                    </a>
-                                </span>
-                            </td>
-                            <td class="text-centar">
-                                <span style="font-size: 9pt;color:#000000; font-weight: 600">
-                                    Tanggal : {{ now()->locale('id')->isoFormat('D MMMM Y') }}
-                                    </a>
-                                </span>
-                            </td>
-                            <td class="text-centar">
-                                <span style="font-size: 9pt;color:#000000; font-weight: 600">
-                                    Halaman: 2 dari 2
-                                    </a>
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </tr>
-        </tbody>
-    </table>
-
-    <hr class="baris1" style="margin-top:1px">
-    <hr class="baris1" style="margin-top:-5px">
     <table width="100%" style="margin-top: 100px; ">
         <tr>
             <td width="40%">
@@ -625,73 +420,73 @@
         </tr>
     </table>
     <table width="100%" style="margin-top: 5px; ">
-            <tr>
-                <td width="25%">
-                </td>
-                <td width="50%">
-                    <span style="font-size: 9pt;color:#000000">
-                       1. Semua pekerjaan dilakukan sesuai dengan prosedur Penanganan Alat Yang Dikalibrasi.
-                    </span>
-                </td>
-                <td width="25%">
-                    <span style="font-size: 9pt;color:#000000">
+        <tr>
+            <td width="25%">
+            </td>
+            <td width="50%">
+                <span style="font-size: 9pt;color:#000000">
+                    1. Semua pekerjaan dilakukan sesuai dengan prosedur Penanganan Alat Yang Dikalibrasi.
+                </span>
+            </td>
+            <td width="25%">
+                <span style="font-size: 9pt;color:#000000">
 
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td width="25%">
-                </td>
-                <td width="50%">
-                    <span style="font-size: 9pt;color:#000000">
-                        2. Wajib menggunakan Instruksi Keja (IK) saat kegiatan kalibrasi berlangsung.
-                    </span>
-                </td>
-                <td width="25%">
-                    <span style="font-size: 9pt;color:#000000">
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="25%">
+            </td>
+            <td width="50%">
+                <span style="font-size: 9pt;color:#000000">
+                    2. Wajib menggunakan Instruksi Keja (IK) saat kegiatan kalibrasi berlangsung.
+                </span>
+            </td>
+            <td width="25%">
+                <span style="font-size: 9pt;color:#000000">
 
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td width="25%">
-                </td>
-                <td width="50%">
-                    <span style="font-size: 9pt;color:#000000">
-                        3. Wajib menggunakan Lembar Kerja (LK) yang dibuat oleh staf teknik.
-                    </span>
-                </td>
-                <td width="25%">
-                    <span style="font-size: 9pt;color:#000000">
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="25%">
+            </td>
+            <td width="50%">
+                <span style="font-size: 9pt;color:#000000">
+                    3. Wajib menggunakan Lembar Kerja (LK) yang dibuat oleh staf teknik.
+                </span>
+            </td>
+            <td width="25%">
+                <span style="font-size: 9pt;color:#000000">
 
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td width="25%">
-                </td>
-                <td width="50%">
-                    <span style="font-size: 9pt;color:#000000">
-                        4. Segala bentuk penyimpanagan dicatat dalam Formulir Ketidaksesuaian Pekerjaa
-                    </span>
-                </td>
-                <td width="25%">
-                    <span style="font-size: 9pt;color:#000000">
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="25%">
+            </td>
+            <td width="50%">
+                <span style="font-size: 9pt;color:#000000">
+                    4. Segala bentuk penyimpanagan dicatat dalam Formulir Ketidaksesuaian Pekerjaa
+                </span>
+            </td>
+            <td width="25%">
+                <span style="font-size: 9pt;color:#000000">
 
-                    </span>
-                </td>
-            </tr>
+                </span>
+            </td>
+        </tr>
 
-        </table>
-    <table  width="100%" cellspacing="0" cellpadding="0" style="padding-top: 50px">
+    </table>
+    <table width="100%" cellspacing="0" cellpadding="0" style="padding-top: 50px">
         <tbody style="font-size: 11pt">
             <tr>
                 <td width="40%">
                 </td>
                 <td width="30%" class="text-center">
-                     <span style="font-size: 10pt;" class="text-biasa">
+                    <span style="font-size: 10pt;" class="text-biasa">
                         Mengetahui
-                     </span>
+                    </span>
                 </td>
                 <td width="30%" class="text-center">
                     <span style="font-size: 10pt;" class="text-biasa">{{ $res['identitas']->lokasi }},
@@ -699,17 +494,18 @@
                 </td>
             </tr>
             <tr>
-                 <td width="40%">
+                <td width="40%">
                 </td>
                 <td width="30%" class="text-center">
                     <span style="font-size: 10pt;" class="text-biasa"> Kepala Laboratorium Kalibrasi </span>
                 </td>
                 <td width="30%" class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa"> Penyelia Teknik {{$res['alat'][0]->lingkupkalibrasi}}</span>
+                    <span style="font-size: 10pt;" class="text-biasa"> Penyelia Teknik
+                        {{ $res['alat'][0]->lingkupkalibrasi }}</span>
                 </td>
             </tr>
             <tr>
-                 <td >
+                <td>
                 </td>
                 <td align="center">
                     <img src="data:image/png;base64, {!! $res['ttdManager'] !!}"
@@ -723,14 +519,14 @@
                 </td>
             </tr>
             <tr>
-                 <td >
+                <td>
                 </td>
                 <td height="10" valign="bottom" height="100" width="15%" class="text-center">
                     <span style="font-size: 10pt;" class="text-biasa">
-                        ( {{$res['alat'][0]->namamanager}}  )</span>
+                        ( {{ $res['alat'][0]->namamanager }} )</span>
                 </td>
                 <td height="10" valign="bottom" height="100" width="15%" class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa">( {{$res['alat'][0]->penyeliateknik}}
+                    <span style="font-size: 10pt;" class="text-biasa">( {{ $res['alat'][0]->penyeliateknik }}
                         )</span>
                 </td>
             </tr>

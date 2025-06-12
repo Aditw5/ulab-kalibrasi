@@ -42,6 +42,10 @@
         .pdf-content {
             /* kosong, gunakan margin @page */
         }
+
+        .page-break {
+            page-break-before: always;
+        }
     </style>
 </head>
 
@@ -79,6 +83,8 @@
             </tr>
         </table>
     </div>
+
+    {{-- {{ dd($res) }} --}}
 
 
     <div class="pdf-content">
@@ -125,7 +131,7 @@
                 </td>
                 <td>
                     <span style="font-size: 8pt;color:#000000">
-                        {{-- {{ $res['alat'][0]->pelaksanateknik }} --}}
+                        {{ $res['lembarKerja'][0]->tglkalibrasilembarkerja }}
                     </span>
                 </td>
             </tr>
@@ -145,7 +151,7 @@
                 </td>
                 <td>
                     <span style="font-size: 8pt;color:#000000">
-                        {{-- {{ $res['alat'][0]->pelaksanateknik }} --}}
+                        {{ $res['lembarKerja'][0]->tempatKalibrasilembarkerja }}
                     </span>
                 </td>
             </tr>
@@ -167,7 +173,7 @@
                 </td>
                 <td>
                     <span style="font-size: 8pt;color:#000000">
-                        {{-- {{ $res['alat'][0]->pelaksanateknik }} --}}
+                        {{ $res['lembarKerja'][0]->kondisiRuanganlembarkerja }}
                     </span>
                 </td>
             </tr>
@@ -187,7 +193,7 @@
                 </td>
                 <td>
                     <span style="font-size: 8pt;color:#000000">
-                        {{-- {{ $res['alat'][0]->pelaksanateknik }} --}}
+                        {{ $res['lembarKerja'][0]->suhulembarkerja }}
                     </span>
                 </td>
             </tr>
@@ -207,13 +213,11 @@
                 </td>
                 <td>
                     <span style="font-size: 8pt;color:#000000">
-                        {{-- {{ $res['alat'][0]->pelaksanateknik }} --}}
+                        {{ $res['lembarKerja'][0]->kelembabanRelatiflembarkerja }}
                     </span>
                 </td>
             </tr>
         </table>
-
-        {{-- {{ dd($res) }} --}}
 
         @php
             $grouped = collect($res['lembarKerja'])->groupBy('group');
@@ -280,5 +284,72 @@
 
     </div>
 </body>
+
+<div class="page-break"></div>
+
+<div class="sheet" style="padding:25px">
+    <table width="100%" style="margin-top: 10px; ">
+        <tr>
+            <td width="30%">
+                <span style="font-size: 8pt;color:#000000"><b>
+                        Kondisi Ruangan /</b>
+                </span>
+                <span style="margin-left:-10px ;font-style:italic;font-size: 8pt;color:#000000">
+                    Environmental Condition
+                </span>
+            </td>
+            <td width="2%">
+                <span style="font-size: 8pt;color:#000000">
+
+                </span>
+            </td>
+            <td>
+                <span style="font-size: 8pt;color:#000000">
+                    {{ $res['lembarKerja'][0]->kondisiRuanganlembarkerja }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="25%">
+                <span style="font-size: 8pt;color:#000000"><b>
+                        Suhu /</b>
+                </span>
+                <span style="margin-left:-10px ;font-style:italic;font-size: 8pt;color:#000000">
+                    Temperature
+                </span>
+            </td>
+            <td width="2%">
+                <span style="font-size: 8pt;color:#000000">
+                    :
+                </span>
+            </td>
+            <td>
+                <span style="font-size: 8pt;color:#000000">
+                    {{ $res['lembarKerja'][0]->suhulembarkerja }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="25%">
+                <span style="font-size: 8pt;color:#000000"><b>
+                        Kelembaban Relatif /</b>
+                </span>
+                <span style="margin-left:-10px ;font-style:italic;font-size: 8pt;color:#000000">
+                    Relative Humidity
+                </span>
+            </td>
+            <td width="2%">
+                <span style="font-size: 8pt;color:#000000">
+                    :
+                </span>
+            </td>
+            <td>
+                <span style="font-size: 8pt;color:#000000">
+                    {{ $res['lembarKerja'][0]->kelembabanRelatiflembarkerja }}
+                </span>
+            </td>
+        </tr>
+    </table>
+</div>
 
 </html>

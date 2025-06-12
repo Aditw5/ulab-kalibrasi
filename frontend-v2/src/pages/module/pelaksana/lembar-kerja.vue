@@ -129,7 +129,50 @@
               <div class="column is-3">
                 <h3 class="title is-5 mb-2 mr-1">Upload Lembar Kerja </h3>
               </div>
+            </div>
+            <div class="columns is-multiline">
               <div class="column is-3">
+                <VField label=" Tanggal Kalibrasi">
+                  <VDatePicker v-model="item.tglkalibrasi" mode="dateTime" style="width: 100%;">
+                    <template #default="{ inputValue, inputEvents }">
+                      <VField>
+                        <VControl icon="feather:calendar" fullwidth>
+                          <VInput :value="inputValue" v-on="inputEvents" />
+                        </VControl>
+                      </VField>
+                    </template>
+                  </VDatePicker>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField label="Tempat Kalibrasi">
+                  <VControl fullwidth>
+                    <VInput v-model="item.tempatKalibrasi" placeholder="Tempat Kalibrasi" />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField label="Kondisi Ruangan">
+                  <VControl fullwidth>
+                    <VInput v-model="item.kondisiRuangan" placeholder="Kondisi Ruangan" />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField label="Suhu">
+                  <VControl fullwidth>
+                    <VInput v-model="item.suhu" placeholder="Suhu" />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField label="Kelembaban Relatif">
+                  <VControl fullwidth>
+                    <VInput v-model="item.kelembabanRelatif" placeholder="Kelembaban Relatif" />
+                  </VControl>
+                </VField>
+              </div>
+               <div class="column is-3 mt-4">
                 <VCardCustom :style="'padding:5px 25px'">
                   <div class="label-status success">
                     <i aria-hidden="true" class="fas fa-circle"></i>
@@ -138,7 +181,7 @@
                   <small class="text-bold-custom h-100">{{ dataSourcefilter.length }}</small>
                 </VCardCustom>
               </div>
-              <div class="column is-3">
+              <div class="column is-3 mt-4">
                 <VButton icon="feather:save" @click="Save()" :loading="isLoadingSave" color="info">Simpan</VButton>
               </div>
             </div>
@@ -190,10 +233,10 @@
               responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
               <template #header>
-                <div class="column pt-0 pb-0">
+                <div class="column pt-0 pb-0" v-if="dataSourceHasilLembarKerja.length > 0">
                   <VButtons style="justify-content: space-between;">
                     <VButton color="primary" @click="cetakSertifikatLembarKerja()" outlined icon="feather:printer">
-                      Cetak Sertifikat  
+                      Cetak Sertifikat
                     </VButton>
                   </VButtons>
                 </div>
@@ -453,6 +496,7 @@ const item: any = ref({
     start: new Date(),
     end: new Date(),
   }),
+  tglkalibrasi : new Date()
 })
 
 const onUpload = () => {
@@ -613,6 +657,11 @@ const Save = async () => {
     'data': dataSourcefilter.value,
     'fileName': item.fileName,
     'norec_detail': NOREC_DETAIL,
+    'tglkalibrasi': item.value.tglkalibrasi,
+    'tempatKalibrasi': item.value.tempatKalibrasi,
+    'kondisiRuangan': item.value.kondisiRuangan,
+    'suhu': item.value.suhu,
+    'kelembabanRelatif': item.value.kelembabanRelatif,
   }
   isLoadingSave.value = true;
   await useApi().post(

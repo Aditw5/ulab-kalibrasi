@@ -22,6 +22,7 @@ use App\Http\Controllers\EMR\ProfilePasienCtrl;
 use App\Http\Controllers\Registrasi\PasienCtrl;
 use App\Http\Controllers\Registrasi\MitraCtrl;
 use App\Http\Controllers\Asman\AsmanCtrl;
+use App\Http\Controllers\Manager\ManagerCtrl;
 use App\Http\Controllers\Penyelia\PenyeliaCtrl;
 use App\Http\Controllers\Pelaksana\PelaksanaCtrl;
 use App\Http\Controllers\Farmasi\InputResepCtrl;
@@ -597,6 +598,18 @@ Route::middleware(['log'])->group(function () {
         Route::post('asman/save-penolakan', 'savePenolakanAsman');
         Route::get('asman/header-mitra', 'HeaderMitra');
         Route::get('asman/cetak-spk', 'cetakSPK');
+    });
+
+    Route::controller(ManagerCtrl::class)->group(function () {
+        Route::get('manager/list-mitra-regis', 'listMitraAsmanGrid');
+        Route::get('manager/get-detail-pegawai', 'getAsmanDetail');
+        Route::get('manager/layanan-verif', 'LayananVerif');
+        Route::get('manager/detail-produk', 'detailProduk');
+        Route::post('manager/save-verif-item', 'saveVerifItem');
+        Route::post('manager/save-verif', 'saveVerif');
+        Route::post('manager/save-penolakan', 'savePenolakanAsman');
+        Route::get('manager/header-mitra', 'HeaderMitra');
+        Route::get('manager/cetak-spk', 'cetakSPK');
     });
 
     Route::controller(PenyeliaCtrl::class)->group(function () {

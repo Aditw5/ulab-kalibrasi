@@ -417,6 +417,11 @@ class PelaksanaCtrl extends Controller
                 ->update([
                     'pelaksanaisilembarkerjafk' => $this->getPegawaiId(),
                     'tglisilembarkerjapelaksana' => now(),
+                    'tglkalibrasilembarkerja' => $request['tglkalibrasi'],
+                    'tempatKalibrasilembarkerja' => $request['tempatKalibrasi'],
+                    'kondisiRuanganlembarkerja' => $request['kondisiRuangan'],
+                    'suhulembarkerja' => $request['suhu'],
+                    'kelembabanRelatiflembarkerja' => $request['kelembabanRelatif'],
                 ]);
 
             $result = [];
@@ -697,7 +702,12 @@ class PelaksanaCtrl extends Controller
 
         $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
-            ->select('lk.*',)
+            ->select('lk.*', 
+                'mtrd.tglkalibrasilembarkerja',
+                'mtrd.tempatKalibrasilembarkerja',
+                'mtrd.kondisiRuanganlembarkerja', 
+                'mtrd.suhulembarkerja', 
+                'mtrd.kelembabanRelatiflembarkerja')
             ->where('mtrd.norec', $r['norec_detail'])
             ->where('lk.statusenabled', true)
             ->get();
