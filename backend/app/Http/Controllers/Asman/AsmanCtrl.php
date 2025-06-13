@@ -201,7 +201,7 @@ class AsmanCtrl extends Controller
             ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
             ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
-            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtrd.asmanveriffk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
@@ -214,7 +214,7 @@ class AsmanCtrl extends Controller
                 'mtrd.statusorderasman',
                 'mtrd.statusorderpenyelia',
                 'mtrd.statusorderpelaksana',
-                'mtrd.tglverifasman',
+                'mtr.tglverifasman',
                 'mtrd.tglverifpenyelia',
                 'mtrd.tglverifpelaksana',
                 'mtrd.tglisilembarkerjapelaksana',
@@ -346,12 +346,7 @@ class AsmanCtrl extends Controller
                     'lingkupkalibrasifk' => $VI['lingkupkalibrasi'],
                     'penyeliateknikfk' => $VI['penyeliateknik'],
                     'pelaksanateknikfk' => $VI['pelaksana'],
-                    'durasikalbrasi' => $VI['durasikalbrasi'],
-                    'asmanveriffk' => $this->getPegawaiId(),
-                    'tglverifasman' => now(),
-                    'statusorderasman' => 1,
-                    'statusorderpelaksana' => 0,
-                    'statusorderpenyelia' => 0,
+                    'durasikalbrasi' => $VI['durasikalbrasi']
                 ]);
 
             $transMessage = "Simpan Verif Item Sukses";
@@ -385,6 +380,7 @@ class AsmanCtrl extends Controller
                 ->update([
                     'statusorder' => 1,
                     'asmanveriffk' => $this->getPegawaiId(),
+                    'tglverifasman' => now(),
                 ]);
 
             $transMessage = "Simpan Verif Sukses";

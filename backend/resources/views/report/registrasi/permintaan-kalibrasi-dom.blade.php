@@ -41,7 +41,7 @@
     }
 </style>
 
-<body style="padding:25px">
+<body style="padding-top:25px">
     <div class="pdf-header">
         <table width="100%" cellspacing="0" cellpadding="0" border="0">
             <thead style="display: none"></thead>
@@ -70,19 +70,19 @@
                 <tr>
                     <td class="text-center">
                         <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
-                                SURAT PERINTAH KERJA {{ strtoupper($res['alat'][0]->lingkupkalibrasi) }}
+                                Permintaan Kalibrasi dan Kontrak
                             </b></span>
                     </td>
                 </tr>
 
                 <tr>
 
-                    <table width="100%" cellspacing="0" cellpadding="0" border="0"
-                        style="border-collapse: collapse;">
+                    <table width="75%" cellspacing="0" cellpadding="0" border="0" 
+                        style="border-collapse: collapse; margin-left: 90px">
                         <tbody>
                             <tr>
                                 <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
-                                    No.Dok : FMMO-163-14.4.3.b-74.4
+                                    No.Dok : FMMO-163-14.4.3.b-71.1
                                 </td>
                                 <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
                                     Revisi : 01
@@ -91,7 +91,7 @@
                                     Tanggal : {{ now()->locale('id')->isoFormat('D MMMM Y') }}
                                 </td>
                                 <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
-                                    Halaman: 1 dari 2
+                                    Halaman: 1 dari 1
                                 </td>
                             </tr>
                         </tbody>
@@ -107,29 +107,29 @@
 
     {{-- {{ dd($res) }} --}}
 
-    <table width="100%" style="margin-top: -19px; ">
-        <table width="100%" style="margin-top: 5px; ">
+    <table width="100%" style="margin-top: -10px; ">
+        <table border="0" width="100%" style="margin-top: 15px; ">
             <tr>
-                <td width="15%">
-                    <span style="font-size: 9pt;font-weight: 600;olor:#000000"><b>
-                            Diterima Oleh
-                        </b></span>
+                <td width="30%">
+                    <span style="font-size: 9pt;color:#000000">
+                        No. Urut Pendaftaran
+                    </span>
                 </td>
                 <td width="2%">
-                    <span style="font-size: 9pt;color:#000000"><b>
-
-                        </b></span>
+                    <span style="font-size: 9pt;color:#000000">
+                        :
+                    </span>
                 </td>
                 <td>
-                    <span style="font-size: 9pt;color:#000000"><b>
-
-                        </b></span>
+                    <span style="font-size: 9pt;color:#000000">
+                        {{ $res['identitas']->nopendaftaran }}
+                    </span>
                 </td>
             </tr>
             <tr>
                 <td width="15%">
                     <span style="font-size: 9pt;color:#000000">
-                        Nama
+                        Nama Perusahaan
                     </span>
                 </td>
                 <td width="2%">
@@ -139,14 +139,14 @@
                 </td>
                 <td>
                     <span style="font-size: 9pt;color:#000000">
-                        {{ $res['identitas']->namapenanggungjawab }}
+                        {{ $res['identitas']->namaperusahaan }}
                     </span>
                 </td>
             </tr>
             <tr>
                 <td width="15%">
                     <span style="font-size: 9pt;color:#000000">
-                        Jabatan
+                        Alamat Perusahaan
                     </span>
                 </td>
                 <td width="2%">
@@ -156,12 +156,107 @@
                 </td>
                 <td>
                     <span style="font-size: 9pt;;color:#000000">
-                        {{ $res['identitas']->jabatanpenanggungjawab }}
+                        {{ $res['identitas']->alamatktr }}
                     </span>
                 </td>
             </tr>
         </table>
-        <table width="100%" style="margin-top: 5px; ">
+        <table border="0" width="100%" style="margin-top: 15px; ">
+            <tr>
+                <td width="30%">
+                    <span style="font-size: 9pt;color:#000000">
+                        Telp./Fax
+                    </span>
+                </td>
+                <td width="2%">
+                    <span style="font-size: 9pt;color:#000000">
+                        :
+                    </span>
+                </td>
+                <td>
+                    <span style="font-size: 9pt;color:#000000">
+                        {{ $res['identitas']->nohp }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td width="15%">
+                    <span style="font-size: 9pt;color:#000000">
+                        COntact Person/Penanggung Jawab
+                    </span>
+                </td>
+                <td width="2%">
+                    <span style="font-size: 9pt;;color:#000000">
+                        :
+                    </span>
+                </td>
+                <td>
+                    <span style="font-size: 9pt;color:#000000">
+                        -
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td width="15%">
+                    <span style="font-size: 9pt;color:#000000">
+                        Email
+                    </span>
+                </td>
+                <td width="2%">
+                    <span style="font-size: 9pt;color:#000000">
+                        :
+                    </span>
+                </td>
+                <td>
+                    <span style="font-size: 9pt;;color:#000000">
+                        {{ $res['identitas']->email ?? '-' }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td width="15%">
+                    <span style="font-size: 9pt;color:#000000">
+                        Reantang Ukur Kalibrasi Yang Diminta
+                    </span>
+                </td>
+                <td width="2%">
+                    <span style="font-size: 9pt;color:#000000">
+                        :
+                    </span>
+                </td>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td width="15%">
+                                <input type="checkbox"
+                                    {{ isset($res['identitas']->rentangUkur) && $res['identitas']->rentangUkur == 'standarLab' ? 'checked' : '' }} />
+                                <span style="font-size: 9pt;position: relative;top:-7px">Standar Lab</span>
+                            </td>
+                            <td width="15%">
+                                <input type="checkbox"
+                                    {{ isset($res['identitas']->rentangUkur) && $res['identitas']->rentangUkur == 'permintaanPelanggan' ? 'checked' : '' }} />
+                                <span style="font-size: 9pt;position: relative;top:-7px">Permintaan Pelanggan</span>
+                            </td>
+                            <td width="15%">
+                                <input type="checkbox"
+                                    {{ isset($res['identitas']->rentangUkur) && $res['identitas']->rentangUkur == 'lainLain' ? 'checked' : '' }} />
+                                <span style="font-size: 9pt;position: relative;top:-7px">Lain-Lain</span>
+                            </td>
+                        </tr>
+                        @if ($res['identitas']->rentangUkur == 'permintaanPelanggan')
+                            <tr>
+                                <td width="15%">
+                                    <span style="font-size: 9pt;color:#000000">
+                                        {{ $res['identitas']->rentangUkurketPermintaanPelanggan ?? '-' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endif
+                    </table>
+                </td>
+            </tr>
+        </table>
+        {{-- <table width="100%" style="margin-top: 5px; ">
             <tr>
                 <td width="15%">
                     <span style="font-size: 9pt;font-weight: 600;olor:#000000"><b>
@@ -294,8 +389,8 @@
                     </tr>
                 @endforeach
             </tbody>
-        </table>
-        <table width="100%" cellspacing="0" cellpadding="0" style="padding-top: 20px">
+        </table> --}}
+        {{-- <table width="100%" cellspacing="0" cellpadding="0" style="padding-top: 20px">
             <tbody style="font-size: 11pt">
                 <tr>
                     <td width="50%">
@@ -317,12 +412,12 @@
                     <td align="center">
                         <img src="data:image/png;base64, {!! $res['ttdPelanggan'] !!}"
                             style="margin-top: 5px; margin-bottom: 5px">
-                        {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt="">
                     </td>
                     <td align="center">
                         <img src="data:image/png;base64, {!! $res['ttdPetugas'] !!}"
                             style="margin-top: 5px; margin-bottom: 5px">
-                        {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt="">
                     </td>
                 </tr>
                 <tr>
@@ -337,13 +432,13 @@
                     </td>
                 </tr>
             <tbody>
-        </table>
+        </table> --}}
 </body>
 
-<div class="page-break"></div>
+{{-- <div class="page-break"></div> --}}
 
 <!-- Halaman Kedua -->
-<div class="sheet" style="padding:25px">
+{{-- <div class="sheet" style="padding:25px">
     <table style="margin-top: 20px; " width="100%" border="1" cellspacing="0" cellpadding="5"
         style="font-size: 10pt; border-collapse: collapse;">
         <thead style="background-color: #f2f2f2;">
@@ -379,7 +474,7 @@
             @endforeach
         </tbody>
     </table>
-</div>
+</div> --}}
 
 
 </html>

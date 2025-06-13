@@ -116,7 +116,15 @@
                                   <i aria-hidden="true" class="lnil lnil-printer"></i>
                                 </div>
                                 <div class="meta">
-                                  <span>Cetak </span>
+                                  <span>Cetak Tanda Terima </span>
+                                </div>
+                              </a>
+                              <a v-if="item.iskaji !== null" role="menuitem" @click="cetakPermintaanKalibrasi(item)" class="dropdown-item is-media">
+                                <div class="icon">
+                                  <i aria-hidden="true" class="lnil lnil-printer"></i>
+                                </div>
+                                <div class="meta">
+                                  <span>Cetak Permintaan Kalibrasi dan Kontrak </span>
                                 </div>
                               </a>
 
@@ -442,6 +450,11 @@ const editRegistrasi = async (e: any) => {
 const cetakTandaTerima = (e) => {
   // console.log(e)
   H.printBlade(`registrasi/cetak-tanda-terima?pdf=true&norec=${e.iddetail}`);
+}
+
+const cetakPermintaanKalibrasi = (e) => {
+  // console.log(e)
+  H.printBlade(`registrasi/cetak-permintaan-kalibrasi?pdf=true&norec=${e.iddetail}`);
 }
 
 const cetakSEP = (e: any) => {

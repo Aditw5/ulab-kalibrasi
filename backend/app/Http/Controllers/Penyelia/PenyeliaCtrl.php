@@ -73,13 +73,10 @@ class PenyeliaCtrl extends Controller
             ->where('mtrd.statusenabled', true);
 
         if (isset($r['dari']) && $r['dari'] != '') {
-            $data = $data->where(DB::raw("mtrd.tglverifasman::date"), '>=', $r->dari);
+            $data = $data->where(DB::raw("mtr.tglverifasman::date"), '>=', $r->dari);
         }
         if (isset($r['sampai']) && $r['sampai'] != '') {
-            $data = $data->where(DB::raw("mtrd.tglverifasman::date"), '<=', $r->sampai);
-        }
-        if (isset($r['status']) && $r['status'] != '') {
-            $data = $data->where('pd.ispelayananpasien', '=', $r['status']);
+            $data = $data->where(DB::raw("mtr.tglverifasman::date"), '<=', $r->sampai);
         }
         if (isset($r['search']) && $r['search'] != '') {
             $searchTerm = '%' . $r['search'] . '%';
@@ -91,14 +88,6 @@ class PenyeliaCtrl extends Controller
         if (isset($r['statusorderpenyelia']) && $r['statusorderpenyelia'] != '') {
             $data = $data->where('mtrd.statusorderpenyelia', '=', $r['statusorderpenyelia']);
         }
-        // if (isset($r['statuspanggil']) && $r['statuspanggil'] != '') {
-        //     if ($r['statuspanggil'] == 'true') {
-        //         $data = $data->whereNotNull('pd.tglpulang');
-        //     } elseif ($r['statuspanggil'] == 'rawat') {
-        //         $data = $data->whereNull('pd.tglpulang')
-        //                      ->whereNull('apd.tglkeluar');
-        //     }
-        // }
         $data = $data->orderBy('mtr.tglregistrasi');
         if (isset($r['limit'])) {
             $data = $data->limit($r['limit']);
@@ -262,7 +251,7 @@ class PenyeliaCtrl extends Controller
             ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
             ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
-            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtrd.asmanveriffk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
             ->leftJoin('pegawai_m as pg4', 'pg4.id', '=', 'mtrd.pelaksanaisilembarkerjafk')
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
@@ -276,7 +265,7 @@ class PenyeliaCtrl extends Controller
                 'mtrd.statusorderasman',
                 'mtrd.statusorderpenyelia',
                 'mtrd.statusorderpelaksana',
-                'mtrd.tglverifasman',
+                'mtr.tglverifasman',
                 'mtrd.tglverifpenyelia',
                 'mtrd.tglverifpelaksana',
                 'mtrd.tglisilembarkerjapelaksana',
@@ -412,6 +401,11 @@ class PenyeliaCtrl extends Controller
                 ->update([
                     'penyeliaisilembarkerjafk' => $this->getPegawaiId(),
                     'tglisilembarkerjapenyelia' => now(),
+                    'tglkalibrasilembarkerja' => $request['tglkalibrasi'],
+                    'tempatKalibrasilembarkerja' => $request['tempatKalibrasi'],
+                    'kondisiRuanganlembarkerja' => $request['kondisiRuangan'],
+                    'suhulembarkerja' => $request['suhu'],
+                    'kelembabanRelatiflembarkerja' => $request['kelembabanRelatif'],
                 ]);
 
             $result = [];
@@ -495,6 +489,11 @@ class PenyeliaCtrl extends Controller
                 'mtrd.tglverifasman',
                 'mtrd.tglverifpenyelia',
                 'mtrd.tglverifpelaksana',
+                'mtrd.tglkalibrasilembarkerja',
+                'mtrd.tempatKalibrasilembarkerja',
+                'mtrd.kondisiRuanganlembarkerja',
+                'mtrd.suhulembarkerja',
+                'mtrd.kelembabanRelatiflembarkerja',
                 'prd.namaproduk',
                 'mtr.catatan',
                 'mrk.id as idmerk',

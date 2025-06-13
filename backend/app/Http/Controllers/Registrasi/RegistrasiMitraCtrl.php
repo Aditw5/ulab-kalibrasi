@@ -198,6 +198,9 @@ class RegistrasiMitraCtrl extends Controller
             $model_PD->jabatanpenanggungjawab = $PD['jabatanpenanggungjawab'];
             $model_PD->petugas = $this->getNamaPegawai();
             $model_PD->statusorder = 0;
+            $model_PD->statusordermanager = 0;
+            $model_PD->rentangUkur = $PD['rentangUkur'];
+            $model_PD->rentangUkurketPermintaanPelanggan = $PD['rentangUkurketPermintaanPelanggan'];
             $model_PD->save();
 
             $dataAPD = [];

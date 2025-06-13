@@ -653,6 +653,11 @@ const dataSourcefilter = computed(() => {
 });
 const Save = async () => {
   console.log(dataSourcefilter.value)
+  if (!item.value.tglkalibrasi) { H.alert('warning', 'Tgl Kalibrasi harus di isi'); return }
+  if (!item.value.tempatKalibrasi) { H.alert('warning', 'Tempat Kalibrasi harus di isi'); return }
+  if (!item.value.kondisiRuangan) { H.alert('warning', 'Kondisi Ruangan Kalibrasi harus di isi'); return }
+  if (!item.value.suhu) { H.alert('warning', 'Suhu harus di isi'); return }
+  if (!item.value.kelembabanRelatif) { H.alert('warning', 'Kelembaban Relatif harus di isi'); return }
   let json = {
     'data': dataSourcefilter.value,
     'fileName': item.fileName,
@@ -702,6 +707,11 @@ const detailOrder = async () => {
   item.value.namatipe = response.data[0].namatipe
   item.value.namaserialnumber = response.data[0].namaserialnumber
   item.value.durasikalbrasi = response.data[0].durasikalbrasi
+  item.value.tglkalibrasi = response.data[0].tglkalibrasilembarkerja
+  item.value.tempatKalibrasi = response.data[0].tempatKalibrasilembarkerja
+  item.value.kondisiRuangan = response.data[0].kondisiRuanganlembarkerja
+  item.value.suhu = response.data[0].suhulembarkerja
+  item.value.kelembabanRelatif = response.data[0].kelembabanRelatiflembarkerja
 }
 
 const cetakSertifikatLembarKerja = () => {

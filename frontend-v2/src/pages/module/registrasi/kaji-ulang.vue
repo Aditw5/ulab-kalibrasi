@@ -134,7 +134,8 @@
                                   <div class="columns is-multiline">
                                     <div class="column is-12">
                                       <div class="title-layan">
-                                        <p class="title-layan" style="text-align: center; font-weight: bold; color: black;">1</p>
+                                        <p class="title-layan"
+                                          style="text-align: center; font-weight: bold; color: black;">1</p>
                                       </div>
                                     </div>
                                   </div>
@@ -143,6 +144,8 @@
                                 <td class="center">
                                   <VIconButton color="info" light raised circle icon="feather:edit" class="mr-1"
                                     v-tooltip.bubble="'Kaji ulang'" @click="KajiUlang(itemsDet)" />
+                                  <VIconButton color="danger" light raised circle icon="feather:trash" class="mr-1"
+                                    v-tooltip.bubble="'Tolak'" @click="KajiUlang(itemsDet)" />
                                 </td>
                               </tr>
                             </tbody>
@@ -262,6 +265,13 @@
               </VControl>
             </VField>
           </div>
+          <div class="column is-2">
+            <VField label="Durasi Hari">
+              <VControl icon="lnir lnir-repeat-one">
+                <VInput type="number" v-model="input.durasikalbrasi" placeholder="Jumlah" class="is-rounded" />
+              </VControl>
+            </VField>
+          </div>
           <div class="column is-12">
             <VField>
               <VLabel>Keterangan</VLabel>
@@ -272,19 +282,22 @@
             </VField>
           </div>
           <div class="column is-12">
-            <FileUpload v-model="fileMitra" mode="basic" name="demo" accept="application/pdf" :maxFileSize="100000000"
-              @upload="onUpload" outlined :invalidFileTypeMessage="'{0}: File yang diupload harus pdf.'"
+            <FileUpload v-model="fileMitra" mode="basic" name="demo" accept="image/jpeg,image/jpg"
+              :maxFileSize="10000000" @upload="onUpload" outlined
+              :invalidFileTypeMessage="'{0}: File yang diupload harus JPEG/JPG.'"
               :invalidFileSizeMessage="'Ukuran maksimal berkas adalah {1}'"
-              style=" background-color: transparent; color: var(--danger); border: 1px solid;"
+              style="background-color: transparent; color: var(--danger); border: 1px solid;"
               :chooseLabel="fileMitra ? fileMitra.name : 'Unggah'" @select="onSelect($event)"
               class="is-rounded w-100" />
             <button type="button" @click="openCamera" class="button is-primary mt-2">Buka Kamera</button>
             <button type="button" v-if="fileMitra" @click="previewFile" class="button is-link mt-2">Lihat File</button>
             <video ref="video" width="500" height="300" autoplay style="display: none;"></video>
             <canvas ref="canvas" style="display: none;"></canvas>
-            <button type="button" v-if="isCameraActive" @click="takePhoto" class="button is-success mt-2">Ambil
-              Foto</button>
+            <button type="button" v-if="isCameraActive" @click="takePhoto" class="button is-success mt-2">
+              Ambil Foto
+            </button>
           </div>
+
         </div>
       </form>
     </template>
@@ -528,6 +541,8 @@ const simpan = async () => {
   formData.append('penyeliateknik', input.value.penyeliateknik.value)
   formData.append('pelaksana', input.value.pelaksana.value)
   formData.append('manager', input.value.namamanager)
+  formData.append('namaasman', input.value.namaasman)
+  formData.append('durasikalbrasi', input.value.durasikalbrasi)
   isLoadingPop.value = true
   await useApi().post('/registrasi/save-kajian-ulang-item', formData).then((r) => {
     isLoadingPop.value = false
@@ -553,7 +568,7 @@ const simpan = async () => {
 }
 
 
-const simpanKaji = async (e : any) => {
+const simpanKaji = async (e: any) => {
   console.log(e)
   let json = {
     'kajian': {
@@ -809,6 +824,7 @@ const clear = () => {
   item.keterangan = ''
   input.value.keterangan = ''
   fileMitra.value = ''
+  fileMitra.name = ''
 
   modalKajiUlang.value = false
   modalCatatan.value = false
@@ -831,7 +847,7 @@ const cetakLabel = async (e: any) => {
 
 const cetakTandaTerima = (item) => {
   console.log(item.NOREC_PD)
-    H.printBlade(`registrasi/cetak-tanda-terima?pdf=true&norec=${item.NOREC_PD}`);
+  H.printBlade(`registrasi/cetak-tanda-terima?pdf=true&norec=${item.NOREC_PD}`);
 }
 
 headerPasien(ID_MITRA, NOREC_PD, TGLREGISTRASI)

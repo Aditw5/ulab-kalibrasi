@@ -252,9 +252,13 @@ class MitraCtrl extends Controller
                     'penyeliateknikfk' => $r->penyeliateknik,
                     'pelaksanateknikfk' => $r->pelaksana,
                     'namamanager' => $r->manager,
+                    'namaasman' => $r->namaasman,
+                    'durasikalbrasi' => $r->durasikalbrasi,
                     'iskaji' => true,
                     'namafile' => $filename,
-                    'updated_at' => now()
+                    'updated_at' => now(),
+                    'statusorderpelaksana' => 0,
+                    'statusorderpenyelia' => 0,
                 ]);
 
             $transMessage = "Simpan Kajian Ulang Alat Sukses";
@@ -436,6 +440,119 @@ class MitraCtrl extends Controller
 
 
         $blade = 'report.registrasi.tanda-terima';
+
+        if ($res['pdf'] == 'true') {
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf->stream();
+        }
+        if (isset($r['storage'])) {
+            $res['storage']  = true;
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->loadView(
+                $blade,
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf;
+        }
+
+        return view(
+            $blade,
+            compact('profile', 'pageWidth', 'print', 'res')
+        );
+    }
+
+    public function cetakPermintaanKalibrasi(Request $r)
+    {
+
+        $profile = $this->profile();
+        $print = false;
+        $pageWidth = 950;
+
+        $res['identitas'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.petugaskaji')
+            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+            ->select(
+                'jb.id as idjabatan',
+                'jb.namajabatanulab as namajabanpetugaskaji',
+                'mtr.norec',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mtr.rentangUkur',
+                'mtr.rentangUkurketPermintaanPelanggan',
+                'mt.namaperusahaan',
+                'mt.alamatktr',
+                'mt.nohp',
+                'mt.email',
+                'pg.id as petugaskajifk',
+                'pg.namalengkap as namapetugaskaji',
+                'lk.lokasi',
+                'mtr.jabatanpenanggungjawab',
+                'mtr.namapenanggungjawab'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtr.norec', $r['norec'])
+            ->first();
+
+        $res['alat'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->select(
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.keterangan',
+                'mtrd.namafile',
+                'prd.namaproduk',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtr.norec', $r['norec'])
+            ->orderByDesc('prd.namaproduk')
+            ->get();
+
+        $res['pdf']  = $r['pdf'];
+        $res['ttdPetugas'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['identitas']->namapetugaskaji));
+        $res['ttdPelanggan'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['identitas']->namapenanggungjawab));
+
+
+        $blade = 'report.registrasi.permintaan-kalibrasi';
 
         if ($res['pdf'] == 'true') {
             $pdf = App::make('dompdf.wrapper');

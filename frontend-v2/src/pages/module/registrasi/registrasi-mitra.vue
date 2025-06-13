@@ -61,20 +61,6 @@
           </div>
           <div class="right">
             <div class="buttons">
-              <VDropdown icon="feather:more-vertical" spaced right v-if="item.NOREC_PD" class="mt-1-min mr-2"
-                v-tooltip.bubble="'CETAK'">
-                <template #content>
-                  <a @click="cetakBuktiPendaftaran(item)" role="menuitem" class="dropdown-item is-media">
-                    <div class="icon">
-                      <i class="fas fa-print" aria-hidden="true"></i>
-                    </div>
-                    <div class="meta">
-                      <span>Poli Antrian</span>
-                      <span>Cetak Nomor</span>
-                    </div>
-                  </a>
-                </template>
-              </VDropdown>
               <RouterLink :to="{ name: 'module-registrasi-mitra-lama', }" v-if="item.NOREC_PD">
                 <VIconButton class="mr-5 is-pulled-right" type="button" color="info" rounded circle raised
                   icon="fas fa-users" v-tooltip.bubble="'Mitra Lama'">
@@ -86,7 +72,6 @@
               <VButton type="button" color="primary" rounded outlined raised icon="feather:save" :loading="isLoading"
                 @click="saveRegistrasi()"> Simpan
               </VButton>
-
             </div>
           </div>
         </div>
@@ -136,6 +121,42 @@
                   placeholder="ketik untuk mencari..." />
               </VControl>
             </VField>
+          </div>
+          <div class="column is-12">
+            <span class="label-pengkajian"> Rentang Ukur</span>
+            <div class="columns is-multiline p-3">
+              <div class="column is-2">
+                <VField>
+                  <VControl raw subcontrol>
+                    <VCheckbox v-model="item.rentangUkur" true-value="standarLab" label="Standar Lab" class="p-0" color="primary"
+                      square />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField>
+                  <VControl raw subcontrol>
+                    <VCheckbox v-model="item.rentangUkur" true-value="permintaanPelanggan" label="Permintaan Pelanggan" class="p-0"
+                      color="primary" square />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField>
+                  <VControl raw subcontrol>
+                    <VCheckbox v-model="item.rentangUkur" true-value="lainLain" label="Lain-Lain" class="p-0"
+                      color="primary" square />
+                  </VControl>
+                </VField>
+              </div>
+            </div>
+            <div class="columns is-multiline px-3">
+              <div class="column is-12" v-if="item.rentangUkur == 'permintaanPelanggan'">
+                <VField label="Keterangan Permintaan Pelanggan">
+                  <VTextarea rows="2" placeholder="Permintaan Pelanggan......" v-model="item.rentangUkurketPermintaanPelanggan"></VTextarea>
+                </VField>
+              </div>
+            </div>
           </div>
           <Fieldset legend="- Order Alat" :toggleable="true">
             <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
@@ -357,6 +378,9 @@ const cancelRegistrasi = () => {
 const saveRegistrasi = async () => {
   console.log(item)
   if (!item.tglregistrasi) { H.alert('warning', 'Tgl Registrasi harus di isi'); return }
+  if (!item.namapenanggungjawab) { H.alert('warning', 'Nama Penanggung Jawab harus di isi'); return }
+  if (!item.jabatanpenanggungjawab) { H.alert('warning', 'Jabatan Penanggung Jawab harus di isi'); return }
+  if (!item.rentangUkur) { H.alert('warning', 'Rentang Ukur harus di isi'); return }
 
   const mappedOrderAlat = input.value.detailOrderAlat.map((alat: any) => ({
     namaalatfk: alat.alat?.value || null,
@@ -376,6 +400,8 @@ const saveRegistrasi = async () => {
       'lokasikalibrasi': item.lokasi.value,
       'namapenanggungjawab': item.namapenanggungjawab,
       'jabatanpenanggungjawab': item.jabatanpenanggungjawab,
+      'rentangUkur': item.rentangUkur,
+      'rentangUkurketPermintaanPelanggan': item.rentangUkurketPermintaanPelanggan,
     },
     'mitraregistrasidetail': mappedOrderAlat
   }

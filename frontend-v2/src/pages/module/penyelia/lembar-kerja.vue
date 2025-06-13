@@ -130,6 +130,47 @@
                 <h3 class="title is-5 mb-2 mr-1">Upload Lembar Kerja </h3>
               </div>
               <div class="column is-3">
+                <VField label=" Tanggal Kalibrasi">
+                  <VDatePicker v-model="item.tglkalibrasi" mode="dateTime" style="width: 100%;">
+                    <template #default="{ inputValue, inputEvents }">
+                      <VField>
+                        <VControl icon="feather:calendar" fullwidth>
+                          <VInput :value="inputValue" v-on="inputEvents" />
+                        </VControl>
+                      </VField>
+                    </template>
+                  </VDatePicker>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField label="Tempat Kalibrasi">
+                  <VControl fullwidth>
+                    <VInput v-model="item.tempatKalibrasi" placeholder="Tempat Kalibrasi" />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField label="Kondisi Ruangan">
+                  <VControl fullwidth>
+                    <VInput v-model="item.kondisiRuangan" placeholder="Kondisi Ruangan" />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField label="Suhu">
+                  <VControl fullwidth>
+                    <VInput v-model="item.suhu" placeholder="Suhu" />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3">
+                <VField label="Kelembaban Relatif">
+                  <VControl fullwidth>
+                    <VInput v-model="item.kelembabanRelatif" placeholder="Kelembaban Relatif" />
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3 mt-4">
                 <VCardCustom :style="'padding:5px 25px'">
                   <div class="label-status success">
                     <i aria-hidden="true" class="fas fa-circle"></i>
@@ -138,7 +179,7 @@
                   <small class="text-bold-custom h-100">{{ dataSourcefilter.length }}</small>
                 </VCardCustom>
               </div>
-              <div class="column is-3">
+              <div class="column is-3 mt-4">
                 <VButton icon="feather:save" @click="Save()" :loading="isLoadingSave" color="info">Simpan</VButton>
               </div>
             </div>
@@ -600,10 +641,20 @@ const dataSourcefilter = computed(() => {
 });
 const Save = async () => {
   console.log(dataSourcefilter.value)
+  if (!item.value.tglkalibrasi) { H.alert('warning', 'Tgl Kalibrasi harus di isi'); return }
+  if (!item.value.tempatKalibrasi) { H.alert('warning', 'Tempat Kalibrasi harus di isi'); return }
+  if (!item.value.kondisiRuangan) { H.alert('warning', 'Kondisi Ruangan Kalibrasi harus di isi'); return }
+  if (!item.value.suhu) { H.alert('warning', 'Suhu harus di isi'); return }
+  if (!item.value.kelembabanRelatif) { H.alert('warning', 'Kelembaban Relatif harus di isi'); return }
   let json = {
     'data': dataSourcefilter.value,
     'fileName': item.fileName,
     'norec_detail': NOREC_DETAIL,
+    'tglkalibrasi': item.value.tglkalibrasi,
+    'tempatKalibrasi': item.value.tempatKalibrasi,
+    'kondisiRuangan': item.value.kondisiRuangan,
+    'suhu': item.value.suhu,
+    'kelembabanRelatif': item.value.kelembabanRelatif,
   }
   isLoadingSave.value = true;
   await useApi().post(
@@ -644,6 +695,11 @@ const detailOrder = async () => {
   item.value.namatipe = response.data[0].namatipe
   item.value.namaserialnumber = response.data[0].namaserialnumber
   item.value.durasikalbrasi = response.data[0].durasikalbrasi
+  item.value.tglkalibrasi = response.data[0].tglkalibrasilembarkerja
+  item.value.tempatKalibrasi = response.data[0].tempatKalibrasilembarkerja
+  item.value.kondisiRuangan = response.data[0].kondisiRuanganlembarkerja
+  item.value.suhu = response.data[0].suhulembarkerja
+  item.value.kelembabanRelatif = response.data[0].kelembabanRelatiflembarkerja
 }
 
 
