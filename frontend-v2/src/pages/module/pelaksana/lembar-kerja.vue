@@ -172,7 +172,101 @@
                   </VControl>
                 </VField>
               </div>
-               <div class="column is-3 mt-4">
+            </div>
+            <div class="columns is-multiline">
+              <div class="column is-4">
+                <Fieldset legend="- Instruksi Kerja" :toggleable="true">
+                  <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
+                    <table width="100%">
+                      <thead>
+                        <tr class="tr-po">
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">Nama
+                            Instruksi
+                            Kerja
+                          </th>
+                          <th class="th-po" width="8%" style="vertical-align:inherit;text-align: center;">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody v-for="(items, index) in item.detailInstruksiKerja" :key="index">
+                        <tr class="tr-po">
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.daftarInstruksiKerja" :suggestions="d_instruksiKerja"
+                                    @complete="fetchInstruksiKerja($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po" style="vertical-align: inherit;">
+                            <div class="column is-12 pl-0 pr-0">
+                              <VButtons style="justify-content: space-around;">
+                                <VIconButton type="button" raised circle icon="feather:plus"
+                                  v-tooltip-prime.bottom="'Tambah'" @click="addNewAlat(items)" outlined color="info">
+                                </VIconButton>
+                                <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
+                                  icon="feather:trash" @click="removeAlat(items)" color="danger">
+                                </VIconButton>
+                              </VButtons>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </Fieldset>
+              </div>
+              <div class="column is-4">
+                <Fieldset legend="- Daftar Peralatan Standar" :toggleable="true">
+                  <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
+                    <table width="100%">
+                      <thead>
+                        <tr class="tr-po">
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">Nama Alat
+                            STandar
+                          </th>
+                          <th class="th-po" width="8%" style="vertical-align:inherit;text-align: center;">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody v-for="(items, index) in item.detailPeralatanStandar" :key="index">
+                        <tr class="tr-po">
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.daftaralatstandar" :suggestions="d_alatstandar"
+                                    @complete="fetchAlatStandar($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po" style="vertical-align: inherit;">
+                            <div class="column is-12 pl-0 pr-0">
+                              <VButtons style="justify-content: space-around;">
+                                <VIconButton type="button" raised circle icon="feather:plus"
+                                  v-tooltip-prime.bottom="'Tambah'" @click="addNewAlatStandar(items)" outlined
+                                  color="info">
+                                </VIconButton>
+                                <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
+                                  icon="feather:trash" @click="removeAlatStandar(items)" color="danger">
+                                </VIconButton>
+                              </VButtons>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </Fieldset>
+              </div>
+            </div>
+            <div class="columns is-multiline">
+              <div class="column is-3 mt-4">
                 <VCardCustom :style="'padding:5px 25px'">
                   <div class="label-status success">
                     <i aria-hidden="true" class="fas fa-circle"></i>
@@ -470,6 +564,8 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import ColumnGroup from 'primevue/columngroup';
 import Row from 'primevue/row';
+import AutoComplete from 'primevue/autocomplete';
+import Fieldset from 'primevue/fieldset';
 
 useHead({
   title: 'Lembar Kerja - ' + import.meta.env.VITE_PROJECT,
@@ -496,11 +592,64 @@ const item: any = ref({
     start: new Date(),
     end: new Date(),
   }),
-  tglkalibrasi : new Date()
+  tglkalibrasi: new Date(),
+  detailInstruksiKerja: [{
+    no: 1
+  }],
+  detailPeralatanStandar: [{
+    no: 1
+  }]
 })
-
+const d_instruksiKerja = ref([])
+const d_alatstandar = ref([])
 const onUpload = () => {
 
+}
+
+const addNewAlat = () => {
+  item.value.detailInstruksiKerja.push({
+    no: item.value.detailInstruksiKerja[item.value.detailInstruksiKerja.length - 1].no + 1
+  });
+}
+
+const removeAlat = (index: any) => {
+  item.value.detailInstruksiKerja.splice(index, 1)
+  if (item.value.detailInstruksiKerja.length == 0) {
+    item.value.detailInstruksiKerja.push({
+      no: 1
+    });
+  }
+}
+
+const addNewAlatStandar = () => {
+  item.value.detailPeralatanStandar.push({
+    no: item.value.detailPeralatanStandar[item.value.detailPeralatanStandar.length - 1].no + 1
+  });
+}
+
+const removeAlatStandar = (index: any) => {
+  item.value.detailPeralatanStandar.splice(index, 1)
+  if (item.value.detailPeralatanStandar.length == 0) {
+    item.value.detailPeralatanStandar.push({
+      no: 1
+    });
+  }
+}
+
+const fetchInstruksiKerja = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/instruksikerja_m?select=id,namainstruksikerja&param_search=namainstruksikerja&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_instruksiKerja.value = response
+  })
+}
+
+const fetchAlatStandar = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/peralatanstandar_m?select=id,namaalatstandar&param_search=namaalatstandar&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_alatstandar.value = response
+  })
 }
 
 const downloadTemplate = () => {
@@ -658,6 +807,13 @@ const Save = async () => {
   if (!item.value.kondisiRuangan) { H.alert('warning', 'Kondisi Ruangan Kalibrasi harus di isi'); return }
   if (!item.value.suhu) { H.alert('warning', 'Suhu harus di isi'); return }
   if (!item.value.kelembabanRelatif) { H.alert('warning', 'Kelembaban Relatif harus di isi'); return }
+
+  const mappInstruksiKinerja = item.value.detailInstruksiKerja.map((items: any) => ({
+    instruksikerja: items.daftarInstruksiKerja?.value || null
+  }));
+  const mappPeralatanStandar = item.value.detailPeralatanStandar.map((items: any) => ({
+    peralatanstandar: items.daftaralatstandar?.value || null
+  }));
   let json = {
     'data': dataSourcefilter.value,
     'fileName': item.fileName,
@@ -667,6 +823,8 @@ const Save = async () => {
     'kondisiRuangan': item.value.kondisiRuangan,
     'suhu': item.value.suhu,
     'kelembabanRelatif': item.value.kelembabanRelatif,
+    'daftarinstruksikerja': mappInstruksiKinerja,
+    'daftarperalatanstandar': mappPeralatanStandar,
   }
   isLoadingSave.value = true;
   await useApi().post(
@@ -702,17 +860,36 @@ const collection = () => {
 }
 const detailOrder = async () => {
   const response = await useApi().get(`/pelaksana/detail-produk-lembar-kerja?norec_pd=${NOREC_DETAIL}`)
-  item.value.namaproduk = response.data[0].namaproduk
-  item.value.namamerk = response.data[0].namamerk
-  item.value.namatipe = response.data[0].namatipe
-  item.value.namaserialnumber = response.data[0].namaserialnumber
-  item.value.durasikalbrasi = response.data[0].durasikalbrasi
-  item.value.tglkalibrasi = response.data[0].tglkalibrasilembarkerja
-  item.value.tempatKalibrasi = response.data[0].tempatKalibrasilembarkerja
-  item.value.kondisiRuangan = response.data[0].kondisiRuanganlembarkerja
-  item.value.suhu = response.data[0].suhulembarkerja
-  item.value.kelembabanRelatif = response.data[0].kelembabanRelatiflembarkerja
+  const data = response.data[0]
+
+  item.value.namaproduk = data.namaproduk
+  item.value.namamerk = data.namamerk
+  item.value.namatipe = data.namatipe
+  item.value.namaserialnumber = data.namaserialnumber
+  item.value.durasikalbrasi = data.durasikalbrasi
+  item.value.tglkalibrasi = data.tglkalibrasilembarkerja
+  item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
+  item.value.kondisiRuangan = data.kondisiRuanganlembarkerja
+  item.value.suhu = data.suhulembarkerja
+  item.value.kelembabanRelatif = data.kelembabanRelatiflembarkerja
+
+  // === Instruksi Kerja ===
+  item.value.detailInstruksiKerja = data.daftarinstruksikerja.map(i => ({
+    daftarInstruksiKerja: {
+      value: i.value ?? '',
+      label: i.label ?? ''
+    }
+  }))
+
+  // === Alat Standar ===
+  item.value.detailPeralatanStandar = data.daftaralatstandar.map(a => ({
+    daftaralatstandar: {
+      value: a.value ?? '',
+      label: a.label ?? ''
+    }
+  }))
 }
+
 
 const cetakSertifikatLembarKerja = () => {
   console.log(dataSourceHasilLembarKerja.value)

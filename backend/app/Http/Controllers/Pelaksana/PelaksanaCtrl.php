@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\File;
 use App\Models\Transaksi\LembarKerja;
+use App\Models\Transaksi\DaftarAlatStandar;
+use App\Models\Transaksi\DaftarInstruksiKerja;
 use Illuminate\Support\Facades\App;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Barryvdh\Snappy\Facades\SnappyPdf;
@@ -400,53 +402,81 @@ class PelaksanaCtrl extends Controller
     public function simpanUploadLembaKerja(Request $request)
     {
         DB::beginTransaction();
-        try {
-            DB::table('mitraregistrasidetail_t')
-                ->where('norec', $request['norec_detail'])
-                ->update([
-                    'pelaksanaisilembarkerjafk' => $this->getPegawaiId(),
-                    'tglisilembarkerjapelaksana' => now(),
-                    'tglkalibrasilembarkerja' => $request['tglkalibrasi'],
-                    'tempatKalibrasilembarkerja' => $request['tempatKalibrasi'],
-                    'kondisiRuanganlembarkerja' => $request['kondisiRuangan'],
-                    'suhulembarkerja' => $request['suhu'],
-                    'kelembabanRelatiflembarkerja' => $request['kelembabanRelatif'],
-                ]);
+        // try {
+        $DIK = $request['daftarinstruksikerja'];
+        $DAS = $request['daftarperalatanstandar'];
+        DB::table('mitraregistrasidetail_t')
+            ->where('norec', $request['norec_detail'])
+            ->update([
+                'pelaksanaisilembarkerjafk' => $this->getPegawaiId(),
+                'tglisilembarkerjapelaksana' => now(),
+                'tglkalibrasilembarkerja' => $request['tglkalibrasi'],
+                'tempatKalibrasilembarkerja' => $request['tempatKalibrasi'],
+                'kondisiRuanganlembarkerja' => $request['kondisiRuangan'],
+                'suhulembarkerja' => $request['suhu'],
+                'kelembabanRelatiflembarkerja' => $request['kelembabanRelatif'],
+            ]);
 
-            $result = [];
-            LembarKerja::where('detailregistraifk', $request['norec_detail'])->delete();
-            foreach ($request['data'] as $item) {
-                if ($item['isGroupHeader'] === true) {
-                    continue;
-                }
-                $data1 = new LembarKerja();
-                $data1->norec = $data1->generateNewId();
-                $data1->statusenabled = true;
-
-                $data1->detailregistraifk = $request['norec_detail'];
-                $data1->group = $item['group'];
-                $data1->rentang = $item['rentang'];
-                $data1->rentang_satuan = $item['rentang_satuan'];
-                $data1->penunjukan_standar = $item['penunjukan_standar'];
-                $data1->penunjukan_standar_satuan = $item['penunjukan_standar_satuan'];
-                $data1->penunjukan_standar_2 = $item['penunjukan_standar_2'];
-                $data1->penunjukan_standar_satuan_2 = $item['penunjukan_standar_satuan_2'];
-                $data1->pembacaan_alat = $item['pembacaan_alat'];
-                $data1->pembacaan_alat_satuan = $item['pembacaan_alat_satuan'];
-                $data1->koreksi = $item['koreksi'];
-                $data1->koreksi_satuan = $item['koreksi_satuan'];
-                $data1->ketidakpastian = $item['ketidakpastian'];
-                $data1->ketidakpastian_standar = $item['ketidakpastian_standar'];
-                $data1->excelfilename = $request['fileName'];
-                $data1->tglupload = now();
-                $data1->pengisifk = $this->getPegawaiId();
-                $data1->save();
-                $result[] = $data1;
-            }
-            $transStatus = 'true';
-        } catch (Exception $e) {
-            $transStatus = 'false';
+        $dataInstruksi = [];
+        DaftarInstruksiKerja::where('detailregistrasifk', $request['norec_detail'])->delete();
+        foreach ($DIK as $instruksi) {
+            $model_Instruksi = new DaftarInstruksiKerja;
+            $model_Instruksi->norec = $model_Instruksi->generateNewId();
+            $model_Instruksi->statusenabled = true;
+            $model_Instruksi->idalatinstruksikerja = $instruksi['instruksikerja'];
+            $model_Instruksi->detailregistrasifk = $request['norec_detail'];
+            $model_Instruksi->petugas = $this->getPegawaiId();
+            $model_Instruksi->save();
+            $dataInstruksi[] = $model_Instruksi;
         }
+
+        $dataAlatStandar = [];
+        DaftarAlatStandar::where('detailregistrasifk', $request['norec_detail'])->delete();
+        foreach ($DAS as $standar) {
+            $model_Standar = new DaftarAlatStandar;
+            $model_Standar->norec = $model_Standar->generateNewId();
+            $model_Standar->statusenabled = true;
+            $model_Standar->alatstandarfk = $standar['peralatanstandar'];
+            $model_Standar->detailregistrasifk = $request['norec_detail'];
+            $model_Standar->petugas = $this->getPegawaiId();
+            $model_Standar->save();
+            $dataAlatStandar[] = $model_Standar;
+        }
+
+        $result = [];
+        LembarKerja::where('detailregistraifk', $request['norec_detail'])->delete();
+        foreach ($request['data'] as $item) {
+            if ($item['isGroupHeader'] === true) {
+                continue;
+            }
+            $data1 = new LembarKerja();
+            $data1->norec = $data1->generateNewId();
+            $data1->statusenabled = true;
+
+            $data1->detailregistraifk = $request['norec_detail'];
+            $data1->group = $item['group'];
+            $data1->rentang = $item['rentang'];
+            $data1->rentang_satuan = $item['rentang_satuan'];
+            $data1->penunjukan_standar = $item['penunjukan_standar'];
+            $data1->penunjukan_standar_satuan = $item['penunjukan_standar_satuan'];
+            $data1->penunjukan_standar_2 = $item['penunjukan_standar_2'];
+            $data1->penunjukan_standar_satuan_2 = $item['penunjukan_standar_satuan_2'];
+            $data1->pembacaan_alat = $item['pembacaan_alat'];
+            $data1->pembacaan_alat_satuan = $item['pembacaan_alat_satuan'];
+            $data1->koreksi = $item['koreksi'];
+            $data1->koreksi_satuan = $item['koreksi_satuan'];
+            $data1->ketidakpastian = $item['ketidakpastian'];
+            $data1->ketidakpastian_standar = $item['ketidakpastian_standar'];
+            $data1->excelfilename = $request['fileName'];
+            $data1->tglupload = now();
+            $data1->pengisifk = $this->getPegawaiId();
+            $data1->save();
+            $result[] = $data1;
+        }
+        $transStatus = 'true';
+        // } catch (Exception $e) {
+        //     $transStatus = 'false';
+        // }
 
         $transMessage = "Simpan Lembar Kerja";
         if ($transStatus != 'false') {
@@ -496,8 +526,8 @@ class PelaksanaCtrl extends Controller
                 'mtrd.tglverifpelaksana',
                 'mtrd.tglkalibrasilembarkerja',
                 'mtrd.tempatKalibrasilembarkerja',
-                'mtrd.kondisiRuanganlembarkerja', 
-                'mtrd.suhulembarkerja', 
+                'mtrd.kondisiRuanganlembarkerja',
+                'mtrd.suhulembarkerja',
                 'mtrd.kelembabanRelatiflembarkerja',
                 'prd.namaproduk',
                 'mtr.catatan',
@@ -524,6 +554,40 @@ class PelaksanaCtrl extends Controller
             ->where('mtrd.norec', $r['norec_pd'])
             ->orderByDesc('prd.namaproduk')
             ->get();
+
+        $instruksiKerja = DB::table('daftarinstruksikerja_t as dik')
+            ->leftJoin('instruksikerja_m as ik', 'ik.id', '=', 'dik.idalatinstruksikerja')
+            ->select('dik.detailregistrasifk', 'ik.id as value', 'ik.namainstruksikerja as label')
+            ->where('dik.detailregistrasifk', $r['norec_pd'])
+            ->where('dik.statusenabled', true)
+            ->where('ik.statusenabled', true)
+            ->get();
+
+        foreach ($data as $ds) {
+            $ds->daftarinstruksikerja = [];
+            foreach ($instruksiKerja as $sd) {
+                if ($ds->norec_detail == $sd->detailregistrasifk) {
+                    $ds->daftarinstruksikerja[] = $sd;
+                }
+            }
+        }
+
+        $alatstandar = DB::table('daftaralatstandar_t as das')
+            ->leftJoin('peralatanstandar_m as pas', 'pas.id', '=', 'das.alatstandarfk')
+            ->select('das.detailregistrasifk', 'pas.id as value', 'pas.namaalatstandar as label')
+            ->where('das.detailregistrasifk', $r['norec_pd'])
+            ->where('das.statusenabled', true)
+            ->where('pas.statusenabled', true)
+            ->get();
+
+        foreach ($data as $ds) {
+            $ds->daftaralatstandar = [];
+            foreach ($alatstandar as $sd) {
+                if ($ds->norec_detail == $sd->detailregistrasifk) {
+                    $ds->daftaralatstandar[] = $sd;
+                }
+            }
+        }
 
         $result = [
             'length' => count($data),
@@ -696,12 +760,14 @@ class PelaksanaCtrl extends Controller
 
         $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
-            ->select('lk.*', 
+            ->select(
+                'lk.*',
                 'mtrd.tglkalibrasilembarkerja',
                 'mtrd.tempatKalibrasilembarkerja',
-                'mtrd.kondisiRuanganlembarkerja', 
-                'mtrd.suhulembarkerja', 
-                'mtrd.kelembabanRelatiflembarkerja')
+                'mtrd.kondisiRuanganlembarkerja',
+                'mtrd.suhulembarkerja',
+                'mtrd.kelembabanRelatiflembarkerja'
+            )
             ->where('mtrd.norec', $r['norec_detail'])
             ->where('lk.statusenabled', true)
             ->get();
