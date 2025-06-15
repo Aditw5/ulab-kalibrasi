@@ -437,6 +437,9 @@ class PelaksanaCtrl extends Controller
             $model_Standar->norec = $model_Standar->generateNewId();
             $model_Standar->statusenabled = true;
             $model_Standar->alatstandarfk = $standar['peralatanstandar'];
+            $model_Standar->merkstandarfk = $standar['merkalatstandar'];
+            $model_Standar->tipestandarfk = $standar['tipealatstandar'];
+            $model_Standar->snstandarfk = $standar['serialalatstandar'];
             $model_Standar->detailregistrasifk = $request['norec_detail'];
             $model_Standar->petugas = $this->getPegawaiId();
             $model_Standar->save();
@@ -771,7 +774,56 @@ class PelaksanaCtrl extends Controller
             ->where('mtrd.norec', $r['norec_detail'])
             ->where('lk.statusenabled', true)
             ->get();
+
+        $res['instruksikerja'] = DB::table('daftarinstruksikerja_t as dik')
+            ->leftJoin('instruksikerja_m as ik', 'ik.id', '=', 'dik.idalatinstruksikerja')
+            ->select('dik.detailregistrasifk', 'ik.id', 'ik.namainstruksikerja', 'ik.noisntruksikerja')
+            ->where('dik.detailregistrasifk', $r['norec_detail'])
+            ->where('dik.statusenabled', true)
+            ->where('ik.statusenabled', true)
+            ->get();
+
+        $res['alastandar'] = DB::table('daftaralatstandar_t as das')
+            ->leftJoin('peralatanstandar_m as pas', 'pas.id', '=', 'das.alatstandarfk')
+            ->leftJoin('merkalat_m as mk', 'mk.id', '=', 'das.merkstandarfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'das.tipestandarfk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'das.snstandarfk')
+            ->select('das.detailregistrasifk', 
+                'pas.id as value', 
+                'pas.namaalatstandar',
+                'pas.duedate',
+                'mk.namamerk',
+                'tp.namatipe',
+                'sn.namaserialnumber'
+                )
+            ->where('das.detailregistrasifk', $r['norec_detail'])
+            ->where('das.statusenabled', true)
+            ->where('pas.statusenabled', true)
+            ->get();
+
+        $res['alat'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
+            ->select(
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as asmanfk',
+                'pg3.namalengkap as asamanverifikasi',
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->first();
+
         $res['pdf']  = $r['pdf'];
+        $res['ttdPelaksana'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->pelaksanateknik));
+        $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
+        $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->penyeliateknik));
 
         $blade = 'report.pelaksana.sertifikat-lembar-kerja';
 
@@ -820,6 +872,99 @@ class PelaksanaCtrl extends Controller
             $blade,
             compact('profile', 'pageWidth', 'print', 'res')
         );
+    }
+
+    public function getMerkStandar(Request $r)
+    {
+        $search = $r['query'];
+        $data = DB::table('mapmitratomerk_m as mmk')
+            ->leftJoin('merkalat_m as mk', 'mk.id', '=', 'mmk.merkfk')
+            ->select(
+                'mmk.id as idmapmerk',
+                'mmk.mitrafk',
+                'mk.namamerk',
+                'mk.id',
+            )
+            ->where('mmk.statusenabled', true)
+            ->where('mmk.mitrafk', 1)
+            ->where('mk.statusenabled', true);
+
+        if (isset($r['param_search']) && $r['param_search'] != '') {
+            $exp = explode(',', $r['param_search']);
+            foreach ($exp as $items) {
+                $where[] = [$items, 'ILIKE', '%' . $search . '%'];
+            }
+            $data = $data->where($where);
+        }
+        $data = $data->get();
+
+
+        $result['data'] = $data;
+        $result['as'] = '@epic';
+
+        return $this->respond($result);
+    }
+
+    public function getTipeStandar(Request $r)
+    {
+        $search = $r['query'];
+        $data = DB::table('mapmitratotipe_m as mmp')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mmp.tipefk')
+            ->select(
+                'mmp.id as idmaptipe',
+                'mmp.mitrafk',
+                'tp.namatipe',
+                'tp.id',
+            )
+            ->where('mmp.statusenabled', true)
+            ->where('mmp.mitrafk', 1)
+            ->where('tp.statusenabled', true);
+
+        if (isset($r['param_search']) && $r['param_search'] != '') {
+            $exp = explode(',', $r['param_search']);
+            foreach ($exp as $items) {
+                $where[] = [$items, 'ILIKE', '%' . $search . '%'];
+            }
+            $data = $data->where($where);
+        }
+        $data = $data->get();
+
+
+        $result['data'] = $data;
+        $result['as'] = '@epic';
+
+        return $this->respond($result);
+    }
+
+    public function getSnStandar(Request $r)
+    {
+        $search = $r['query'];
+        $data = DB::table('mapmitratosn_m as mms')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mms.snfk')
+            ->select(
+                'mms.id as idmapsn',
+                'mms.mitrafk',
+                'sn.namaserialnumber',
+                'sn.id',
+            )
+            ->where('mms.statusenabled', true)
+            ->where('mms.mitrafk', 1)
+            ->where('sn.statusenabled', true);
+
+        if (isset($r['param_search']) && $r['param_search'] != '') {
+            $exp = explode(',', $r['param_search']);
+            foreach ($exp as $items) {
+                $where[] = [$items, 'ILIKE', '%' . $search . '%'];
+            }
+            $data = $data->where($where);
+        }
+        $data = $data->get();
+
+
+        $result['data'] = $data;
+        $result['as'] = '@epic';
+
+        return $this->respond($result);
     }
 
     //     public function cetakSertifikatLembarKerja(Request $r)

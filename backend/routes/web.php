@@ -637,6 +637,9 @@ Route::middleware(['log'])->group(function () {
         Route::get('pelaksana/detail-produk-lembar-kerja', 'detailProdukLembarKeerja');
         Route::get('pelaksana/cetak-spk', 'cetakSPK');
         Route::get('pelaksana/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
+        Route::get('pelaksana/get-merk-standar', 'getMerkStandar');
+        Route::get('pelaksana/get-tipe-standar', 'getTipeStandar');
+        Route::get('pelaksana/get-sn-standar', 'getSnStandar');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {

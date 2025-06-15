@@ -219,14 +219,23 @@
                   </div>
                 </Fieldset>
               </div>
-              <div class="column is-4">
+              <div class="column is-8">
                 <Fieldset legend="- Daftar Peralatan Standar" :toggleable="true">
                   <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
                     <table width="100%">
                       <thead>
                         <tr class="tr-po">
                           <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">Nama Alat
-                            STandar
+                            Standar
+                          </th>
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
+                            Merk
+                          </th>
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
+                            Tipe
+                          </th>
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
+                            No Serial
                           </th>
                           <th class="th-po" width="8%" style="vertical-align:inherit;text-align: center;">Aksi</th>
                         </tr>
@@ -239,6 +248,42 @@
                                 <VControl>
                                   <AutoComplete v-model="items.daftaralatstandar" :suggestions="d_alatstandar"
                                     @complete="fetchAlatStandar($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.merkalatstandar" :suggestions="d_merkStandar"
+                                    @complete="fetchMerkStandar($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.tipealatstandar" :suggestions="d_tipeStandar"
+                                    @complete="fetchTipeStandar($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.serialalatstandar" :suggestions="d_snStandar"
+                                    @complete="fetchSnStandar($event)" :optionLabel="'label'" :dropdown="true"
                                     :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
                                     :field="'label'" placeholder="ketik untuk mencari..." />
                                 </VControl>
@@ -602,9 +647,40 @@ const item: any = ref({
 })
 const d_instruksiKerja = ref([])
 const d_alatstandar = ref([])
+const d_merkStandar = ref([])
+const d_tipeStandar = ref([])
+const d_snStandar = ref([])
 const onUpload = () => {
 
 }
+
+const fetchMerkStandar = async (filter: any) => {
+  await useApi().get(
+    `pelaksana/get-merk-standar?param_search=namamerk&query=${filter.query}`).then((response) => {
+      d_merkStandar.value = response.data.map((e: any) => {
+        return { label: e.namamerk, value: e.id }
+      })
+    })
+}
+
+const fetchTipeStandar = async (filter: any) => {
+  await useApi().get(
+    `pelaksana/get-tipe-standar?param_search=namatipe&query=${filter.query}`).then((response) => {
+      d_tipeStandar.value = response.data.map((e: any) => {
+        return { label: e.namatipe, value: e.id }
+      })
+    })
+}
+
+const fetchSnStandar = async (filter: any) => {
+  await useApi().get(
+    `pelaksana/get-sn-standar?param_search=namaserialnumber&query=${filter.query}`).then((response) => {
+      d_snStandar.value = response.data.map((e: any) => {
+        return { label: e.namaserialnumber, value: e.id }
+      })
+    })
+}
+
 
 const addNewAlat = () => {
   item.value.detailInstruksiKerja.push({
@@ -812,7 +888,10 @@ const Save = async () => {
     instruksikerja: items.daftarInstruksiKerja?.value || null
   }));
   const mappPeralatanStandar = item.value.detailPeralatanStandar.map((items: any) => ({
-    peralatanstandar: items.daftaralatstandar?.value || null
+    peralatanstandar: items.daftaralatstandar?.value || null,
+    merkalatstandar: items.merkalatstandar?.value || null,
+    tipealatstandar: items.tipealatstandar?.value || null,
+    serialalatstandar: items.serialalatstandar?.value || null
   }));
   let json = {
     'data': dataSourcefilter.value,
