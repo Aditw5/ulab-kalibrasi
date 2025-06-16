@@ -887,7 +887,6 @@ watch(
 )
 
 const detailOrder = async (e) => {
-    console.log(e)
     modalRiwayat.value = true
     item.value.namaproduk = e.namaproduk
     item.value.namamerk = e.namamerk
@@ -895,7 +894,7 @@ const detailOrder = async (e) => {
     item.value.namaserialnumber = e.namaserialnumber
     item.value.durasikalbrasi = e.durasikalbrasi
     isLoadDataDeatilOrder.value = true
-    const response = await useApi().get(`/penyelia/detail-produk?norec_pd=${e.norec_detail}`)
+    const response = await useApi().get(`/asman/detail-produk?norec_pd=${e.norec_detail}`)
     timelineItems.value = response.timeline
     isLoadDataDeatilOrder.value = false
 }

@@ -323,6 +323,7 @@ class PenyeliaCtrl extends Controller
             ->leftJoin('pegawai_m as pg4', 'pg4.id', '=', 'mtrd.pelaksanaisilembarkerjafk')
             ->leftJoin('pegawai_m as pg5', 'pg5.id', '=', 'mtrd.penyeliasetujulembarkerjafk')
             ->leftJoin('pegawai_m as pg6', 'pg6.id', '=', 'mtrd.asmansetujulembarkerjafk')
+            ->leftJoin('pegawai_m as pg7', 'pg7.id', '=', 'mtrd.managersetujulembarkerjafk')
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
@@ -375,6 +376,11 @@ class PenyeliaCtrl extends Controller
                 'pg5.namalengkap as penyeliasetujuilembarkerja',
                 'pg6.id as asmansetujuilembarkerjafk',
                 'pg6.namalengkap as asmansetujuilembarkerja',
+                'mtrd.setujuilembarkerjamanager',
+                'mtrd.tglsetujumanagerlembarkerja',
+                'mtrd.managersetujulembarkerjafk',
+                'pg7.id as managersetujuilembarkerjafk',
+                'pg7.namalengkap as managersetujuilembarkerja',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -386,6 +392,13 @@ class PenyeliaCtrl extends Controller
         $timeline = [];
 
         foreach ($data as $item) {
+            if (!is_null($item->tglsetujumanagerlembarkerja)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujumanagerlembarkerja,
+                    'type' => 'Sertifikat Di Setujui Oleh Manager',
+                    'nama' => $item->managersetujuilembarkerja ?? '-',
+                ];
+            }
             if (!is_null($item->tglsetujuasmanlembarkerja)) {
                 $timeline[] = [
                     'date' => $item->tglsetujuasmanlembarkerja,

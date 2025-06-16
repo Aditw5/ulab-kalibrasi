@@ -57,7 +57,7 @@
                                             <div class="search-menu-igd mb-2">
                                                 <div class="search-location-igd" style="width: 100%">
                                                     <i class="iconify" data-icon="feather:search"></i>
-                                                    <input type="text" placeholder="Cari Nama Alat"
+                                                    <input type="text" placeholder="Cari Nama Alat, No Order Alat, No Pendaftaran"
                                                         v-model="item.qsearch"
                                                         v-on:keyup.enter="fetchAlatKalibrasi(orderAlat)" />
                                                 </div>
@@ -736,7 +736,7 @@ const detailOrder = async (e) => {
     item.value.namaserialnumber = e.namaserialnumber
     item.value.durasikalbrasi = e.durasikalbrasi
     isLoadDataDeatilOrder.value = true
-    const response = await useApi().get(`/penyelia/detail-produk?norec_pd=${e.norec_detail}`)
+    const response = await useApi().get(`/manager/detail-produk?norec_pd=${e.norec_detail}`)
     timelineItems.value = response.timeline
     isLoadDataDeatilOrder.value = false
 }

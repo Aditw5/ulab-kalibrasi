@@ -577,6 +577,7 @@ Route::middleware(['log'])->group(function () {
 
     Route::controller(MitraCtrl::class)->group(function () {
         Route::get('registrasi/list-mitra-grid', 'listMitraGrid');
+        Route::get('registrasi/get-alat-registrasi', 'getAlatRegistrasi');
         Route::get('registrasi/count-daftar', 'CountDaftar');
         Route::get('registrasi/header-mitra', 'HeaderMitra');
         Route::get('registrasi/layana-mitra', 'LayananKajian');
@@ -608,6 +609,7 @@ Route::middleware(['log'])->group(function () {
     Route::controller(ManagerCtrl::class)->group(function () {
         Route::get('manager/list-mitra-regis', 'listMitraAsmanGrid');
         Route::get('manager/get-detail-pegawai', 'getAsmanDetail');
+        Route::get('manager/detail-produk', 'detailProduk');
         Route::get('manager/header-mitra', 'HeaderMitra');
         Route::get('manager/cetak-spk', 'cetakSPK');
         Route::get('manager/get-alat-manager', 'getAlatManager');

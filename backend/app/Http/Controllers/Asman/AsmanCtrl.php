@@ -136,7 +136,6 @@ class AsmanCtrl extends Controller
             ->where('mtr.statusorder', 1)
             ->where('mtr.iskaji', true)
             ->where('mtr.statusenabled', true)
-            ->where('mtrd.statusenabled', true)
             ->where('mtrd.statusenabled', true);
 
         if (isset($r['dari']) && $r['dari'] != '') {
@@ -360,6 +359,10 @@ class AsmanCtrl extends Controller
             ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
             ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
+            ->leftJoin('pegawai_m as pg4', 'pg4.id', '=', 'mtrd.pelaksanaisilembarkerjafk')
+            ->leftJoin('pegawai_m as pg5', 'pg5.id', '=', 'mtrd.penyeliasetujulembarkerjafk')
+            ->leftJoin('pegawai_m as pg6', 'pg6.id', '=', 'mtrd.asmansetujulembarkerjafk')
+            ->leftJoin('pegawai_m as pg7', 'pg7.id', '=', 'mtrd.managersetujulembarkerjafk')
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
@@ -396,10 +399,27 @@ class AsmanCtrl extends Controller
                 'pg2.namalengkap as pelaksanateknik',
                 'pg3.id as asmanfk',
                 'pg3.namalengkap as asamanverifikasi',
+                'pg4.id as pelaksanaisilembarkerjafk',
+                'pg4.namalengkap as pelaksanaisilembarkerja',
                 'lk.id as lokasikalibrasifk',
                 'lk.lokasi',
                 'lp.id as lingkupfk',
-                'lp.lingkupkalibrasi'
+                'lp.lingkupkalibrasi',
+                'mtrd.setujuilembarkerjapenyelia',
+                'mtrd.tglsetujupenyelialembarkerja',
+                'mtrd.penyeliasetujulembarkerjafk',
+                'mtrd.setujuilembarkerjaasman',
+                'mtrd.tglsetujuasmanlembarkerja',
+                'mtrd.asmansetujulembarkerjafk',
+                'pg5.id as penyeliasetujuilembarkerjafk',
+                'pg5.namalengkap as penyeliasetujuilembarkerja',
+                'pg6.id as asmansetujuilembarkerjafk',
+                'pg6.namalengkap as asmansetujuilembarkerja',
+                'mtrd.setujuilembarkerjamanager',
+                'mtrd.tglsetujumanagerlembarkerja',
+                'mtrd.managersetujulembarkerjafk',
+                'pg7.id as managersetujuilembarkerjafk',
+                'pg7.namalengkap as managersetujuilembarkerja',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -411,6 +431,27 @@ class AsmanCtrl extends Controller
         $timeline = [];
 
         foreach ($data as $item) {
+            if (!is_null($item->tglsetujumanagerlembarkerja)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujumanagerlembarkerja,
+                    'type' => 'Sertifikat Di Setujui Oleh Manager',
+                    'nama' => $item->managersetujuilembarkerja ?? '-',
+                ];
+            }
+            if (!is_null($item->tglsetujuasmanlembarkerja)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujuasmanlembarkerja,
+                    'type' => 'Sertifikat Di Setujui Oleh Asman',
+                    'nama' => $item->asmansetujuilembarkerja ?? '-',
+                ];
+            }
+            if (!is_null($item->tglsetujupenyelialembarkerja)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujupenyelialembarkerja,
+                    'type' => 'Sertifikat Di Setujui Oleh Penyelia',
+                    'nama' => $item->penyeliasetujuilembarkerja ?? '-',
+                ];
+            }
             if (!is_null($item->tglverifasman)) {
                 $timeline[] = [
                     'date' => $item->tglverifasman,
@@ -843,6 +884,10 @@ class AsmanCtrl extends Controller
             ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
             ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
             ->select(
                 'pg.id as penyeliateknikfk',
                 'pg.namalengkap as penyeliateknik',
@@ -850,6 +895,12 @@ class AsmanCtrl extends Controller
                 'pg2.namalengkap as pelaksanateknik',
                 'pg3.id as asmanfk',
                 'pg3.namalengkap as asamanverifikasi',
+                'mtrd.noorderalat',
+                'mtrd.namamanager',
+                'prd.namaproduk',
+                'mrk.namamerk',
+                'tp.namatipe',
+                'sn.namaserialnumber',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -861,12 +912,29 @@ class AsmanCtrl extends Controller
         $res['ttdPelaksana'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->pelaksanateknik));
         $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
         $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->penyeliateknik));
+        $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->namamanager));
 
         $blade = 'report.pelaksana.sertifikat-lembar-kerja';
 
         if ($res['pdf'] == 'true') {
+            // ======== RENDER 1 (UNTUK MENGHITUNG JUMLAH HALAMAN) =========
+            $pdfDummy = App::make('dompdf.wrapper');
+            $pdfDummy->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                    'jumlahHalaman' => null, // sementara kosong
+                )
+            );
+            $dompdfDummy = $pdfDummy->getDomPDF();
+            $dompdfDummy->render();
+            $jumlahHalaman = $dompdfDummy->getCanvas()->get_page_count();
+
+            // ======== RENDER 2 (RENDER UTAMA DENGAN JUMLAH HALAMAN) =========
             $pdf = App::make('dompdf.wrapper');
-            // $pdf->setpaper('a4', 'landscape');
             $pdf->loadView(
                 $blade . '-dom',
                 array(
@@ -874,19 +942,20 @@ class AsmanCtrl extends Controller
                     'pageWidth' => $pageWidth,
                     'print' => $print,
                     'res' => $res,
+                    'jumlahHalaman' => $jumlahHalaman, // dikirim ke Blade
                 )
             );
 
             // Tambah penomoran halaman otomatis di footer PDF
             $dompdf = $pdf->getDomPDF();
             $canvas = $dompdf->get_canvas();
-            $canvas->page_text(200, 780, "Halaman ke {PAGE_NUM} dari {PAGE_COUNT} halaman", null, 11, array(0, 0, 0));
-            $canvas->page_text(230, 795, "Page {PAGE_NUM} of {PAGE_COUNT} pages", null, 9, array(0, 0, 0));
-
-
+            $canvas->page_text(230, 780, "Halaman ke {PAGE_NUM} dari {PAGE_COUNT} halaman", null, 8, array(0, 0, 0));
+            $font = $dompdf->getFontMetrics()->getFont('Helvetica', 'italic');
+            $canvas->page_text(260, 788, "Page {PAGE_NUM} of {PAGE_COUNT} pages", $font, 7, array(0, 0, 0));
 
             return $pdf->stream();
         }
+
 
         if (isset($r['storage'])) {
             $res['storage']  = true;
