@@ -17,100 +17,294 @@
                                     <p>
                                         Selamat Datang , {{ userLogin.pegawai.namaLengkap }}
                                     </p>
-                                    <VTag @click="showModalFilter()" color="danger" rounded elevated
-                                        style="position: relative; bottom: -1.5rem; cursor:pointer, height: 3em">{{
-                                            H.formatDateToLocalString(item.periode.start) ==
-                                                H.formatDateToLocalString(item.periode.end) ?
-                                                H.formatDateToLocalString(item.periode.start) :
-                                                H.formatDateToLocalString(item.periode.start) + ' - ' + (item.periode.end ?
-                                                    H.formatDateToLocalString(item.periode.end) : '')
-                                        }} <i class="fas fa-filter ml-3" aria-hidden="true"></i></VTag>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <Badge :value="dataOrder.length" v-if="dataOrder.length > 0" severity="danger"
-                        style="z-index: 6;top: 38px;position: relative; left: 20px" />
                     <div class="columns is-multiline">
                         <div class="column is-8" style="margin-top: 2rem;">
-                            <div class="list-view list-view-v3">
-                                <div class="search-menu-rad mb-2">
-                                    <div class="search-location-rad" style="width: 100%">
-                                        <i class="iconify" data-icon="feather:search"></i>
-                                        <input type="text" placeholder="Cari Nama Perusahaan, No Pendaftaran"
-                                            v-model="item.search" v-on:keyup.enter="fetchDataOrder(order)" />
-                                    </div>
-                                    <VButton raised class="search-button-rad" @click="fetchDataOrder(order)"
-                                        :loading="isLoading"> Cari Data
-                                    </VButton>
-                                </div>
-                                <VCard class="text-center pt-0 pb-0 mt-0">
-                                    <VRadio v-model="order" value="0" label="Belum Verif" name="outlined_radio"
-                                        color="warning" />
-                                    <VRadio v-model="order" value="1" label="Sudah Verif" name="outlined_radio"
-                                        color="info" />
-                                </VCard>
-                                <VPlaceholderPage :title="H.assets().notFound" :subtitle="H.assets().notFoundSubtitle"
-                                    class="my-6" :class="[dataOrder.length !== 0 && 'is-hidden']">
-                                    <template #image>
-                                        <img class="light-image" :src="H.assets().iconNotFound_rev" alt="" />
-                                        <img class="dark-image"
-                                            src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
+                            <TabView class="tabview-custom " :scrollable="true" @tab-click="klikTab($event)">
+                                <TabPanel>
+                                    <template #header>
+                                        <i class="fas fa-users mr-2" aria-hidden="true"></i>
+                                        <span>Daftar Mitra Registrasi</span>
+                                        <Badge :value="dataOrder.length" v-if="dataOrder.length > 0" severity="danger"
+                                            class="ml-2" />
                                     </template>
-                                </VPlaceholderPage>
-                                <div class="list-view-inner"
-                                    style="max-height:500px;overflow: auto; margin-top: 1rem; ">
-                                    <TransitionGroup name="list-complete" tag="div">
-                                        <div v-for="(items, m) in dataOrder" :key="m" class="list-view-item">
-                                            <div class="list-view-item-inner">
-                                                <VAvatar size="small" style="left: 8px;top: 4px;" :color="listColor[i]"
-                                                    :initials="items.initials" />
-                                                <div class="meta-left">
-                                                    <h3>
-                                                        {{ items.namaperusahaan }} <i aria-hidden="true"></i>
-                                                    </h3>
-                                                    <span style="color: black">
-                                                        <i aria-hidden="true" class="iconify"
-                                                            data-icon="teenyicons:id-outline"></i>
-                                                        <span> {{ items.nopendaftaran }}</span>
-                                                        <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
-                                                        <i aria-hidden="true" class="iconify"
-                                                            data-icon="feather:calendar"></i>
-                                                        <span>{{ items.tgldaftar }}</span>
-                                                    </span>
-                                                    <br>
-                                                </div>
-                                                <div class="meta-right">
-                                                    <VIconButton v-tooltip.bottom.left="'Verifikasi'"
-                                                        label="Bottom Left" color="primary" circle
-                                                        icon="pi pi-check-circle" v-if="items.statusorder == 0"
-                                                        @click="orderVerify(items)" style="margin-right: 15px;" />
 
-                                                    <VIconButton v-tooltip.bottom.left="'Detail'" label="Bottom Left"
-                                                        v-else color="primary" circle icon="pi pi-book"
-                                                        @click="getDetailVerify(items)" style="margin-right: 15px;" />
-                                                    <VDropdown icon="feather:more-vertical" spaced right
-                                                        v-tooltip.bubble="'CETAK'">
-                                                        <template #content>
-                                                            <a role="menuitem" class="dropdown-item is-media"
-                                                                @click="cetakSEP(items)">
-                                                                <div class="icon">
-                                                                    <i class="iconify" data-icon="feather:printer"
+                                    <div v-if="activeTab == 0">
+                                        <div class="column is-6"
+                                            style="margin-left: 23rem;margin-bottom: 20px;padding: 0px;margin-top: -4.25rem;">
+                                            <VDatePicker v-model="item.filterTgl" is-range color="pink" trim-weeks>
+                                                <template #default="{ inputValue, inputEvents }">
+                                                    <VField addons>
+                                                        <VControl icon="feather:calendar">
+                                                            <VInput :value="inputValue.start"
+                                                                v-on="inputEvents.start" />
+                                                        </VControl>
+                                                        <VControl>
+                                                            <VButton static><i class="fas fa-arrow-right"
+                                                                    aria-hidden="true"></i></VButton>
+                                                        </VControl>
+                                                        <VControl icon="feather:calendar">
+                                                            <VInput :value="inputValue.end" v-on="inputEvents.end" />
+                                                        </VControl>
+                                                    </VField>
+                                                </template>
+                                            </VDatePicker>
+
+                                        </div>
+
+                                        <div class="list-view list-view-v3">
+                                            <div class="search-menu-rad mb-2">
+                                                <div class="search-location-rad" style="width: 100%">
+                                                    <i class="iconify" data-icon="feather:search"></i>
+                                                    <input type="text"
+                                                        placeholder="Cari Nama Perusahaan, No Pendaftaran"
+                                                        v-model="item.search"
+                                                        v-on:keyup.enter="fetchDataOrder(order)" />
+                                                </div>
+                                                <VButton raised class="search-button-rad" @click="fetchDataOrder(order)"
+                                                    :loading="isLoading"> Cari Data
+                                                </VButton>
+                                            </div>
+                                            <VCard class="text-center pt-0 pb-0 mt-0">
+                                                <VRadio v-model="order" value="0" label="Belum Verif"
+                                                    name="outlined_radio" color="warning" />
+                                                <VRadio v-model="order" value="1" label="Sudah Verif"
+                                                    name="outlined_radio" color="info" />
+                                            </VCard>
+                                            <VPlaceholderPage :title="H.assets().notFound"
+                                                :subtitle="H.assets().notFoundSubtitle" class="my-6"
+                                                :class="[dataOrder.length !== 0 && 'is-hidden']">
+                                                <template #image>
+                                                    <img class="light-image" :src="H.assets().iconNotFound_rev"
+                                                        alt="" />
+                                                    <img class="dark-image"
+                                                        src="/@src/assets/illustrations/placeholders/search-4-dark.svg"
+                                                        alt="" />
+                                                </template>
+                                            </VPlaceholderPage>
+                                            <div class="list-view-inner"
+                                                style="max-height:500px;overflow: auto; margin-top: 1rem; ">
+                                                <TransitionGroup name="list-complete" tag="div">
+                                                    <div v-for="(items, m) in dataOrder" :key="m"
+                                                        class="list-view-item">
+                                                        <div class="list-view-item-inner">
+                                                            <VAvatar size="small" style="left: 8px;top: 4px;"
+                                                                :color="listColor[i]" :initials="items.initials" />
+                                                            <div class="meta-left">
+                                                                <h3>
+                                                                    {{ items.namaperusahaan }} <i
                                                                         aria-hidden="true"></i>
+                                                                </h3>
+                                                                <span style="color: black">
+                                                                    <i aria-hidden="true" class="iconify"
+                                                                        data-icon="teenyicons:id-outline"></i>
+                                                                    <span> {{ items.nopendaftaran }}</span>
+                                                                    <i aria-hidden="true"
+                                                                        class="fas fa-circle icon-separator"></i>
+                                                                    <i aria-hidden="true" class="iconify"
+                                                                        data-icon="feather:calendar"></i>
+                                                                    <span>{{ items.tgldaftar }}</span>
+                                                                </span>
+                                                                <br>
+                                                            </div>
+                                                            <div class="meta-right">
+                                                                <VIconButton v-tooltip.bottom.left="'Verifikasi'"
+                                                                    label="Bottom Left" color="primary" circle
+                                                                    icon="pi pi-check-circle"
+                                                                    v-if="items.statusorder == 0"
+                                                                    @click="orderVerify(items)"
+                                                                    style="margin-right: 15px;" />
+
+                                                                <VIconButton v-tooltip.bottom.left="'Detail'"
+                                                                    label="Bottom Left" v-else color="primary" circle
+                                                                    icon="pi pi-book" @click="getDetailVerify(items)"
+                                                                    style="margin-right: 15px;" />
+                                                                <VDropdown icon="feather:more-vertical" spaced right
+                                                                    v-tooltip.bubble="'CETAK'">
+                                                                    <template #content>
+                                                                        <a role="menuitem"
+                                                                            class="dropdown-item is-media"
+                                                                            @click="cetakSEP(items)">
+                                                                            <div class="icon">
+                                                                                <i class="iconify"
+                                                                                    data-icon="feather:printer"
+                                                                                    aria-hidden="true"></i>
+                                                                            </div>
+                                                                            <div class="meta">
+                                                                                <span>Cetak SEP</span>
+                                                                                <span>Cetak Surat Elegibilitas</span>
+                                                                            </div>
+                                                                        </a>
+                                                                    </template>
+                                                                </VDropdown>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </TransitionGroup>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TabPanel>
+                                <TabPanel>
+                                    <template #header>
+                                        <i class="fas fa-users mr-2" aria-hidden="true"></i>
+                                        <span>Daftar Alat</span>
+                                        <Badge :value="dataAlatKalibrasi.length" v-if="dataAlatKalibrasi.length > 0"
+                                            severity="danger" class="ml-2" />
+                                    </template>
+
+                                    <div v-if="activeTab == 1">
+                                        <div class="column is-6"
+                                            style="margin-left: 23rem;margin-bottom: 20px;padding: 0px;margin-top: -4.25rem;">
+                                            <VDatePicker v-model="item.filterTgl" is-range color="pink" trim-weeks>
+                                                <template #default="{ inputValue, inputEvents }">
+                                                    <VField addons>
+                                                        <VControl icon="feather:calendar">
+                                                            <VInput :value="inputValue.start"
+                                                                v-on="inputEvents.start" />
+                                                        </VControl>
+                                                        <VControl>
+                                                            <VButton static><i class="fas fa-arrow-right"
+                                                                    aria-hidden="true"></i></VButton>
+                                                        </VControl>
+                                                        <VControl icon="feather:calendar">
+                                                            <VInput :value="inputValue.end" v-on="inputEvents.end" />
+                                                        </VControl>
+                                                    </VField>
+                                                </template>
+                                            </VDatePicker>
+
+                                        </div>
+
+                                        <div class="list-view list-view-v3">
+                                            <div class="search-menu-igd mb-2">
+                                                <div class="search-location-igd" style="width: 100%">
+                                                    <i class="iconify" data-icon="feather:search"></i>
+                                                    <input type="text"
+                                                        placeholder="Cari Nama Alat, Nama Perusahaan, No order Alat, No Pendaftaran"
+                                                        v-model="item.qsearch"
+                                                        v-on:keyup.enter="fetchAlatKalibrasi(order)" />
+                                                </div>
+                                                <VButton raised class="search-button-igd"
+                                                    @click="fetchAlatKalibrasi(order)" :loading="isLoading">
+                                                    Cari Data
+                                                </VButton>
+                                            </div>
+                                            <VCard class="text-center pt-0 pb-0 mt-0">
+                                                <VRadio v-model="order" value="0" label="Belum Setujui"
+                                                    name="outlined_radio" color="success" />
+                                                <VRadio v-model="order" value="1" label="Sudah Setujui"
+                                                    name="outlined_radio" color="info" />
+                                            </VCard>
+                                            <VPlaceholderPage :class="[dataAlatKalibrasi.length !== 0 && 'is-hidden']"
+                                                title="Tidak Ada Alat Hari Ini." subtitle="Silakan Pilih Tanggal"
+                                                larger>
+                                                <template #image>
+                                                    <img class="light-image"
+                                                        src="/@src/assets/illustrations/placeholders/search-4.png"
+                                                        alt="" />
+                                                    <img class="dark-image"
+                                                        src="/@src/assets/illustrations/placeholders/search-4-dark.svg"
+                                                        alt="" />
+                                                </template>
+                                            </VPlaceholderPage>
+                                            <div class="list-view-inner mt-2" style="max-height:1000px;overflow: auto;">
+                                                <div name="list-complete" tag="div">
+                                                    <div v-for="(item, rowIndex) in dataAlatKalibrasi" :key="rowIndex">
+                                                        <div
+                                                            v-if="rowGroupMetadata[item.lingkupkalibrasi].index === rowIndex">
+                                                            <span
+                                                                style="font-weight: bold; font-size: 16px; font-family: var(--font-alt);">{{
+                                                                    item.lingkupkalibrasi }}</span>
+                                                            <Badge :value="rowGroupMetadata[item.lingkupkalibrasi].size"
+                                                                v-if="rowGroupMetadata[item.lingkupkalibrasi].size > 0"
+                                                                class="ml-2 mt-2-min" />
+                                                        </div>
+                                                        <div class="list-view-item ">
+                                                            <div class="list-view-item-inner">
+                                                                <VAvatar size="small"
+                                                                    picture="/images/avatars/svg/propinsi.svg"
+                                                                    color="primary" bordered />
+                                                                <div class="meta-left">
+                                                                    <h3>
+                                                                        {{ item.namaproduk }}
+                                                                    </h3>
+                                                                    <span>
+                                                                        <i aria-hidden="true" class="iconify"
+                                                                            data-icon="feather:home"></i>
+                                                                        <span>{{ item.namaperusahaan }}</span>
+                                                                        <i aria-hidden="true"
+                                                                            class="fas fa-circle icon-separator"></i>
+                                                                        <i aria-hidden="true" class="iconify"
+                                                                            data-icon="feather:calendar"></i>
+                                                                        <span>{{ item.tglverifasman }}</span>
+                                                                        <i aria-hidden="true"
+                                                                            class="fas fa-circle icon-separator"></i>
+                                                                        <i aria-hidden="true" class="iconify"
+                                                                            data-icon="feather:check-circle"></i>
+                                                                        <span>{{ item.nopendaftaran }}</span>
+                                                                        <i aria-hidden="true"
+                                                                            class="fas fa-circle icon-separator"></i>
+                                                                        <i aria-hidden="true" class="iconify"
+                                                                            data-icon="feather:check-circle"></i>
+                                                                        <span>{{ item.noorderalat }}</span>
+
+                                                                    </span>
+                                                                    <div>
+                                                                        <VTag
+                                                                            :label="'Durasi Kalibrasi : ' + item.durasikalbrasi"
+                                                                            :color="'warning'" class="ml-2" />
+                                                                        <VTag
+                                                                            v-if="item.pelaksanaisilembarkerjafk != null"
+                                                                            :label="'Sudah Isi Lembar Kerja'"
+                                                                            :color="'info'" class="ml-2" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <span style="font-weight: bold;">Penyelia Teknik
+                                                                            :
+                                                                            {{ item.penyeliateknik ?? '-' }}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span style="font-weight: bold;">Pelaksana
+                                                                            Teknik :
+                                                                            {{ item.pelaksanateknik ?? '-' }}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="meta">
-                                                                    <span>Cetak SEP</span>
-                                                                    <span>Cetak Surat Elegibilitas</span>
+                                                                <div
+                                                                    class="meta-right flex justify-center items-center">
+                                                                    <div class="buttons">
+                                                                        <VIconButton v-tooltip.bottom.left="'SPK'"
+                                                                            icon="feather:printer"
+                                                                            @click="cetakSpk(item)" color="warning"
+                                                                            raised circle class="mr-2">
+                                                                        </VIconButton>
+                                                                        <VIconButton
+                                                                            v-if="item.statusorderpenyelia == 2"
+                                                                            color="info" circle icon="fas fa-pager"
+                                                                            outlined raised @click="lembarKerja(item)"
+                                                                            v-tooltip.bottom.left="'Lembar Kerja'" />
+                                                                        <VIconButton v-tooltip.bottom.left="'Aktivitas'"
+                                                                            icon="feather:activity"
+                                                                            @click="detailOrder(item)" color="info"
+                                                                            raised circle class="mr-2">
+                                                                        </VIconButton>
+                                                                    </div>
                                                                 </div>
-                                                            </a>
-                                                        </template>
-                                                    </VDropdown>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </TransitionGroup>
-                                </div>
-                            </div>
+                                    </div>
+                                </TabPanel>
+
+                            </TabView>
                         </div>
                         <div class="column is-4" style="margin-top: 4rem;">
                             <VTabs slider selected="Jakarta" :tabs="[
@@ -453,6 +647,91 @@
                     Filter</VButton>
             </template>
         </VModal>
+        <VModal :open="modalRiwayat" noclose size="big" actions="right" @close="modalRiwayat = false, clear()"
+            cancelLabel="Tutup">
+            <template #content>
+                <div class="column">
+                    <div class="business-dashboard hr-dashboard">
+                        <div class="columns is-multiline">
+                            <div class="column is-12 p-0">
+                                <div class="block-header">
+                                    <div class="left column is-6 p-0">
+                                        <div class="current-user">
+                                            <h3>{{ item.namaproduk }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="left column is-6 p-0">
+                                        <div>
+                                            <div>
+                                                <h4 class="block-heading">Merk</h4>
+                                                <p class="block-hext">{{ item.namamerk }}</p>
+                                                <h4 class="block-heading">Tipe</h4>
+                                                <p class="block-hext">{{ item.namatipe }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="center column is-6 p-0">
+                                        <div>
+                                            <div>
+                                                <h4 class="block-heading">S/N</h4>
+                                                <p class="block-hext">{{ item.namaserialnumber }}</p>
+                                                <h4 class="block-heading">Durasi</h4>
+                                                <p class="block-hext">{{ item.durasikalbrasi }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-12">
+                    <Fieldset legend="Data Alat" :toggleable="true">
+                        <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataDeatilOrder">
+                            <div class="columns is-multiline">
+                                <div class="column is-2" style="margin-top: 27px;">
+                                    <VPlaceload class="mx-2" />
+                                </div>
+                                <div class="column">
+                                    <VPlaceloadText :lines="4" width="75%" last-line-width="20%" />
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="timeline-wrapper" v-else>
+                            <div class="timeline-wrapper-inner">
+                                <div class="timeline-container">
+                                    <div class="timeline-item is-unread" v-for="(item, index) in timelineItems"
+                                        :key="index">
+                                        <div class="date">
+                                            <span>{{ H.formatDateIndo(item.date) }}</span>
+                                        </div>
+                                        <div :class="'dot is-' + listColor[index + 1]"></div>
+                                        <div class="content-wrap is-grey">
+                                            <div class="content-box">
+                                                <div class="status"></div>
+                                                <div class="box-text" style="width:70%">
+                                                    <div class="meta-text">
+                                                        <p>
+                                                            <span>
+                                                                {{ item.type }} : {{ item.nama }}
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Fieldset>
+                </div>
+            </template>
+            <template #action>
+            </template>
+        </VModal>
     </div>
 </template>
 <script setup lang="ts">
@@ -473,6 +752,8 @@ import FloatingButton from "../emr/float-tambah.vue"
 import Badge from 'primevue/badge';
 import * as qzService from '/@src/utils/qzTrayService'
 import AutoComplete from 'primevue/autocomplete';
+import TabView from 'primevue/tabview';
+import TabPanel from 'primevue/tabpanel';
 
 useHead({
     title: 'Dashboard Asman - ' + import.meta.env.VITE_PROJECT,
@@ -491,7 +772,11 @@ const d_JenisKelamin = ref([])
 const d_GolonganDarah = ref([])
 const d_Ruangan = ref([])
 const modalHistori = ref(false)
-
+const activeTab = ref(0)
+let modalRiwayat: any = ref(false)
+let isLoadDataDeatilOrder: any = ref(false)
+const timelineItems = ref([])
+let dataAlatKalibrasi: any = ref([])
 let chartOP: any = ref({
     series: [],
 })
@@ -586,6 +871,88 @@ watch(
     }
 )
 
+const detailOrder = async (e) => {
+    console.log(e)
+    modalRiwayat.value = true
+    item.value.namaproduk = e.namaproduk
+    item.value.namamerk = e.namamerk
+    item.value.namatipe = e.namatipe
+    item.value.namaserialnumber = e.namaserialnumber
+    item.value.durasikalbrasi = e.durasikalbrasi
+    isLoadDataDeatilOrder.value = true
+    const response = await useApi().get(`/penyelia/detail-produk?norec_pd=${e.norec_detail}`)
+    timelineItems.value = response.timeline
+    isLoadDataDeatilOrder.value = false
+}
+
+
+const fetchAlatKalibrasi = async (q: any) => {
+    let dari = ''
+    if (item.value.filterTgl.start) {
+        dari = H.formatDate(item.value.filterTgl.start, 'YYYY-MM-DD')
+    }
+    let sampai = ''
+    if (item.value.filterTgl.end) {
+        sampai = H.formatDate(item.value.filterTgl.end, 'YYYY-MM-DD')
+    }
+    let status = ''
+
+    let statusorderpenyelia = ''
+        , search = ''
+    item.value.statusorderpenyelia = q
+    if (order) statusorderpenyelia = '&statusorderpenyelia=' + q
+    if (item.value.qsearch) search = item.value.qsearch
+    isLoading.value = true
+    dataAlatKalibrasi.value = []
+    const response = await useApi().get(
+        '/asman/get-alat-asman?dari=' + dari
+        + '&sampai=' + sampai
+        + '&search=' + search
+        + statusorderpenyelia
+    )
+    isLoading.value = false
+    dataAlatKalibrasi.value = response.data
+
+    updateRowGroupMetaData();
+
+}
+
+const updateRowGroupMetaData = () => {
+    rowGroupMetadata.value = {};
+
+    if (dataAlatKalibrasi.value) {
+        for (let i = 0; i < dataAlatKalibrasi.value.length; i++) {
+            let rowData = dataAlatKalibrasi.value[i];
+            let lingkupkalibrasi = rowData.lingkupkalibrasi;
+
+            if (i == 0) {
+                rowGroupMetadata.value[lingkupkalibrasi] = { index: 0, size: 1 };
+            }
+            else {
+                let previousRowData = dataAlatKalibrasi.value[i - 1];
+                let previousRowGroup = previousRowData.lingkupkalibrasi;
+                if (lingkupkalibrasi === previousRowGroup) {
+                    rowGroupMetadata.value[lingkupkalibrasi].size++;
+                }
+                else {
+                    rowGroupMetadata.value[lingkupkalibrasi] = { index: i, size: 1 };
+                }
+            }
+        }
+    }
+}
+
+const klikTab = (e: any) => {
+    activeTab.value = e.index
+    if (activeTab.value == 0) {
+        fetchDataOrder(0)
+    }
+    if (activeTab.value == 1) {
+        fetchAlatKalibrasi(0)
+    }
+}
+
+
 const fetchDataOrder = async (q: any) => {
     statusOrder.value = q
     isLoading.value = true
@@ -672,6 +1039,7 @@ const fetchPelaksana = async (filter: any) => {
 
 
 const orderVerify = async (e: any) => {
+    console.log(e)
     detailOrderLayanan.value = []
     modalDetailOrder.value = true
     item.value.namaperusahaan = e.namaperusahaan
@@ -679,6 +1047,8 @@ const orderVerify = async (e: any) => {
     item.value.nopendaftaran = e.nopendaftaran
     item.value.catatan = e.keterangan
     item.value.norec = e.iddetail
+    item.value.lokasikalibrasi = e.lokasikalibrasi
+    item.value.lingkupkalibrasi = e.lingkupkalibrasi
     // getListPelayanan(data)
     isLoadDataOrder.value = true
     isLoadDataSoNorec.value = false
@@ -694,12 +1064,12 @@ const orderVerify = async (e: any) => {
 const getDetailVerify = (e: any) => {
     console.log(e)
 
-  router.push({
-    name: 'module-asman-detail-registrasi',
-    query: {
-      norec_pd: e.iddetail,
-    },
-  })
+    router.push({
+        name: 'module-asman-detail-registrasi',
+        query: {
+            norec_pd: e.iddetail,
+        },
+    })
 }
 
 // const getDetailVerify = async (e: any) => {
@@ -780,10 +1150,12 @@ const update = async (e: any) => {
 }
 
 const save = async (e: any) => {
-    console.log(e)
+    // console.log(e)
     let json = {
         'verif': {
             'norec': e.norec ?? '',
+            'lokasikalibrasi': e.lokasikalibrasi ?? '',
+            'lingkupkalibrasi': e.lingkupkalibrasi ?? '',
         }
     }
     isLoadingSave.value = true
@@ -808,6 +1180,25 @@ const save = async (e: any) => {
         }
     })
 }
+
+const cetakSpk = (e) => {
+    console.log(e)
+
+    H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
+}
+
+const lembarKerja = (e: any) => {
+    console.log(e)
+    router.push({
+        name: 'module-penyelia-lembar-kerja',
+        query: {
+            norec: e.norec,
+            norec_detail: e.norec_detail,
+        }
+    })
+}
+
+
 
 const reloadItemVerify = async (e: any) => {
     const response = await useApi().get(`/asman/layanan-verif?norec_pd=${e}`)
@@ -887,6 +1278,7 @@ watch(
     }
 )
 
+fetchAlatKalibrasi(0)
 fetchDataOrder(0)
 fetchDetail()
 </script>
@@ -894,6 +1286,7 @@ fetchDetail()
 <style lang="scss">
 @import '/@src/scss/abstracts/all';
 @import '/@src/scss/custom/config';
+@import '/@src/scss/module/dashboard/penyelia.scss';
 @import '/@src/scss/module/dashboard/bedah.scss';
 
 .tabs-wrapper.is-slider .tabs,

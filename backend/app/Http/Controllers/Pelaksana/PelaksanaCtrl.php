@@ -577,7 +577,19 @@ class PelaksanaCtrl extends Controller
 
         $alatstandar = DB::table('daftaralatstandar_t as das')
             ->leftJoin('peralatanstandar_m as pas', 'pas.id', '=', 'das.alatstandarfk')
-            ->select('das.detailregistrasifk', 'pas.id as value', 'pas.namaalatstandar as label')
+            ->leftJoin('merkalat_m as mk', 'mk.id', '=', 'das.merkstandarfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'das.tipestandarfk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'das.snstandarfk')
+            ->select('das.detailregistrasifk',
+                 'pas.id as value', 
+                 'pas.namaalatstandar as label',
+                 'mk.id as idmrek',
+                 'mk.namamerk',
+                 'tp.id as idtipe',
+                 'tp.namatipe',
+                 'sn.id as idsn',
+                 'sn.namaserialnumber'
+                 )
             ->where('das.detailregistrasifk', $r['norec_pd'])
             ->where('das.statusenabled', true)
             ->where('pas.statusenabled', true)

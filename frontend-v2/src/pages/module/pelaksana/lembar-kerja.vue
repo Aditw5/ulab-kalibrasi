@@ -946,27 +946,50 @@ const detailOrder = async () => {
   item.value.namatipe = data.namatipe
   item.value.namaserialnumber = data.namaserialnumber
   item.value.durasikalbrasi = data.durasikalbrasi
-  item.value.tglkalibrasi = data.tglkalibrasilembarkerja
-  item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
+  item.value.tglkalibrasi = data.tglkalibrasilembarkerja ?? new Date(),
+    item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
   item.value.kondisiRuangan = data.kondisiRuanganlembarkerja
   item.value.suhu = data.suhulembarkerja
   item.value.kelembabanRelatif = data.kelembabanRelatiflembarkerja
 
   // === Instruksi Kerja ===
-  item.value.detailInstruksiKerja = data.daftarinstruksikerja.map(i => ({
-    daftarInstruksiKerja: {
-      value: i.value ?? '',
-      label: i.label ?? ''
-    }
-  }))
+  item.value.detailInstruksiKerja = (data.daftarinstruksikerja?.length > 0)
+    ? data.daftarinstruksikerja.map(i => ({
+      daftarInstruksiKerja: {
+        value: i.value ?? '',
+        label: i.label ?? ''
+      }
+    }))
+    : [{ daftarInstruksiKerja: { value: '', label: '' } }]
 
   // === Alat Standar ===
-  item.value.detailPeralatanStandar = data.daftaralatstandar.map(a => ({
-    daftaralatstandar: {
-      value: a.value ?? '',
-      label: a.label ?? ''
-    }
-  }))
+  item.value.detailPeralatanStandar = (data.daftaralatstandar?.length > 0)
+    ? data.daftaralatstandar.map(a => ({
+      daftaralatstandar: {
+        value: a.value ?? '',
+        label: a.label ?? ''
+      },
+      merkalatstandar: {
+        value: a.idmrek ?? '',
+        label: a.namamerk ?? ''
+      },
+      tipealatstandar: {
+        value: a.idtipe ?? '',
+        label: a.namatipe ?? ''
+      },
+      serialalatstandar: {
+        value: a.idsn ?? '',
+        label: a.namaserialnumber ?? ''
+      },
+    }))
+    : [{
+      daftaralatstandar: { value: '', label: '' },
+      merkalatstandar: { value: '', label: '' },
+      tipealatstandar: { value: '', label: '' },
+      serialalatstandar: { value: '', label: '' }
+    }];
+
+
 }
 
 

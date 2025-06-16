@@ -170,6 +170,145 @@
                   </VControl>
                 </VField>
               </div>
+            </div>
+            <div class="columns is-multiline">
+              <div class="column is-4">
+                <Fieldset legend="- Instruksi Kerja" :toggleable="true">
+                  <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
+                    <table width="100%">
+                      <thead>
+                        <tr class="tr-po">
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">Nama
+                            Instruksi
+                            Kerja
+                          </th>
+                          <th class="th-po" width="8%" style="vertical-align:inherit;text-align: center;">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody v-for="(items, index) in item.detailInstruksiKerja" :key="index">
+                        <tr class="tr-po">
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.daftarInstruksiKerja" :suggestions="d_instruksiKerja"
+                                    @complete="fetchInstruksiKerja($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po" style="vertical-align: inherit;">
+                            <div class="column is-12 pl-0 pr-0">
+                              <VButtons style="justify-content: space-around;">
+                                <VIconButton type="button" raised circle icon="feather:plus"
+                                  v-tooltip-prime.bottom="'Tambah'" @click="addNewAlat(items)" outlined color="info">
+                                </VIconButton>
+                                <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
+                                  icon="feather:trash" @click="removeAlat(items)" color="danger">
+                                </VIconButton>
+                              </VButtons>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </Fieldset>
+              </div>
+              <div class="column is-8">
+                <Fieldset legend="- Daftar Peralatan Standar" :toggleable="true">
+                  <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
+                    <table width="100%">
+                      <thead>
+                        <tr class="tr-po">
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">Nama Alat
+                            Standar
+                          </th>
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
+                            Merk
+                          </th>
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
+                            Tipe
+                          </th>
+                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
+                            No Serial
+                          </th>
+                          <th class="th-po" width="8%" style="vertical-align:inherit;text-align: center;">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody v-for="(items, index) in item.detailPeralatanStandar" :key="index">
+                        <tr class="tr-po">
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.daftaralatstandar" :suggestions="d_alatstandar"
+                                    @complete="fetchAlatStandar($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.merkalatstandar" :suggestions="d_merkStandar"
+                                    @complete="fetchMerkStandar($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.tipealatstandar" :suggestions="d_tipeStandar"
+                                    @complete="fetchTipeStandar($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <AutoComplete v-model="items.serialalatstandar" :suggestions="d_snStandar"
+                                    @complete="fetchSnStandar($event)" :optionLabel="'label'" :dropdown="true"
+                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po" style="vertical-align: inherit;">
+                            <div class="column is-12 pl-0 pr-0">
+                              <VButtons style="justify-content: space-around;">
+                                <VIconButton type="button" raised circle icon="feather:plus"
+                                  v-tooltip-prime.bottom="'Tambah'" @click="addNewAlatStandar(items)" outlined
+                                  color="info">
+                                </VIconButton>
+                                <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
+                                  icon="feather:trash" @click="removeAlatStandar(items)" color="danger">
+                                </VIconButton>
+                              </VButtons>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </Fieldset>
+              </div>
+            </div>
+            <div class="columns is-multiline">
               <div class="column is-3 mt-4">
                 <VCardCustom :style="'padding:5px 25px'">
                   <div class="label-status success">
@@ -224,12 +363,38 @@
                 <h3 class="title is-5 mb-2 mr-1">Data Upload Lembar Kerja </h3>
               </div>
             </div>
-            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceDataKlaim" :paginator="true"
+            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceHasilLembarKerja" :paginator="true"
               :rows="10" :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm"
               filterDisplay="menu"
               paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
               responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
+              <template #header>
+                <div class="columns is-multiline pt-0 pb-0">
+                  <div class="column is-2" v-if="dataSourceHasilLembarKerja.length > 0">
+                    <VButtons style="justify-content: space-between;">
+                      <VButton color="primary" @click="cetakSertifikatLembarKerja()" outlined icon="feather:printer">
+                        Cetak Sertifikat
+                      </VButton>
+                    </VButtons>
+                  </div>
+                  <div class="column is-2" v-if="dataSourceHasilLembarKerja.length > 0">
+                    <VButtons style="justify-content: space-between;">
+                      <VButton color="info" @click="setujuiSertifikat()" outlined icon="feather:save"
+                        :loading="isLoadingSave">
+                        Setujui Sertifikat
+                      </VButton>
+                    </VButtons>
+                  </div>
+                  <div class="column is-2" v-if="dataSourceHasilLembarKerja.length > 0">
+                    <VButtons style="justify-content: space-between;">
+                      <VButton color="danger" @click="cetakSertifikatLembarKerja()" outlined icon="feather:trash">
+                        Tolak Sertifikat
+                      </VButton>
+                    </VButtons>
+                  </div>
+                </div>
+              </template>
               <ColumnGroup type="header">
                 <Row>
                   <Column header="No" />
@@ -403,7 +568,7 @@
                 <h3 class="title is-5 mb-2 mr-1">Data Upload Lembar Kerja </h3>
               </div>
             </div>
-            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceDataKlaim" :paginator="true"
+            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceHasilLembarKerja" :paginator="true"
               :rows="10" :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm"
               filterDisplay="menu"
               paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
@@ -459,6 +624,8 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import ColumnGroup from 'primevue/columngroup';
 import Row from 'primevue/row';
+import AutoComplete from 'primevue/autocomplete';
+import Fieldset from 'primevue/fieldset';
 
 useHead({
   title: 'Lembar Kerja - ' + import.meta.env.VITE_PROJECT,
@@ -476,7 +643,7 @@ const totalSize: Number = ref(0)
 const valueProgress: Number = ref(0)
 let loadSearch: any = ref(false)
 const dataSource: any = ref([])
-const dataSourceDataKlaim: any = ref([])
+const dataSourceHasilLembarKerja: any = ref([])
 const filterd = ref('')
 const arr3 = ref([])
 const router = useRouter()
@@ -485,14 +652,133 @@ const item: any = ref({
     start: new Date(),
     end: new Date(),
   }),
+  tglkalibrasi: new Date(),
+  detailInstruksiKerja: [{
+    no: 1
+  }],
+  detailPeralatanStandar: [{
+    no: 1
+  }]
 })
-
+const d_instruksiKerja = ref([])
+const d_alatstandar = ref([])
+const d_merkStandar = ref([])
+const d_tipeStandar = ref([])
+const d_snStandar = ref([])
 const onUpload = () => {
 
 }
 
+const fetchMerkStandar = async (filter: any) => {
+  await useApi().get(
+    `pelaksana/get-merk-standar?param_search=namamerk&query=${filter.query}`).then((response) => {
+      d_merkStandar.value = response.data.map((e: any) => {
+        return { label: e.namamerk, value: e.id }
+      })
+    })
+}
+
+const fetchTipeStandar = async (filter: any) => {
+  await useApi().get(
+    `pelaksana/get-tipe-standar?param_search=namatipe&query=${filter.query}`).then((response) => {
+      d_tipeStandar.value = response.data.map((e: any) => {
+        return { label: e.namatipe, value: e.id }
+      })
+    })
+}
+
+const fetchSnStandar = async (filter: any) => {
+  await useApi().get(
+    `pelaksana/get-sn-standar?param_search=namaserialnumber&query=${filter.query}`).then((response) => {
+      d_snStandar.value = response.data.map((e: any) => {
+        return { label: e.namaserialnumber, value: e.id }
+      })
+    })
+}
+
+
+const addNewAlat = () => {
+  item.value.detailInstruksiKerja.push({
+    no: item.value.detailInstruksiKerja[item.value.detailInstruksiKerja.length - 1].no + 1
+  });
+}
+
+const removeAlat = (index: any) => {
+  item.value.detailInstruksiKerja.splice(index, 1)
+  if (item.value.detailInstruksiKerja.length == 0) {
+    item.value.detailInstruksiKerja.push({
+      no: 1
+    });
+  }
+}
+
+const addNewAlatStandar = () => {
+  item.value.detailPeralatanStandar.push({
+    no: item.value.detailPeralatanStandar[item.value.detailPeralatanStandar.length - 1].no + 1
+  });
+}
+
+const removeAlatStandar = (index: any) => {
+  item.value.detailPeralatanStandar.splice(index, 1)
+  if (item.value.detailPeralatanStandar.length == 0) {
+    item.value.detailPeralatanStandar.push({
+      no: 1
+    });
+  }
+}
+
+const fetchInstruksiKerja = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/instruksikerja_m?select=id,namainstruksikerja&param_search=namainstruksikerja&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_instruksiKerja.value = response
+  })
+}
+
+const fetchAlatStandar = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/peralatanstandar_m?select=id,namaalatstandar&param_search=namaalatstandar&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_alatstandar.value = response
+  })
+}
+
 const downloadTemplate = () => {
   window.open(import.meta.env.VITE_API_BASE_URL + 'penyelia/download-template-lembar-kerja?token=' + useUserSession().token, '_blank');
+}
+
+const setujuiSertifikat = async () => {
+  console.log(dataSourceHasilLembarKerja.value)
+  let json = {
+    'verif': {
+      'norec': dataSourceHasilLembarKerja.value[0].detailregistraifk ?? '',
+    }
+  }
+  isLoadingSave.value = true
+  await useApi().post('/penyelia/save-setujui-serti', json).then((r) => {
+    isLoadingSave.value = false
+    toDashboard()
+  }).catch((error: any) => {
+    isLoadingSave.value = false
+    console.error('Error saat menyimpan', error);
+
+    if (error.response) {
+
+      H.alert('error', `Kesalahan: ${error.response.status} - ${error.response.data.message || 'Gagal menyimpan berkas mitra'}`);
+    } else if (error.request) {
+
+      H.alert('error', 'Tidak ada respons dari server. Silakan coba lagi.');
+    } else {
+
+      H.alert('error', `Terjadi kesalahan: ${error.message}`);
+    }
+  })
+}
+
+const toDashboard = (norec_pd: any) => {
+  router.push({
+    name: 'module-dashboard-penyelia',
+  })
 }
 
 
@@ -502,9 +788,9 @@ const fetchData = async () => {
     response.forEach((element: any, i: any) => {
       element.no = i + 1
     });
-    dataSourceDataKlaim.value = response
+    dataSourceHasilLembarKerja.value = response
   }).catch((err) => {
-    dataSourceDataKlaim.value = []
+    dataSourceHasilLembarKerja.value = []
   })
   loadSearch.value = false
 }
@@ -646,6 +932,15 @@ const Save = async () => {
   if (!item.value.kondisiRuangan) { H.alert('warning', 'Kondisi Ruangan Kalibrasi harus di isi'); return }
   if (!item.value.suhu) { H.alert('warning', 'Suhu harus di isi'); return }
   if (!item.value.kelembabanRelatif) { H.alert('warning', 'Kelembaban Relatif harus di isi'); return }
+  const mappInstruksiKinerja = item.value.detailInstruksiKerja.map((items: any) => ({
+    instruksikerja: items.daftarInstruksiKerja?.value || null
+  }));
+  const mappPeralatanStandar = item.value.detailPeralatanStandar.map((items: any) => ({
+    peralatanstandar: items.daftaralatstandar?.value || null,
+    merkalatstandar: items.merkalatstandar?.value || null,
+    tipealatstandar: items.tipealatstandar?.value || null,
+    serialalatstandar: items.serialalatstandar?.value || null
+  }));
   let json = {
     'data': dataSourcefilter.value,
     'fileName': item.fileName,
@@ -655,6 +950,8 @@ const Save = async () => {
     'kondisiRuangan': item.value.kondisiRuangan,
     'suhu': item.value.suhu,
     'kelembabanRelatif': item.value.kelembabanRelatif,
+    'daftarinstruksikerja': mappInstruksiKinerja,
+    'daftarperalatanstandar': mappPeralatanStandar,
   }
   isLoadingSave.value = true;
   await useApi().post(
@@ -690,17 +987,63 @@ const collection = () => {
 }
 const detailOrder = async () => {
   const response = await useApi().get(`/penyelia/detail-produk-lembar-kerja?norec_pd=${NOREC_DETAIL}`)
-  item.value.namaproduk = response.data[0].namaproduk
-  item.value.namamerk = response.data[0].namamerk
-  item.value.namatipe = response.data[0].namatipe
-  item.value.namaserialnumber = response.data[0].namaserialnumber
-  item.value.durasikalbrasi = response.data[0].durasikalbrasi
-  item.value.tglkalibrasi = response.data[0].tglkalibrasilembarkerja
-  item.value.tempatKalibrasi = response.data[0].tempatKalibrasilembarkerja
-  item.value.kondisiRuangan = response.data[0].kondisiRuanganlembarkerja
-  item.value.suhu = response.data[0].suhulembarkerja
-  item.value.kelembabanRelatif = response.data[0].kelembabanRelatiflembarkerja
+  const data = response.data[0]
+
+  item.value.namaproduk = data.namaproduk
+  item.value.namamerk = data.namamerk
+  item.value.namatipe = data.namatipe
+  item.value.namaserialnumber = data.namaserialnumber
+  item.value.durasikalbrasi = data.durasikalbrasi
+  item.value.tglkalibrasi = data.tglkalibrasilembarkerja ?? new Date(),
+    item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
+  item.value.kondisiRuangan = data.kondisiRuanganlembarkerja
+  item.value.suhu = data.suhulembarkerja
+  item.value.kelembabanRelatif = data.kelembabanRelatiflembarkerja
+
+  // === Instruksi Kerja ===
+  item.value.detailInstruksiKerja = (data.daftarinstruksikerja?.length > 0)
+    ? data.daftarinstruksikerja.map(i => ({
+      daftarInstruksiKerja: {
+        value: i.value ?? '',
+        label: i.label ?? ''
+      }
+    }))
+    : [{ daftarInstruksiKerja: { value: '', label: '' } }]
+
+  // === Alat Standar ===
+  item.value.detailPeralatanStandar = (data.daftaralatstandar?.length > 0)
+    ? data.daftaralatstandar.map(a => ({
+      daftaralatstandar: {
+        value: a.value ?? '',
+        label: a.label ?? ''
+      },
+      merkalatstandar: {
+        value: a.idmrek ?? '',
+        label: a.namamerk ?? ''
+      },
+      tipealatstandar: {
+        value: a.idtipe ?? '',
+        label: a.namatipe ?? ''
+      },
+      serialalatstandar: {
+        value: a.idsn ?? '',
+        label: a.namaserialnumber ?? ''
+      },
+    }))
+    : [{
+      daftaralatstandar: { value: '', label: '' },
+      merkalatstandar: { value: '', label: '' },
+      tipealatstandar: { value: '', label: '' },
+      serialalatstandar: { value: '', label: '' }
+    }];
+
+
 }
+
+const cetakSertifikatLembarKerja = () => {
+  H.printBlade(`penyelia/cetak-sertifikat-lembar-kerja?pdf=true&norec=${dataSourceHasilLembarKerja.value[0].norecregis}&norec_detail=${dataSourceHasilLembarKerja.value[0].detailregistraifk}`);
+}
+
 
 
 detailOrder()

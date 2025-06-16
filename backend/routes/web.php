@@ -599,6 +599,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('asman/save-penolakan', 'savePenolakanAsman');
         Route::get('asman/header-mitra', 'HeaderMitra');
         Route::get('asman/cetak-spk', 'cetakSPK');
+        Route::get('asman/get-alat-asman', 'getAlatAsman');
     });
 
     Route::controller(ManagerCtrl::class)->group(function () {
@@ -611,6 +612,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('manager/save-penolakan', 'savePenolakanAsman');
         Route::get('manager/header-mitra', 'HeaderMitra');
         Route::get('manager/cetak-spk', 'cetakSPK');
+        Route::get('manager/get-alat-penyelia', 'getAlatManager');
     });
 
     Route::controller(PenyeliaCtrl::class)->group(function () {
@@ -618,12 +620,14 @@ Route::middleware(['log'])->group(function () {
         Route::get('penyelia/get-alat-penyelia', 'getAlatPenyelia');
         Route::get('penyelia/layanan-verif-penyelia', 'LayananVerifPenyelia');
         Route::post('penyelia/save-verif', 'saveVerif');
+        Route::post('penyelia/save-setujui-serti', 'setujuiSertifikat');
         Route::get('penyelia/detail-produk', 'detailProduk');
         Route::get('penyelia/get-lembar-kerja', 'getLembarKerjaPenyelia');
         Route::get('penyelia/download-template-lembar-kerja', 'downloadTemplateLembarKerjaPenyelia');
         Route::post('penyelia/save-data-upload-lembar-kerja', 'simpanUploadLembaKerjaPenyelia');
         Route::get('penyelia/detail-produk-lembar-kerja', 'detailProdukLembarKerjaPenyelia');
         Route::get('penyelia/cetak-spk', 'cetakSPK');
+        Route::get('penyelia/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
     });
 
     Route::controller(PelaksanaCtrl::class)->group(function () {

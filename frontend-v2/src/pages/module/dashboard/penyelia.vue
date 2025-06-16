@@ -63,6 +63,7 @@
                     <VCard class="text-center pt-0 pb-0 mt-0">
                       <VRadio v-model="order" value="0" label="Belum Verif" name="outlined_radio" color="success" />
                       <VRadio v-model="order" value="1" label="Sudah Verif" name="outlined_radio" color="info" />
+                      <VRadio v-model="order" value="2" label="Sertifikat Disetujui Penyelia" name="outlined_radio" color="info" />
                     </VCard>
                     <VPlaceholderPage :class="[dataAlatKalibrasi.length !== 0 && 'is-hidden']"
                       title="Tidak Ada Alat Hari Ini." subtitle="Silakan Pilih Tanggal" larger>
@@ -110,6 +111,8 @@
                                     class="ml-2" />
                                   <VTag v-if="item.pelaksanaisilembarkerjafk != null" :label="'Sudah Isi Lembar Kerja'"
                                     :color="'info'" class="ml-2" />
+                                  <VTag v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true" :label="'Sertifikat Disetujui'"
+                                    :color="'primary'" class="ml-2" />
                                   <!-- <VTag
                                     :label="item.kategoriInsiden.charAt(0).toUpperCase() + item.kategoriInsiden.slice(1)"
                                     v-if="item.kategoriInsiden != null" :color="'purple'" class="ml-2" /> -->

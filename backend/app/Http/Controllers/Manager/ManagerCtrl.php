@@ -19,6 +19,81 @@ class ManagerCtrl extends Controller
         parent::__construct($is_encrypt = true);
     }
 
+    public function getAlatManager(Request $r)
+    {
+        $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftjoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftjoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftjoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftjoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->select(
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.durasikalbrasi',
+                'mtrd.namafile',
+                'mtrd.keterangan',
+                'mtrd.statusorderpenyelia',
+                'mtrd.tglisilembarkerjapelaksana',
+                'mtrd.pelaksanaisilembarkerjafk',
+                'mtrd.tglverifasman',
+                'prd.namaproduk',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'mt.namaperusahaan',
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi',
+            )
+            // ->where('pg.id', $this->getPegawaiId())
+            ->where('mtr.statusorder', 1)
+            ->where('mtr.iskaji', true)
+            ->where('mtr.statusenabled', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.statusenabled', true);
+
+        if (isset($r['dari']) && $r['dari'] != '') {
+            $data = $data->where(DB::raw("mtr.tglverifasman::date"), '>=', $r->dari);
+        }
+        if (isset($r['sampai']) && $r['sampai'] != '') {
+            $data = $data->where(DB::raw("mtr.tglverifasman::date"), '<=', $r->sampai);
+        }
+        if (isset($r['search']) && $r['search'] != '') {
+            $searchTerm = '%' . $r['search'] . '%';
+            $data = $data->where(function ($query) use ($searchTerm) {
+                $query->where('mt.namaperusahaan', 'ilike', $searchTerm)
+                    ->orWhere('mt.nopendaftaran', 'ilike', $searchTerm);
+            });
+        }
+        $data = $data->orderBy('lp.lingkupkalibrasi');
+        if (isset($r['limit'])) {
+            $data = $data->limit($r['limit']);
+        }
+        $data = $data->get();
+
+        $res['data'] = $data;
+        return $this->respond($res);
+    }
+
+
     public function listMitraAsmanGrid(Request $r)
     {
         $tglAwal = $r['dari'];
@@ -440,7 +515,7 @@ class ManagerCtrl extends Controller
         return $this->respond($result);
     }
 
-     public function cetakSPK(Request $r)
+    public function cetakSPK(Request $r)
     {
 
         $profile = $this->profile();
@@ -524,7 +599,7 @@ class ManagerCtrl extends Controller
             ->orderByDesc('prd.namaproduk')
             ->get();
 
-        $res['totalDurasi'] = $res['alat']->sum('durasikalbrasi'); 
+        $res['totalDurasi'] = $res['alat']->sum('durasikalbrasi');
         $res['pdf']  = $r['pdf'];
         $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->namamanager));
         $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->pelaksanateknik));

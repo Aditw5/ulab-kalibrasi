@@ -64,6 +64,9 @@ class PenyeliaCtrl extends Controller
                 'lk.lokasi',
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
+                'mtrd.setujuilembarkerjapenyelia',
+                'mtrd.tglsetujupenyelialembarkerja',
+                'mtrd.penyeliasetujulembarkerjafk',
             )
             ->where('pg.id', $this->getPegawaiId())
             ->where('mtr.statusorder', 1)
@@ -220,6 +223,42 @@ class PenyeliaCtrl extends Controller
 
 
             $transMessage = "Simpan Verif Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function setujuiSertifikat(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $VI = $r['verif'];
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $VI['norec'])
+                ->update([
+                    'setujuilembarkerjapenyelia' => true,
+                    'penyeliasetujulembarkerjafk' => $this->getPegawaiId(),
+                    'tglsetujupenyelialembarkerja' => now(),
+                    'statusorderpenyelia' => 2,
+                ]);
+
+
+            $transMessage = "Simpan Setujui Sertifikat Sukses";
             DB::commit();
 
             $result = [
@@ -520,6 +559,53 @@ class PenyeliaCtrl extends Controller
             ->orderByDesc('prd.namaproduk')
             ->get();
 
+        $instruksiKerja = DB::table('daftarinstruksikerja_t as dik')
+            ->leftJoin('instruksikerja_m as ik', 'ik.id', '=', 'dik.idalatinstruksikerja')
+            ->select('dik.detailregistrasifk', 'ik.id as value', 'ik.namainstruksikerja as label')
+            ->where('dik.detailregistrasifk', $r['norec_pd'])
+            ->where('dik.statusenabled', true)
+            ->where('ik.statusenabled', true)
+            ->get();
+
+        foreach ($data as $ds) {
+            $ds->daftarinstruksikerja = [];
+            foreach ($instruksiKerja as $sd) {
+                if ($ds->norec_detail == $sd->detailregistrasifk) {
+                    $ds->daftarinstruksikerja[] = $sd;
+                }
+            }
+        }
+
+        $alatstandar = DB::table('daftaralatstandar_t as das')
+            ->leftJoin('peralatanstandar_m as pas', 'pas.id', '=', 'das.alatstandarfk')
+            ->leftJoin('merkalat_m as mk', 'mk.id', '=', 'das.merkstandarfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'das.tipestandarfk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'das.snstandarfk')
+            ->select(
+                'das.detailregistrasifk',
+                'pas.id as value',
+                'pas.namaalatstandar as label',
+                'mk.id as idmrek',
+                'mk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber'
+            )
+            ->where('das.detailregistrasifk', $r['norec_pd'])
+            ->where('das.statusenabled', true)
+            ->where('pas.statusenabled', true)
+            ->get();
+
+        foreach ($data as $ds) {
+            $ds->daftaralatstandar = [];
+            foreach ($alatstandar as $sd) {
+                if ($ds->norec_detail == $sd->detailregistrasifk) {
+                    $ds->daftaralatstandar[] = $sd;
+                }
+            }
+        }
+
         $result = [
             'length' => count($data),
             'data' => $data,
@@ -650,6 +736,152 @@ class PenyeliaCtrl extends Controller
             );
             return $pdf;
         }
+
+        return view(
+            $blade,
+            compact('profile', 'pageWidth', 'print', 'res')
+        );
+    }
+
+    public function cetakSertifikatLembarKerja(Request $r)
+    {
+
+        $profile = $this->profile();
+        $print = false;
+        $pageWidth = 950;
+
+        $res['identitas'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.petugaskaji')
+            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+            ->select(
+                'jb.id as idjabatan',
+                'jb.namajabatanulab as namajabanpetugaskaji',
+                'mtr.norec',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mt.namaperusahaan',
+                'mt.alamatktr',
+                'pg.id as petugaskajifk',
+                'pg.namalengkap as namapetugaskaji',
+                'lk.lokasi',
+                'mtr.jabatanpenanggungjawab',
+                'mtr.namapenanggungjawab'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtr.norec', $r['norec'])
+            ->first();
+
+        $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
+            ->select(
+                'lk.*',
+                'mtrd.tglkalibrasilembarkerja',
+                'mtrd.tempatKalibrasilembarkerja',
+                'mtrd.kondisiRuanganlembarkerja',
+                'mtrd.suhulembarkerja',
+                'mtrd.kelembabanRelatiflembarkerja'
+            )
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->where('lk.statusenabled', true)
+            ->get();
+
+        $res['instruksikerja'] = DB::table('daftarinstruksikerja_t as dik')
+            ->leftJoin('instruksikerja_m as ik', 'ik.id', '=', 'dik.idalatinstruksikerja')
+            ->select('dik.detailregistrasifk', 'ik.id', 'ik.namainstruksikerja', 'ik.noisntruksikerja')
+            ->where('dik.detailregistrasifk', $r['norec_detail'])
+            ->where('dik.statusenabled', true)
+            ->where('ik.statusenabled', true)
+            ->get();
+
+        $res['alastandar'] = DB::table('daftaralatstandar_t as das')
+            ->leftJoin('peralatanstandar_m as pas', 'pas.id', '=', 'das.alatstandarfk')
+            ->leftJoin('merkalat_m as mk', 'mk.id', '=', 'das.merkstandarfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'das.tipestandarfk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'das.snstandarfk')
+            ->select(
+                'das.detailregistrasifk',
+                'pas.id as value',
+                'pas.namaalatstandar',
+                'pas.duedate',
+                'mk.namamerk',
+                'tp.namatipe',
+                'sn.namaserialnumber'
+            )
+            ->where('das.detailregistrasifk', $r['norec_detail'])
+            ->where('das.statusenabled', true)
+            ->where('pas.statusenabled', true)
+            ->get();
+
+        $res['alat'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
+            ->select(
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as asmanfk',
+                'pg3.namalengkap as asamanverifikasi',
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->first();
+
+        $res['pdf']  = $r['pdf'];
+        $res['ttdPelaksana'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->pelaksanateknik));
+        $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
+        $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->penyeliateknik));
+
+        $blade = 'report.pelaksana.sertifikat-lembar-kerja';
+
+        if ($res['pdf'] == 'true') {
+            $pdf = App::make('dompdf.wrapper');
+            // $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+
+            // Tambah penomoran halaman otomatis di footer PDF
+            $dompdf = $pdf->getDomPDF();
+            $canvas = $dompdf->get_canvas();
+            $canvas->page_text(200, 780, "Halaman ke {PAGE_NUM} dari {PAGE_COUNT} halaman", null, 11, array(0, 0, 0));
+            $canvas->page_text(230, 795, "Page {PAGE_NUM} of {PAGE_COUNT} pages", null, 9, array(0, 0, 0));
+
+
+
+            return $pdf->stream();
+        }
+
+        if (isset($r['storage'])) {
+            $res['storage']  = true;
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade,
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf;
+        }
+
 
         return view(
             $blade,
