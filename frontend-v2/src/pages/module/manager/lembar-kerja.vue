@@ -61,293 +61,7 @@
                   </div>
                 </div>
               </div>
-              <div class="column is-12">
-                <FileUpload name="demo[]" :multiple="false" @upload="onTemplatedUpload($event)" mode="advanced"
-                  :showUploadButton="false" :showCancelButton="true" @select="onSelectedFiles" chooseLabel="Pilih"
-                  cancelLabel="Batal" :maxFileSize="50000000">
-                  <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-                    <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
-                      <div class="flex gap-2">
-                        <Button @click="chooseCallback()" icon="pi pi-upload" rounded severity="info" class="mr-1"
-                          outlined></Button>
-                        <Button @click="clearCallback()" icon="pi pi-times" rounded outlined severity="danger"
-                          :disabled="!files || files.length === 0"></Button>
-                      </div>
-                      <ProgressBar :value="totalSizePercent" :showValue="false"
-                        :class="['md:w-20rem h-1rem w-full md:ml-auto', { 'exceeded-progress-bar': totalSizePercent > 100 }]">
-                        <span class="white-space-nowrap">{{ totalSize
-                        }}B / 50Mb</span>
-                      </ProgressBar>
-                    </div>
-                  </template>
-                  <template #content="{ files, uploadedFiles, removeUploadedFileCallback, removeFileCallback }">
-                    <div v-if="files.length > 0">
-
-                      <div class="flex flex-wrap p-0 sm:p-5 gap-5">
-                        <div :key="files[0].name + files[0].type + files[0].size"
-                          class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
-                          <div>
-                            <i class="fas fa-file-excel shadow-2 mr-2" aria-hidden="true"></i>
-                          </div>
-                          <span class="font-semibold">{{ files[0].name
-                          }}</span>
-                          <div class="ml-2">{{
-                            formatSize(files[0].size)
-                          }}
-                            <Badge :value="valueProgress >= 99 ? 'Uploaded' : 'Pending'"
-                              :severity="valueProgress >= 99 ? 'success' : 'warning'" class="ml-2 mr-2" />
-                          </div>
-
-                          <Button icon="pi pi-times" @click="onRemoveTemplatingFile(files[0], removeFileCallback, 0)"
-                            outlined rounded severity="danger" />
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                  <template #empty>
-                    <p>Drag atau drop files untuk mengupload.</p>
-                  </template>
-                </FileUpload>
-              </div>
             </div>
-          </div>
-          <div class="column" v-if="isLoading">
-            <VPlaceloadWrap v-for="data in 10">
-              <VPlaceload class="mx-2 mb-3" />
-            </VPlaceloadWrap>
-          </div>
-          <div v-else-if="dataSourcefilter.length == 0">
-            <VPlaceholderSection :title="H.assets().notFound" :subtitle="H.assets().notFoundSubtitle" class="my-6">
-              <template #image>
-                <img class="light-image" :src="H.assets().iconNotFound_rev" alt="" />
-                <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
-              </template>
-            </VPlaceholderSection>
-          </div>
-          <div class="column is-12" v-else>
-            <div class="columns is-multiline" style="align-items:right">
-              <div class="column is-3">
-                <h3 class="title is-5 mb-2 mr-1">Upload Lembar Kerja </h3>
-              </div>
-            </div>
-            <div class="columns is-multiline">
-              <div class="column is-3">
-                <VField label=" Tanggal Kalibrasi">
-                  <VDatePicker v-model="item.tglkalibrasi" mode="dateTime" style="width: 100%;">
-                    <template #default="{ inputValue, inputEvents }">
-                      <VField>
-                        <VControl icon="feather:calendar" fullwidth>
-                          <VInput :value="inputValue" v-on="inputEvents" />
-                        </VControl>
-                      </VField>
-                    </template>
-                  </VDatePicker>
-                </VField>
-              </div>
-              <div class="column is-3">
-                <VField label="Tempat Kalibrasi">
-                  <VControl fullwidth>
-                    <VInput v-model="item.tempatKalibrasi" placeholder="Tempat Kalibrasi" />
-                  </VControl>
-                </VField>
-              </div>
-              <div class="column is-3">
-                <VField label="Suhu">
-                  <VControl fullwidth>
-                    <VInput v-model="item.suhu" placeholder="Suhu" />
-                  </VControl>
-                </VField>
-              </div>
-              <div class="column is-3">
-                <VField label="Kelembaban Relatif">
-                  <VControl fullwidth>
-                    <VInput v-model="item.kelembabanRelatif" placeholder="Kelembaban Relatif" />
-                  </VControl>
-                </VField>
-              </div>
-            </div>
-            <div class="columns is-multiline">
-              <div class="column is-4">
-                <Fieldset legend="- Instruksi Kerja" :toggleable="true">
-                  <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
-                    <table width="100%">
-                      <thead>
-                        <tr class="tr-po">
-                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">Nama
-                            Instruksi
-                            Kerja
-                          </th>
-                          <th class="th-po" width="8%" style="vertical-align:inherit;text-align: center;">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody v-for="(items, index) in item.detailInstruksiKerja" :key="index">
-                        <tr class="tr-po">
-                          <td class="td-po">
-                            <div class="column pt-3 pb-0">
-                              <VField>
-                                <VControl>
-                                  <AutoComplete v-model="items.daftarInstruksiKerja" :suggestions="d_instruksiKerja"
-                                    @complete="fetchInstruksiKerja($event)" :optionLabel="'label'" :dropdown="true"
-                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
-                                    :field="'label'" placeholder="ketik untuk mencari..." />
-                                </VControl>
-                              </VField>
-                            </div>
-                          </td>
-                          <td class="td-po" style="vertical-align: inherit;">
-                            <div class="column is-12 pl-0 pr-0">
-                              <VButtons style="justify-content: space-around;">
-                                <VIconButton type="button" raised circle icon="feather:plus"
-                                  v-tooltip-prime.bottom="'Tambah'" @click="addNewAlat(items)" outlined color="info">
-                                </VIconButton>
-                                <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
-                                  icon="feather:trash" @click="removeAlat(items)" color="danger">
-                                </VIconButton>
-                              </VButtons>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </Fieldset>
-              </div>
-              <div class="column is-8">
-                <Fieldset legend="- Daftar Peralatan Standar" :toggleable="true">
-                  <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
-                    <table width="100%">
-                      <thead>
-                        <tr class="tr-po">
-                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">Nama Alat
-                            Standar
-                          </th>
-                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
-                            Merk
-                          </th>
-                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
-                            Tipe
-                          </th>
-                          <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">
-                            No Serial
-                          </th>
-                          <th class="th-po" width="8%" style="vertical-align:inherit;text-align: center;">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody v-for="(items, index) in item.detailPeralatanStandar" :key="index">
-                        <tr class="tr-po">
-                          <td class="td-po">
-                            <div class="column pt-3 pb-0">
-                              <VField>
-                                <VControl>
-                                  <AutoComplete v-model="items.daftaralatstandar" :suggestions="d_alatstandar"
-                                    @complete="fetchAlatStandar($event)" :optionLabel="'label'" :dropdown="true"
-                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
-                                    :field="'label'" placeholder="ketik untuk mencari..." />
-                                </VControl>
-                              </VField>
-                            </div>
-                          </td>
-                          <td class="td-po">
-                            <div class="column pt-3 pb-0">
-                              <VField>
-                                <VControl>
-                                  <AutoComplete v-model="items.merkalatstandar" :suggestions="d_merkStandar"
-                                    @complete="fetchMerkStandar($event)" :optionLabel="'label'" :dropdown="true"
-                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
-                                    :field="'label'" placeholder="ketik untuk mencari..." />
-                                </VControl>
-                              </VField>
-                            </div>
-                          </td>
-                          <td class="td-po">
-                            <div class="column pt-3 pb-0">
-                              <VField>
-                                <VControl>
-                                  <AutoComplete v-model="items.tipealatstandar" :suggestions="d_tipeStandar"
-                                    @complete="fetchTipeStandar($event)" :optionLabel="'label'" :dropdown="true"
-                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
-                                    :field="'label'" placeholder="ketik untuk mencari..." />
-                                </VControl>
-                              </VField>
-                            </div>
-                          </td>
-                          <td class="td-po">
-                            <div class="column pt-3 pb-0">
-                              <VField>
-                                <VControl>
-                                  <AutoComplete v-model="items.serialalatstandar" :suggestions="d_snStandar"
-                                    @complete="fetchSnStandar($event)" :optionLabel="'label'" :dropdown="true"
-                                    :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
-                                    :field="'label'" placeholder="ketik untuk mencari..." />
-                                </VControl>
-                              </VField>
-                            </div>
-                          </td>
-                          <td class="td-po" style="vertical-align: inherit;">
-                            <div class="column is-12 pl-0 pr-0">
-                              <VButtons style="justify-content: space-around;">
-                                <VIconButton type="button" raised circle icon="feather:plus"
-                                  v-tooltip-prime.bottom="'Tambah'" @click="addNewAlatStandar(items)" outlined
-                                  color="info">
-                                </VIconButton>
-                                <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
-                                  icon="feather:trash" @click="removeAlatStandar(items)" color="danger">
-                                </VIconButton>
-                              </VButtons>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </Fieldset>
-              </div>
-            </div>
-            <div class="columns is-multiline">
-              <div class="column is-3 mt-4">
-                <VCardCustom :style="'padding:5px 25px'">
-                  <div class="label-status success">
-                    <i aria-hidden="true" class="fas fa-circle"></i>
-                    <span class="ml-1">TOTAL DATA</span>
-                  </div>
-                  <small class="text-bold-custom h-100">{{ dataSourcefilter.length }}</small>
-                </VCardCustom>
-              </div>
-              <div class="column is-3 mt-4">
-                <VButton icon="feather:save" @click="Save()" :loading="isLoadingSave" color="info">Simpan</VButton>
-              </div>
-            </div>
-            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourcefilter" :paginator="true" :rows="10"
-              :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm" filterDisplay="menu"
-              paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-              responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
-              <ColumnGroup type="header">
-                <Row>
-                  <Column header="No" />
-                  <Column header="group" />
-                  <Column header="Rentang" :colspan="2" />
-                  <Column header="Penunjukan Standar" :colspan="4" />
-                  <Column header="Pembacaan Alat" :colspan="2" />
-                  <Column header="koreksi" :colspan="2" />
-                  <Column header="Ketidakpastian" :colspan="2" />
-                </Row>
-              </ColumnGroup>
-              <Column field="no" />
-              <Column :rowspan="4" field="group" header="Rentang" />
-              <Column field="rentang" header="Rentang" />
-              <Column field="rentang_satuan" header="" />
-              <Column field="penunjukan_standar" header="Penunjukan Standar" />
-              <Column field="penunjukan_standar_satuan" header="" />
-              <Column v-if="penunjukan_standar_2 !== ''" field="penunjukan_standar_2" header="" />
-              <Column v-if="penunjukan_standar_satuan_2 !== ''" field="penunjukan_standar_satuan_2" header="" />
-              <Column field="pembacaan_alat" header="Pembacaan Alat" />
-              <Column field="pembacaan_alat_satuan" header="" />
-              <Column field="koreksi" header="Koreksi" />
-              <Column field="koreksi_satuan" header="" />
-              <Column field="ketidakpastian" header="Ketidakpastian" />
-              <Column field="ketidakpastian_standar" header="" />
-            </DataTable>
           </div>
         </VCard>
         <hr>
@@ -365,12 +79,29 @@
               responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
               <template #header>
-                <div class="column pt-0 pb-0" v-if="dataSourceHasilLembarKerja.length > 0">
-                  <VButtons style="justify-content: space-between;">
-                    <VButton color="primary" @click="cetakSertifikatLembarKerja()" outlined icon="feather:printer">
-                      Cetak Sertifikat
-                    </VButton>
-                  </VButtons>
+                <div class="columns is-multiline pt-0 pb-0">
+                  <div class="column is-2" v-if="dataSourceHasilLembarKerja.length > 0">
+                    <VButtons style="justify-content: space-between;">
+                      <VButton color="primary" @click="cetakSertifikatLembarKerja()" outlined icon="feather:printer">
+                        Cetak Sertifikat
+                      </VButton>
+                    </VButtons>
+                  </div>
+                  <div class="column is-2" v-if="dataSourceHasilLembarKerja.length > 0">
+                    <VButtons style="justify-content: space-between;">
+                      <VButton color="info" @click="setujuiSertifikat()" outlined icon="feather:save"
+                        :loading="isLoadingSave">
+                        Setujui Sertifikat
+                      </VButton>
+                    </VButtons>
+                  </div>
+                  <div class="column is-2" v-if="dataSourceHasilLembarKerja.length > 0">
+                    <VButtons style="justify-content: space-between;">
+                      <VButton color="danger" @click="cetakSertifikatLembarKerja()" outlined icon="feather:trash">
+                        Tolak Sertifikat
+                      </VButton>
+                    </VButtons>
+                  </div>
                 </div>
               </template>
               <ColumnGroup type="header">
@@ -722,13 +453,46 @@ const fetchAlatStandar = async (filter: any) => {
 }
 
 const downloadTemplate = () => {
-  window.open(import.meta.env.VITE_API_BASE_URL + 'pelaksana/download-template-lembar-kerja?token=' + useUserSession().token, '_blank');
+  window.open(import.meta.env.VITE_API_BASE_URL + 'penyelia/download-template-lembar-kerja?token=' + useUserSession().token, '_blank');
+}
+
+const setujuiSertifikat = async () => {
+  let json = {
+    'verif': {
+      'norec': dataSourceHasilLembarKerja.value[0].detailregistraifk ?? '',
+    }
+  }
+  isLoadingSave.value = true
+  await useApi().post('/manager/save-setujui-serti-manager', json).then((r) => {
+    isLoadingSave.value = false
+    toDashboard()
+  }).catch((error: any) => {
+    isLoadingSave.value = false
+    console.error('Error saat menyimpan', error);
+
+    if (error.response) {
+
+      H.alert('error', `Kesalahan: ${error.response.status} - ${error.response.data.message || 'Gagal menyimpan berkas mitra'}`);
+    } else if (error.request) {
+
+      H.alert('error', 'Tidak ada respons dari server. Silakan coba lagi.');
+    } else {
+
+      H.alert('error', `Terjadi kesalahan: ${error.message}`);
+    }
+  })
+}
+
+const toDashboard = (norec_pd: any) => {
+  router.push({
+    name: 'module-dashboard-manager',
+  })
 }
 
 
 const fetchData = async () => {
   loadSearch.value = true
-  await useApi().get(`pelaksana/get-lembar-kerja?norecdetail=${NOREC_DETAIL}`).then((response: any) => {
+  await useApi().get(`manager/get-lembar-kerja-manager?norecdetail=${NOREC_DETAIL}`).then((response: any) => {
     response.forEach((element: any, i: any) => {
       element.no = i + 1
     });
@@ -873,9 +637,9 @@ const Save = async () => {
   console.log(dataSourcefilter.value)
   if (!item.value.tglkalibrasi) { H.alert('warning', 'Tgl Kalibrasi harus di isi'); return }
   if (!item.value.tempatKalibrasi) { H.alert('warning', 'Tempat Kalibrasi harus di isi'); return }
+  if (!item.value.kondisiRuangan) { H.alert('warning', 'Kondisi Ruangan Kalibrasi harus di isi'); return }
   if (!item.value.suhu) { H.alert('warning', 'Suhu harus di isi'); return }
   if (!item.value.kelembabanRelatif) { H.alert('warning', 'Kelembaban Relatif harus di isi'); return }
-
   const mappInstruksiKinerja = item.value.detailInstruksiKerja.map((items: any) => ({
     instruksikerja: items.daftarInstruksiKerja?.value || null
   }));
@@ -891,6 +655,7 @@ const Save = async () => {
     'norec_detail': NOREC_DETAIL,
     'tglkalibrasi': item.value.tglkalibrasi,
     'tempatKalibrasi': item.value.tempatKalibrasi,
+    'kondisiRuangan': item.value.kondisiRuangan,
     'suhu': item.value.suhu,
     'kelembabanRelatif': item.value.kelembabanRelatif,
     'daftarinstruksikerja': mappInstruksiKinerja,
@@ -898,7 +663,7 @@ const Save = async () => {
   }
   isLoadingSave.value = true;
   await useApi().post(
-    `/pelaksana/save-data-upload-lembar-kerja`, json).then((response: any) => {
+    `/penyelia/save-data-upload-lembar-kerja`, json).then((response: any) => {
       isLoadingSave.value = false
       totalSizePercent.value = 0
       dataSource.value = []
@@ -929,7 +694,7 @@ const collection = () => {
   })
 }
 const detailOrder = async () => {
-  const response = await useApi().get(`/pelaksana/detail-produk-lembar-kerja?norec_pd=${NOREC_DETAIL}`)
+  const response = await useApi().get(`/penyelia/detail-produk-lembar-kerja?norec_pd=${NOREC_DETAIL}`)
   const data = response.data[0]
 
   item.value.namaproduk = data.namaproduk
@@ -938,7 +703,8 @@ const detailOrder = async () => {
   item.value.namaserialnumber = data.namaserialnumber
   item.value.durasikalbrasi = data.durasikalbrasi
   item.value.tglkalibrasi = data.tglkalibrasilembarkerja ?? new Date(),
-  item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
+    item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
+  item.value.kondisiRuangan = data.kondisiRuanganlembarkerja
   item.value.suhu = data.suhulembarkerja
   item.value.kelembabanRelatif = data.kelembabanRelatiflembarkerja
 
@@ -982,12 +748,10 @@ const detailOrder = async () => {
 
 }
 
-
 const cetakSertifikatLembarKerja = () => {
-  console.log(dataSourceHasilLembarKerja.value)
-
-  H.printBlade(`pelaksana/cetak-sertifikat-lembar-kerja?pdf=true&norec=${dataSourceHasilLembarKerja.value[0].norecregis}&norec_detail=${dataSourceHasilLembarKerja.value[0].detailregistraifk}`);
+  H.printBlade(`penyelia/cetak-sertifikat-lembar-kerja?pdf=true&norec=${dataSourceHasilLembarKerja.value[0].norecregis}&norec_detail=${dataSourceHasilLembarKerja.value[0].detailregistraifk}`);
 }
+
 
 
 detailOrder()

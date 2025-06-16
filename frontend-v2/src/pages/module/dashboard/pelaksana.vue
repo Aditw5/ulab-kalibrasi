@@ -53,7 +53,7 @@
                     <div class="search-menu-igd mb-2">
                       <div class="search-location-igd" style="width: 100%">
                         <i class="iconify" data-icon="feather:search"></i>
-                        <input type="text" placeholder="Cari Nama Alat" v-model="item.qsearch"
+                        <input type="text" placeholder="Cari Nama Alat, No Oerder Alat, No Pendaftaran" v-model="item.qsearch"
                           v-on:keyup.enter="fetchAlatKalibrasi(order)" />
                       </div>
                       <VButton raised class="search-button-igd" @click="fetchAlatKalibrasi(order)" :loading="isLoading">
@@ -95,25 +95,27 @@
                                   <span>{{ item.tglverifasman }}</span>
                                   <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
                                   <i aria-hidden="true" class="iconify" data-icon="feather:check-circle"></i>
-                                  <span>{{ item.nopendaftaran }}</span>
+                                  <span>{{ item.noorderalat }}</span>
                                   <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
-                                  <i aria-hidden="true" class="iconify" data-icon="teenyicons:id-outline"></i>
-                                  <span>{{ item.noidentitas }}</span>
+                                  <i aria-hidden="true" class="iconify" data-icon="feather:check-circle"></i>
+                                  <span>{{ item.nopendaftaran }}</span>
 
                                 </span>
                                 <div>
-                                  <!-- <VTag
-                                    :label="item.norec_perjanjian != null ? 'Sudah dibuat SKDP' : 'Belum dibuat SKDP'"
-                                    :color="item.norec_perjanjian !== null ? 'info' : 'danger'" class="ml-2" /> -->
-                                  <!-- <VTag :label="item.penanda.charAt(0).toUpperCase() + item.penanda.slice(1)"
-                                    v-if="item.penanda != null" :color="'info'" class="ml-2" /> -->
-                                  <VTag :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
+                                  <VTag v-if="item.statusPengerjaan == null"
+                                    :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                     class="ml-2" />
-                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null" :label="'Sudah Isi Lembar Kerja'"
-                                    :color="'info'" class="ml-2" />
-                                  <!-- <VTag
-                                    :label="item.kategoriInsiden.charAt(0).toUpperCase() + item.kategoriInsiden.slice(1)"
-                                    v-if="item.kategoriInsiden != null" :color="'purple'" class="ml-2" /> -->
+                                  <VTag v-if="item.statusPengerjaan != null" :label="item.statusPengerjaan"
+                                    :color="item.statusColor" class="ml-2" />
+                                  <VTag
+                                    v-if="item.pelaksanaisilembarkerjafk != null && (item.setujuilembarkerjapenyelia == null || item.setujuilembarkerjapenyelia == false)"
+                                    :label="'Sudah Isi Lembar Kerja'" :color="'info'" class="ml-2" />
+                                  <VTag
+                                    v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true"
+                                    :label="'Sertifikat Disetujui Penyelia'" :color="'primary'" class="ml-2" />
+                                  <VTag
+                                    v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
+                                    :label="'Sertifikat Disetujui Asman'" :color="'primary'" class="ml-2" />
                                 </div>
                                 <div>
                                   <span style="font-weight: bold;">Penyelia Teknik :
@@ -128,25 +130,18 @@
                               </div>
                               <div class="meta-right flex justify-center items-center">
                                 <div class="buttons">
-                                  <!-- <RouterLink :to="{
-                                    // H.cacheHelper().set('xxx_cache_menu', undefined)
-                                    name: 'module-pelaksana-lembar-kerja',
-                                    query: {
-                                      nocmfk: item.nocmfk,
-                                      norec_pd: item.norec_pd,
-                                      norec_apd: item.norec_apd,
-                                    }
-                                  }"> -->
                                   <VIconButton v-tooltip.bottom.left="'SPK'" icon="feather:printer"
-                                      @click="cetakSpk(item)" color="warning" raised circle class="mr-2">
+                                    @click="cetakSpk(item)" color="warning" raised circle class="mr-2">
                                   </VIconButton>
-                                  <VIconButton v-if="item.statusorderpelaksana == 1" color="info" circle
+                                  <VIconButton v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true" v-tooltip.bottom.left="'Cetak Sertifikat'" icon="feather:printer"
+                                    @click="cetakSertifikatLembarKerja(item)" color="info" raised circle class="mr-2">
+                                  </VIconButton>
+                                  <VIconButton v-if="item.statusorderpelaksana == 1 && item.setujuilembarkerjaasman == null || item.setujuilembarkerjaasman == false" color="info" circle
                                     icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
                                     v-tooltip.bottom.left="'Lembar Kerja'" />
-                                  <!-- </RouterLink> -->
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
                                     circle icon="pi pi-check-circle" v-if="item.statusorderpelaksana == 0"
-                                    @click="orderVerify(item)"/>
+                                    @click="orderVerify(item)" />
                                   <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity"
                                     v-if="item.statusorderpelaksana == 1" @click="detailOrder(item)" color="info" raised
                                     circle class="mr-2">
@@ -184,46 +179,6 @@
         <VButton type="button" icon="fas fa-pen" class="w-100" light circle outlined color="warning" raised
           @click="emr()">
           Form Lembar Kerja
-        </VButton>
-      </div> -->
-      <!-- <div class="column is-12 pt-1 pb-1">
-        <VButton type="button" icon="lucide:tag" class="w-100" light circle outlined color="purple" raised
-          @click="openModalPenanda()">
-          Penanda Pasien
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1 pb-1">
-        <VButton type="button" icon="fas fa-th" class="w-100" light circle outlined color="info" raised
-          @click="detailRegistrasi()">
-          Detail Registrasi
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1 pb-1">
-        <VButton type="button" icon="fas fa-bed" class="w-100" light circle outlined color="info" raised
-          @click="openModalPesanRuangan()">
-          Pesan Ruangan
-        </VButton>
-      </div> -->
-      <!-- <div class="column is-12 pt-1">
-        <VButton type="button" icon="feather:log-in" class="w-100" circle outlined color="danger" raised
-          v-if="selectedItem.tglpulang == null" @click="PulangPindah">
-          Pulang atau Pindah
-        </VButton>
-        <VButton type="button" icon="feather:log-in" class="w-100" circle outlined color="danger" raised v-else
-          @click="simpanBatalPulang">
-          Batal Pulang
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1">
-        <VButton type="button" icon="fas fa-user-file" class="w-100" circle outlined color="purple" raised
-          @click="cetakSuratKeteranganDokter(selectedItem)">
-          Cetak Surat Dokter
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1">
-        <VButton type="button" icon="lnir lnir-whatsapp" class="w-100" circle outlined color="success" raised
-          @click="kirimWASuratKeteranganDokter(selectedItem)">
-          Kirim WA Surat Dokter
         </VButton>
       </div> -->
     </div>
@@ -583,6 +538,10 @@ const cetakSpk = (e) => {
   // console.log(e)
 
   H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
+}
+
+const cetakSertifikatLembarKerja = (e) => {
+  H.printBlade(`pelaksana/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
 
 

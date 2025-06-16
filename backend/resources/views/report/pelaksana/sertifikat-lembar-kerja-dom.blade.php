@@ -445,25 +445,25 @@
     <table border="0" width="100%" cellspacing="0" cellpadding="0" style="padding-top: 50px">
         <tbody style="font-size: 11pt">
             <tr>
-                <td align="center" width="30%">
-                     <span style="font-size: 10pt;" class="text-biasa"> 
-                         Pelaksana Kalibrasi 
-                     </span>
+                <td align="center" width="30%" class="text-center">
+                    <span style="font-size: 10pt;" class="text-biasa"> 
+                        Asman NMW
+                    </span>
                 </td>
                 <td align="center" width="30%" class="text-center">
                     <span style="font-size: 10pt;" class="text-biasa"> 
                          Penyelia Kalibrasi
                     </span>
                 </td>
-                <td align="center" width="30%" class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa"> 
-                        Asman NMW
-                    </span>
+                 <td align="center" width="30%">
+                     <span style="font-size: 10pt;" class="text-biasa"> 
+                         Pelaksana Kalibrasi 
+                     </span>
                 </td>
             </tr>
             <tr>
-                <td align="center">
-                    <img src="data:image/png;base64, {!! $res['ttdPelaksana'] !!}"
+                 <td align="center">
+                    <img src="data:image/png;base64, {!! $res['ttdAsman'] !!}"
                         style="margin-top: 5px; margin-bottom: 5px">
                     {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
                 </td>
@@ -473,23 +473,23 @@
                     {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
                 </td>
                 <td align="center">
-                    <img src="data:image/png;base64, {!! $res['ttdAsman'] !!}"
+                    <img src="data:image/png;base64, {!! $res['ttdPelaksana'] !!}"
                         style="margin-top: 5px; margin-bottom: 5px">
                     {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
                 </td>
             </tr>
             <tr>
-                <td align="center" height="10" valign="bottom" height="100" width="15%" class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa">( {{ $res['alat']->pelaksanateknik }}
-                        )</span>
+                 <td align="center" height="10" valign="bottom" height="100" width="15%" class="text-center">
+                    <span style="font-size: 10pt;" class="text-biasa">
+                        ( {{ $res['alat']->asamanverifikasi }} )</span>
                 </td>
                 <td align="center" height="10" valign="bottom" height="100" width="15%" class="text-center">
                     <span style="font-size: 10pt;" class="text-biasa">( {{ $res['alat']->penyeliateknik }}
                         )</span>
                 </td>
                 <td align="center" height="10" valign="bottom" height="100" width="15%" class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa">
-                        ( {{ $res['alat']->asamanverifikasi }} )</span>
+                    <span style="font-size: 10pt;" class="text-biasa">( {{ $res['alat']->pelaksanateknik }}
+                        )</span>
                 </td>
             </tr>
         <tbody>

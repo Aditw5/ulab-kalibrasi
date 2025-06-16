@@ -600,19 +600,20 @@ Route::middleware(['log'])->group(function () {
         Route::get('asman/header-mitra', 'HeaderMitra');
         Route::get('asman/cetak-spk', 'cetakSPK');
         Route::get('asman/get-alat-asman', 'getAlatAsman');
+        Route::get('asman/get-lembar-kerja-asman', 'getLembarKerjaAsman');
+        Route::post('asman/save-setujui-serti-asman', 'setujuiSertifikatAsman');
+        Route::get('asman/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
     });
 
     Route::controller(ManagerCtrl::class)->group(function () {
         Route::get('manager/list-mitra-regis', 'listMitraAsmanGrid');
         Route::get('manager/get-detail-pegawai', 'getAsmanDetail');
-        Route::get('manager/layanan-verif', 'LayananVerif');
-        Route::get('manager/detail-produk', 'detailProduk');
-        Route::post('manager/save-verif-item', 'saveVerifItem');
-        Route::post('manager/save-verif', 'saveVerif');
-        Route::post('manager/save-penolakan', 'savePenolakanAsman');
         Route::get('manager/header-mitra', 'HeaderMitra');
         Route::get('manager/cetak-spk', 'cetakSPK');
-        Route::get('manager/get-alat-penyelia', 'getAlatManager');
+        Route::get('manager/get-alat-manager', 'getAlatManager');
+        Route::get('manager/get-lembar-kerja-manager', 'getLembarKerjaManager');
+        Route::post('manager/save-setujui-serti-manager', 'setujuiSertifikatManager');
+        Route::get('manager/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
     });
 
     Route::controller(PenyeliaCtrl::class)->group(function () {

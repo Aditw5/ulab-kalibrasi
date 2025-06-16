@@ -107,11 +107,15 @@
                                     :color="item.norec_perjanjian !== null ? 'info' : 'danger'" class="ml-2" /> -->
                                   <!-- <VTag :label="item.penanda.charAt(0).toUpperCase() + item.penanda.slice(1)"
                                     v-if="item.penanda != null" :color="'info'" class="ml-2" /> -->
-                                  <VTag :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
+                                  <VTag v-if="item.statusPengerjaan == null" :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                     class="ml-2" />
-                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null" :label="'Sudah Isi Lembar Kerja'"
+                                  <VTag v-if="item.statusPengerjaan != null" :label="item.statusPengerjaan"  :color="item.statusColor"
+                                    class="ml-2" />
+                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null && (item.setujuilembarkerjapenyelia == null || item.setujuilembarkerjapenyelia == false)" :label="'Sudah Isi Lembar Kerja'"
                                     :color="'info'" class="ml-2" />
-                                  <VTag v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true" :label="'Sertifikat Disetujui'"
+                                  <VTag v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true" :label="'Sertifikat Disetujui Penyelia'"
+                                    :color="'primary'" class="ml-2" />
+                                  <VTag v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true" :label="'Sertifikat Disetujui Asaman'"
                                     :color="'primary'" class="ml-2" />
                                   <!-- <VTag
                                     :label="item.kategoriInsiden.charAt(0).toUpperCase() + item.kategoriInsiden.slice(1)"
@@ -130,21 +134,11 @@
                               </div>
                               <div class="meta-right flex justify-center items-center">
                                 <div class="buttons">
-                                  <!-- <RouterLink :to="{
-                                    // H.cacheHelper().set('xxx_cache_menu', undefined)
-                                    name: 'module-emr-profile-pasien',
-                                    query: {
-                                      nocmfk: item.nocmfk,
-                                      norec_pd: item.norec_pd,
-                                      norec_apd: item.norec_apd,
-                                    }
-                                  }">
-                                    <VIconButton color="primary" circle icon="fas fa-stethoscope" outlined raised
-                                      @click="emr(item)" v-tooltip.bottom.left="'EMR'">
-                                    </VIconButton>
-                                  </RouterLink> -->
                                   <VIconButton v-tooltip.bottom.left="'SPK'" icon="feather:printer"
                                     @click="cetakSpk(item)" color="warning" raised circle class="mr-2">
+                                  </VIconButton>
+                                   <VIconButton v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true" v-tooltip.bottom.left="'Cetak Sertifikat'" icon="feather:printer"
+                                    @click="cetakSertifikatLembarKerja(item)" color="info" raised circle class="mr-2">
                                   </VIconButton>
                                   <VIconButton v-if="item.statusorderpenyelia == 1" color="info" circle
                                     icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
@@ -250,52 +244,6 @@
         <VButton type="button" icon="fas fa-print" class="w-100" light circle outlined color="success" raised
           @click="cetakSEP()">
           Cetak SEP
-        </VButton>
-      </div>
-      <div class="column is-6 pt-1 pb-1">
-        <VButton type="button" icon="fas fa-pen" class="w-100" light circle outlined color="warning" raised
-          @click="openModalDpjp()">
-          Ubah DPJP
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1 pb-1">
-        <VButton type="button" icon="lucide:tag" class="w-100" light circle outlined color="purple" raised
-          @click="openModalPenanda()">
-          Penanda Pasien
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1 pb-1">
-        <VButton type="button" icon="fas fa-th" class="w-100" light circle outlined color="info" raised
-          @click="detailRegistrasi()">
-          Detail Registrasi
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1 pb-1">
-        <VButton type="button" icon="fas fa-bed" class="w-100" light circle outlined color="info" raised
-          @click="openModalPesanRuangan()">
-          Pesan Ruangan
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1">
-        <VButton type="button" icon="feather:log-in" class="w-100" circle outlined color="danger" raised
-          v-if="selectedItem.tglpulang == null" @click="PulangPindah">
-          Pulang atau Pindah
-        </VButton>
-        <VButton type="button" icon="feather:log-in" class="w-100" circle outlined color="danger" raised v-else
-          @click="simpanBatalPulang">
-          Batal Pulang
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1">
-        <VButton type="button" icon="fas fa-user-file" class="w-100" circle outlined color="purple" raised
-          @click="cetakSuratKeteranganDokter(selectedItem)">
-          Cetak Surat Dokter
-        </VButton>
-      </div>
-      <div class="column is-12 pt-1">
-        <VButton type="button" icon="lnir lnir-whatsapp" class="w-100" circle outlined color="success" raised
-          @click="kirimWASuratKeteranganDokter(selectedItem)">
-          Kirim WA Surat Dokter
         </VButton>
       </div> -->
     </div>
@@ -787,23 +735,11 @@ const cetakSpk = (e) => {
   H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
 }
 
-
-const cetakSEP = (e: any) => {
-  isbtnLoadPrint.value = true
-  qzService.printData('registrasi/pemakaian-asuransi/sep?noregistrasi=' + selectedItem.value.noregistrasi + "&pdf=true", 'SEP', 1)
-  isbtnLoadPrint.value = false
+const cetakSertifikatLembarKerja = (e) => {
+  H.printBlade(`penyelia/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
 
 
-
-const cetakSuratKeteranganDokter = async (e: any) => {
-  let dokter = `&dokter=${e.namalengkap}`
-  let kelompokpasien = `&kelompokpasien=${e.kelompokpasien}`
-  let objectdepartemenfk = `&objectdepartemenfk=9`
-  let tglregistrasi = `&tglregistrasi=${e.tglregistrasi}`
-  let norec_pd = `&norec_pd=${e.norec_pd}`
-  H.printBlade(`dashboard/registrasi/cetak-surat-keterangan-dokter?noregistrasi=${e.noregistrasi}${dokter}${kelompokpasien}${objectdepartemenfk}${tglregistrasi}${norec_pd}`);
-}
 
 const kirimWASuratKeteranganDokter = async (e: any) => {
   isLoadingPop.value = true;

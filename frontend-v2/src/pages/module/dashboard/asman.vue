@@ -186,17 +186,17 @@
                                                     <input type="text"
                                                         placeholder="Cari Nama Alat, Nama Perusahaan, No order Alat, No Pendaftaran"
                                                         v-model="item.qsearch"
-                                                        v-on:keyup.enter="fetchAlatKalibrasi(order)" />
+                                                        v-on:keyup.enter="fetchAlatKalibrasi(orderAlat)" />
                                                 </div>
                                                 <VButton raised class="search-button-igd"
-                                                    @click="fetchAlatKalibrasi(order)" :loading="isLoading">
+                                                    @click="fetchAlatKalibrasi(orderAlat)" :loading="isLoading">
                                                     Cari Data
                                                 </VButton>
                                             </div>
                                             <VCard class="text-center pt-0 pb-0 mt-0">
-                                                <VRadio v-model="order" value="0" label="Belum Setujui"
+                                                <VRadio v-model="orderAlat" value="0" label="Belum Setujui"
                                                     name="outlined_radio" color="success" />
-                                                <VRadio v-model="order" value="1" label="Sudah Setujui"
+                                                <VRadio v-model="orderAlat" value="2" label="Sudah Setujui"
                                                     name="outlined_radio" color="info" />
                                             </VCard>
                                             <VPlaceholderPage :class="[dataAlatKalibrasi.length !== 0 && 'is-hidden']"
@@ -254,13 +254,20 @@
 
                                                                     </span>
                                                                     <div>
-                                                                        <VTag
+                                                                        <VTag v-if="item.statusPengerjaan == null"
                                                                             :label="'Durasi Kalibrasi : ' + item.durasikalbrasi"
                                                                             :color="'warning'" class="ml-2" />
+                                                                        <VTag v-if="item.statusPengerjaan != null"
+                                                                            :label="item.statusPengerjaan"
+                                                                            :color="item.statusColor" class="ml-2" />
                                                                         <VTag
-                                                                            v-if="item.pelaksanaisilembarkerjafk != null"
-                                                                            :label="'Sudah Isi Lembar Kerja'"
-                                                                            :color="'info'" class="ml-2" />
+                                                                            v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true"
+                                                                            :label="'Sertifikat Disetujui Penyelia'"
+                                                                            :color="'primary'" class="ml-2" />
+                                                                        <VTag
+                                                                            v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
+                                                                            :label="'Sertifikat Disetujui Asman'"
+                                                                            :color="'primary'" class="ml-2" />
                                                                     </div>
                                                                     <div>
                                                                         <span style="font-weight: bold;">Penyelia Teknik
@@ -284,7 +291,14 @@
                                                                             raised circle class="mr-2">
                                                                         </VIconButton>
                                                                         <VIconButton
-                                                                            v-if="item.statusorderpenyelia == 2"
+                                                                            v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
+                                                                            v-tooltip.bottom.left="'Cetak Sertifikat'"
+                                                                            icon="feather:printer"
+                                                                            @click="cetakSertifikatLembarKerja(item)"
+                                                                            color="info" raised circle class="mr-2">
+                                                                        </VIconButton>
+                                                                        <VIconButton
+                                                                            v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true && (item.setujuilembarkerjaasman == null || item.setujuilembarkerjaasman == false)"
                                                                             color="info" circle icon="fas fa-pager"
                                                                             outlined raised @click="lembarKerja(item)"
                                                                             v-tooltip.bottom.left="'Lembar Kerja'" />
@@ -335,9 +349,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                }}</span>
+                                                                    }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                }}</span>
+                                                                    }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -370,9 +384,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                }}</span>
+                                                                    }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                }}</span>
+                                                                    }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -836,6 +850,7 @@ const item: any = ref({
 
 })
 const order: any = ref(0)
+const orderAlat: any = ref(0)
 const dataOrder: any = ref(0)
 const router = useRouter()
 
@@ -897,10 +912,10 @@ const fetchAlatKalibrasi = async (q: any) => {
     }
     let status = ''
 
-    let statusorderpenyelia = ''
+    let statusorderasman = ''
         , search = ''
-    item.value.statusorderpenyelia = q
-    if (order) statusorderpenyelia = '&statusorderpenyelia=' + q
+    item.value.statusorderasman = q
+    if (orderAlat) statusorderasman = '&statusorderasman=' + q
     if (item.value.qsearch) search = item.value.qsearch
     isLoading.value = true
     dataAlatKalibrasi.value = []
@@ -908,7 +923,7 @@ const fetchAlatKalibrasi = async (q: any) => {
         '/asman/get-alat-asman?dari=' + dari
         + '&sampai=' + sampai
         + '&search=' + search
-        + statusorderpenyelia
+        + statusorderasman
     )
     isLoading.value = false
     dataAlatKalibrasi.value = response.data
@@ -956,8 +971,14 @@ const klikTab = (e: any) => {
 const fetchDataOrder = async (q: any) => {
     statusOrder.value = q
     isLoading.value = true
-    let dari = 'dari=' + H.formatDate(item.value.periode.start, 'YYYY-MM-DD 00:00')
-    let sampai = '&sampai=' + H.formatDate(item.value.periode.end, 'YYYY-MM-DD  23:59')
+    let dari = ''
+    if (item.value.filterTgl.start) {
+        dari = H.formatDate(item.value.filterTgl.start, 'YYYY-MM-DD 00:00')
+    }
+    let sampai = ''
+    if (item.value.filterTgl.end) {
+        sampai = H.formatDate(item.value.filterTgl.end, 'YYYY-MM-DD 23:59')
+    }
     let search = ''
     let qnocm = ''
     let qnoregistrasi = ''
@@ -970,7 +991,7 @@ const fetchDataOrder = async (q: any) => {
     offset = (parseInt(offset) - 1) * limit
     let page: any = route.query.page ? route.query.page : 1
 
-    await useApi().get(`asman/list-mitra-regis?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPage.value.rows}&` + dari + sampai + StatusOrder + search).then((response) => {
+    await useApi().get(`asman/list-mitra-regis?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPage.value.rows}&` + '&dari=' + dari + '&sampai=' + sampai + StatusOrder + search).then((response) => {
         modalFilter.value = false
         dataOrder.value = response.data
         totalData.value = response.total
@@ -1072,21 +1093,12 @@ const getDetailVerify = (e: any) => {
     })
 }
 
-// const getDetailVerify = async (e: any) => {
-//     console.log(e)
-//     isLoadDataSoNorec = false
-//     item.value.inisial = e.initials
-//     item.value.tglregistrasi = e.tglregistrasi
+const cetakSertifikatLembarKerja = (e) => {
+  console.log(e)
+  H.printBlade(`asman/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
+}
 
-//     modalDetailOrderVerify.value = true
-//     // const response = await useApi().get(`/dashboard/radiologi/get-order-verify?norec_so=${e.norec}`)
-//     // const diagnosa = await useApi().get(`/dashboard/radiologi?tglAwal=${e.tglregistrasi}&tglAkhir=${e.tglregistrasi}&statusorder=${statusOrder.value}&noorder=${e.noorder}`)
-//     // detailDiagnosa.value = diagnosa ? diagnosa[0].detailDiagnosa : ''
-//     // response.forEach((element: any, i: any) => {
-//     //     element.no = i + 1
-//     // });
-//     // detailOrderVerify.value = response
-// }
+
 
 const edit = (e: any) => {
     item.value.lokasikalibrasi = {
@@ -1190,7 +1202,7 @@ const cetakSpk = (e) => {
 const lembarKerja = (e: any) => {
     console.log(e)
     router.push({
-        name: 'module-penyelia-lembar-kerja',
+        name: 'module-asman-lembar-kerja',
         query: {
             norec: e.norec,
             norec_detail: e.norec_detail,
@@ -1221,6 +1233,10 @@ const hapusItems = (e: any) => {
 
 const changeSwitch = (e: any) => {
     fetchDataOrder(e)
+}
+
+const changeSwitchAlat = (e: any) => {
+    fetchAlatKalibrasi(e)
 }
 
 const clear = () => {
@@ -1275,6 +1291,14 @@ watch(
         order.value
     ], () => {
         changeSwitch(order.value)
+    }
+)
+
+watch(
+    () => [
+        orderAlat.value
+    ], () => {
+        changeSwitchAlat(orderAlat.value)
     }
 )
 

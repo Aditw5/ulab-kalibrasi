@@ -70,6 +70,15 @@ class PelaksanaCtrl extends Controller
                 'lk.lokasi',
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
+                'mtrd.setujuilembarkerjapenyelia',
+                'mtrd.tglsetujupenyelialembarkerja',
+                'mtrd.penyeliasetujulembarkerjafk',
+                'mtrd.setujuilembarkerjaasman',
+                'mtrd.tglsetujuasmanlembarkerja',
+                'mtrd.asmansetujulembarkerjafk',
+                'mtrd.statusorderasman',
+                'mtrd.noorderalat',
+                'mtrd.tglverifpelaksana',
             )
             ->where('pg2.id', $this->getPegawaiId())
             ->where('mtr.statusorder', 1)
@@ -88,17 +97,42 @@ class PelaksanaCtrl extends Controller
             $searchTerm = '%' . $r['search'] . '%';
             $data = $data->where(function ($query) use ($searchTerm) {
                 $query->where('prd.namaproduk', 'ilike', $searchTerm)
+                    ->orWhere('mt.noorderalat', 'ilike', $searchTerm)
                     ->orWhere('mt.nopendaftaran', 'ilike', $searchTerm);
             });
         }
         if (isset($r['statusorderpelaksana']) && $r['statusorderpelaksana'] != '') {
             $data = $data->where('mtrd.statusorderpelaksana', '=', $r['statusorderpelaksana']);
         }
-        $data = $data->orderBy('mtr.tglregistrasi');
+        $data = $data->orderBy('mtr.tglverifasman');
         if (isset($r['limit'])) {
             $data = $data->limit($r['limit']);
         }
         $data = $data->get();
+
+        foreach ($data as $item) {
+            $durasi = (int) $item->durasikalbrasi;
+            $tglAwal = $item->tglverifpelaksana ? Carbon::parse($item->tglverifpelaksana)->startOfDay() : null;
+            $tglAkhir = $item->tglsetujuasmanlembarkerja ? Carbon::parse($item->tglsetujuasmanlembarkerja)->startOfDay() : null;
+
+            if ($tglAwal && $tglAkhir) {
+                $selisih = $tglAkhir->diffInDays($tglAwal);
+
+                if ($selisih == $durasi) {
+                    $item->statusPengerjaan = 'Kalibrasi Tepat waktu';
+                    $item->statusColor = 'warning';
+                } elseif ($selisih > $durasi) {
+                    $item->statusPengerjaan = 'Kalibrasi Terlambat ' . ($selisih - $durasi) . ' hari';
+                    $item->statusColor = 'danger';
+                } else {
+                    $item->statusPengerjaan = 'Kalibrasi Lebih cepat ' . ($durasi - $selisih) . ' hari';
+                    $item->statusColor = 'info';
+                }
+            } else {
+                $item->statusPengerjaan = null;
+                $item->statusColor = null;
+            }
+        }
 
         $res['data'] = $data;
         return $this->respond($res);
@@ -259,6 +293,8 @@ class PelaksanaCtrl extends Controller
             ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
             ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
             ->leftJoin('pegawai_m as pg4', 'pg4.id', '=', 'mtrd.pelaksanaisilembarkerjafk')
+            ->leftJoin('pegawai_m as pg5', 'pg5.id', '=', 'mtrd.penyeliasetujulembarkerjafk')
+            ->leftJoin('pegawai_m as pg6', 'pg6.id', '=', 'mtrd.asmansetujulembarkerjafk')
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
@@ -300,7 +336,17 @@ class PelaksanaCtrl extends Controller
                 'lk.id as lokasikalibrasifk',
                 'lk.lokasi',
                 'lp.id as lingkupfk',
-                'lp.lingkupkalibrasi'
+                'lp.lingkupkalibrasi',
+                'mtrd.setujuilembarkerjapenyelia',
+                'mtrd.tglsetujupenyelialembarkerja',
+                'mtrd.penyeliasetujulembarkerjafk',
+                'mtrd.setujuilembarkerjaasman',
+                'mtrd.tglsetujuasmanlembarkerja',
+                'mtrd.asmansetujulembarkerjafk',
+                'pg5.id as penyeliasetujuilembarkerjafk',
+                'pg5.namalengkap as penyeliasetujuilembarkerja',
+                'pg6.id as asmansetujuilembarkerjafk',
+                'pg6.namalengkap as asmansetujuilembarkerja',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -312,6 +358,20 @@ class PelaksanaCtrl extends Controller
         $timeline = [];
 
         foreach ($data as $item) {
+            if (!is_null($item->tglsetujuasmanlembarkerja)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujuasmanlembarkerja,
+                    'type' => 'Sertifikat Di Setujui Oleh Asman',
+                    'nama' => $item->asmansetujuilembarkerja ?? '-',
+                ];
+            }
+             if (!is_null($item->tglsetujupenyelialembarkerja)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujupenyelialembarkerja,
+                    'type' => 'Sertifikat Di Setujui Oleh Penyelia',
+                    'nama' => $item->penyeliasetujuilembarkerja ?? '-',
+                ];
+            }
             if (!is_null($item->tglverifasman)) {
                 $timeline[] = [
                     'date' => $item->tglverifasman,

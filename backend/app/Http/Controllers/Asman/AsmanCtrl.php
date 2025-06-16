@@ -80,7 +80,7 @@ class AsmanCtrl extends Controller
         return $this->respond($data);
     }
 
-     public function getAlatAsman(Request $r)
+    public function getAlatAsman(Request $r)
     {
         $data = DB::table('mitraregistrasi_t as mtr')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
@@ -127,6 +127,11 @@ class AsmanCtrl extends Controller
                 'mtrd.tglsetujupenyelialembarkerja',
                 'mtrd.penyeliasetujulembarkerjafk',
                 'mtrd.noorderalat',
+                'mtrd.setujuilembarkerjaasman',
+                'mtrd.tglsetujuasmanlembarkerja',
+                'mtrd.asmansetujulembarkerjafk',
+                'mtrd.statusorderasman',
+                'mtrd.tglverifpelaksana',
             )
             ->where('mtr.statusorder', 1)
             ->where('mtr.iskaji', true)
@@ -149,14 +154,88 @@ class AsmanCtrl extends Controller
                     ->orWhere('mt.nopendaftaran', 'ilike', $searchTerm);
             });
         }
+        if (isset($r['statusorderasman']) && $r['statusorderasman'] != '') {
+            $data = $data->where('mtrd.statusorderasman', '=', $r['statusorderasman']);
+        }
         $data = $data->orderBy('lp.lingkupkalibrasi');
         if (isset($r['limit'])) {
             $data = $data->limit($r['limit']);
         }
         $data = $data->get();
 
+        foreach ($data as $item) {
+            $durasi = (int) $item->durasikalbrasi;
+            $tglAwal = $item->tglverifpelaksana ? Carbon::parse($item->tglverifpelaksana)->startOfDay() : null;
+            $tglAkhir = $item->tglsetujuasmanlembarkerja ? Carbon::parse($item->tglsetujuasmanlembarkerja)->startOfDay() : null;
+
+            if ($tglAwal && $tglAkhir) {
+                $selisih = $tglAkhir->diffInDays($tglAwal);
+
+                if ($selisih == $durasi) {
+                    $item->statusPengerjaan = 'Kalibrasi Tepat waktu';
+                    $item->statusColor = 'warning';
+                } elseif ($selisih > $durasi) {
+                    $item->statusPengerjaan = 'Kalibrasi Terlambat ' . ($selisih - $durasi) . ' hari';
+                    $item->statusColor = 'danger';
+                } else {
+                    $item->statusPengerjaan = 'Kalibrasi Lebih cepat ' . ($durasi - $selisih) . ' hari';
+                    $item->statusColor = 'info';
+                }
+            } else {
+                $item->statusPengerjaan = null;
+                $item->statusColor = null;
+            }
+        }
         $res['data'] = $data;
         return $this->respond($res);
+    }
+
+    public function getLembarKerjaAsman(Request $request)
+    {
+        $data = DB::table('lembarkerja_t as lk')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
+            ->select('lk.*')
+            ->where('mtrd.norec', $request->norecdetail)
+            ->where('lk.statusenabled', true)
+            ->get();
+
+        return $this->respond($data);
+    }
+
+    public function setujuiSertifikatAsman(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $VI = $r['verif'];
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $VI['norec'])
+                ->update([
+                    'setujuilembarkerjaasman' => true,
+                    'asmansetujulembarkerjafk' => $this->getPegawaiId(),
+                    'tglsetujuasmanlembarkerja' => now(),
+                    'statusorderasman' => 2
+                ]);
+
+
+            $transMessage = "Simpan Setujui Sertifikat Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
     }
 
     public function getAsmanDetail(Request $r)
@@ -493,6 +572,7 @@ class AsmanCtrl extends Controller
                     ->update([
                         'noorderalat' => $noorderalat,
                         'tglverifasman' => now(),
+                        'statusordermanager' => 0,
                     ]);
             }
 
@@ -678,6 +758,152 @@ class AsmanCtrl extends Controller
             );
             return $pdf;
         }
+
+        return view(
+            $blade,
+            compact('profile', 'pageWidth', 'print', 'res')
+        );
+    }
+
+    public function cetakSertifikatLembarKerja(Request $r)
+    {
+
+        $profile = $this->profile();
+        $print = false;
+        $pageWidth = 950;
+
+        $res['identitas'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.petugaskaji')
+            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+            ->select(
+                'jb.id as idjabatan',
+                'jb.namajabatanulab as namajabanpetugaskaji',
+                'mtr.norec',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mt.namaperusahaan',
+                'mt.alamatktr',
+                'pg.id as petugaskajifk',
+                'pg.namalengkap as namapetugaskaji',
+                'lk.lokasi',
+                'mtr.jabatanpenanggungjawab',
+                'mtr.namapenanggungjawab'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtr.norec', $r['norec'])
+            ->first();
+
+        $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
+            ->select(
+                'lk.*',
+                'mtrd.tglkalibrasilembarkerja',
+                'mtrd.tempatKalibrasilembarkerja',
+                'mtrd.kondisiRuanganlembarkerja',
+                'mtrd.suhulembarkerja',
+                'mtrd.kelembabanRelatiflembarkerja'
+            )
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->where('lk.statusenabled', true)
+            ->get();
+
+        $res['instruksikerja'] = DB::table('daftarinstruksikerja_t as dik')
+            ->leftJoin('instruksikerja_m as ik', 'ik.id', '=', 'dik.idalatinstruksikerja')
+            ->select('dik.detailregistrasifk', 'ik.id', 'ik.namainstruksikerja', 'ik.noisntruksikerja')
+            ->where('dik.detailregistrasifk', $r['norec_detail'])
+            ->where('dik.statusenabled', true)
+            ->where('ik.statusenabled', true)
+            ->get();
+
+        $res['alastandar'] = DB::table('daftaralatstandar_t as das')
+            ->leftJoin('peralatanstandar_m as pas', 'pas.id', '=', 'das.alatstandarfk')
+            ->leftJoin('merkalat_m as mk', 'mk.id', '=', 'das.merkstandarfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'das.tipestandarfk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'das.snstandarfk')
+            ->select(
+                'das.detailregistrasifk',
+                'pas.id as value',
+                'pas.namaalatstandar',
+                'pas.duedate',
+                'mk.namamerk',
+                'tp.namatipe',
+                'sn.namaserialnumber'
+            )
+            ->where('das.detailregistrasifk', $r['norec_detail'])
+            ->where('das.statusenabled', true)
+            ->where('pas.statusenabled', true)
+            ->get();
+
+        $res['alat'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
+            ->select(
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as asmanfk',
+                'pg3.namalengkap as asamanverifikasi',
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->first();
+
+        $res['pdf']  = $r['pdf'];
+        $res['ttdPelaksana'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->pelaksanateknik));
+        $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
+        $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->penyeliateknik));
+
+        $blade = 'report.pelaksana.sertifikat-lembar-kerja';
+
+        if ($res['pdf'] == 'true') {
+            $pdf = App::make('dompdf.wrapper');
+            // $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+
+            // Tambah penomoran halaman otomatis di footer PDF
+            $dompdf = $pdf->getDomPDF();
+            $canvas = $dompdf->get_canvas();
+            $canvas->page_text(200, 780, "Halaman ke {PAGE_NUM} dari {PAGE_COUNT} halaman", null, 11, array(0, 0, 0));
+            $canvas->page_text(230, 795, "Page {PAGE_NUM} of {PAGE_COUNT} pages", null, 9, array(0, 0, 0));
+
+
+
+            return $pdf->stream();
+        }
+
+        if (isset($r['storage'])) {
+            $res['storage']  = true;
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade,
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf;
+        }
+
 
         return view(
             $blade,
