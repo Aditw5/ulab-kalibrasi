@@ -63,8 +63,4 @@ cd [PROJECT NAME]
 php artisan serve
 ```
 
-Dokumen Testing link:
-
-```
-https://docs.google.com/spreadsheets/d/1H0pZ2PzfV2sHnno-brufX5qBY0Qmex9iYKdQR7cY_Sc/edit?usp=sharing
 ```
