@@ -31,7 +31,7 @@ function flatDataArray(array: any[]) {
     <div class="subpanel-header">
       <ProjectsQuickDropdown />
 
-      <h3 class="no-mb">TRANSMEDIC</h3>
+      <h3 class="no-mb">ULAB</h3>
       <div
         class="panel-close"
         tabindex="0"

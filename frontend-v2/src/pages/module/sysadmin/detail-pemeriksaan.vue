@@ -449,7 +449,7 @@ import { popperGenerator } from '@popperjs/core'
 import { objectMethod } from '@babel/types'
 const TITLE_PAGE = 'Obat Alkes'
 useHead({
-    title: `Form Penjualan Obat Bebas - Transmedic`,
+    title: `Form Penjualan Obat Bebas - ULAB`,
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
 let NOREC_ORDER: any = useRoute().query.norec_order as string

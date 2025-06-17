@@ -17,11 +17,6 @@
             </RouterLink>
           </a>
         </div>
-        <div class="column is-3">
-          <VControl class="is-pulled-right">
-            <VSwitchBlock style="padding-top:3px" v-model="item.isbayi" label="Bayi" color="danger" />
-          </VControl>
-        </div>
         <div class="column is-9">
           <div class="flex-list-inner mb-4" v-if="ds_PASIEN.loading">
             <div class="flex-table-item grid-item mb-4" v-for="key in 5" :key="key">
@@ -85,6 +80,7 @@
                   <VDropdown icon="feather:more-vertical" spaced right v-tooltip.bubble="'AKSI'">
                     <template #content>
 
+                      <!-- <a role="menuitem" href="#" class="dropdown-item is-media"> -->
                       <a role="menuitem" href="#" class="dropdown-item is-media" @click="editPasien(items)">
                         <div class="icon">
                           <i aria-hidden="true" class="lnil lnil-pencil"></i>
@@ -95,7 +91,8 @@
                         </div>
                       </a>
 
-                      <a role="menuitem" href="#" class="dropdown-item is-media" @click="dialogConfirm(items)">
+                      <!-- <a role="menuitem" href="#" class="dropdown-item is-media" @click="dialogConfirm(items)"> -->
+                      <a role="menuitem" href="#" class="dropdown-item is-media">
                         <div class="icon">
                           <i aria-hidden="true" class="lnil lnil-trash"></i>
                         </div>
@@ -105,7 +102,8 @@
                         </div>
                       </a>
 
-                      <a role="menuitem" href="#" class="dropdown-item is-media" @click="riwayatPasien(items)">
+                      <!-- <a role="menuitem" href="#" class="dropdown-item is-media" @click="riwayatPasien(items)"> -->
+                      <a role="menuitem" href="#" class="dropdown-item is-media">
                         <div class="icon">
                           <i aria-hidden="true" class="lnil lnil-archive"></i>
                         </div>
@@ -115,17 +113,6 @@
                         </div>
                       </a>
                       <hr class="dropdown-divider" />
-
-
-                      <a role="menuitem" href="#" class="dropdown-item is-media" @click="pendaftaranBayi(items)" v-if="items.jeniskelamin == 'Perempuan'">
-                        <div class="icon">
-                          <i aria-hidden="true" class="lnil lnil-pencil"></i>
-                        </div>
-                        <div class="meta">
-                          <span>Registrasi Bayi</span>
-                          <span>pendaftaran Bayi Baru Lahir</span>
-                        </div>
-                      </a>
                     </template>
                   </VDropdown>
 
@@ -551,14 +538,6 @@ function resetForm() {
 function editPasien(e: any) {
   router.push({
     name: 'module-registrasi-pasien-baru',
-    query: {
-      id: e.id,
-    },
-  })
-}
-function pendaftaranBayi(e: any) {
-  router.push({
-    name: 'module-registrasi-pasien-bayi',
     query: {
       id: e.id,
     },

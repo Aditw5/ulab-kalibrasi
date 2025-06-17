@@ -33,15 +33,6 @@ onMounted(() => {
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyD0PT-popeB2wYEYZg9PdRwmD2zzdYTYvQ",
-  authDomain: "transmedic-v3-dcd4c.firebaseapp.com",
-  projectId: "transmedic-v3-dcd4c",
-  storageBucket: "transmedic-v3-dcd4c.appspot.com",
-  messagingSenderId: "480900949185",
-  appId: "1:480900949185:web:433c114e9f5099b4972040",
-  measurementId: "G-747LFMWQPB"
-};
 
 // Initialize Firebase
 // const app = initializeApp(firebaseConfig);

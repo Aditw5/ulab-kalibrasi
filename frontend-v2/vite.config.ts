@@ -233,7 +233,7 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
         name: 'ULAB - Apps',
-        short_name: 'transmedic',
+        short_name: 'ulab',
         start_url: '/?utm_source=pwa',
         display: 'standalone',
         theme_color: '#ffffff',

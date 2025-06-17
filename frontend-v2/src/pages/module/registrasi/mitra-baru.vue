@@ -10,10 +10,6 @@
                             </div>
                             <div class="right">
                                 <div class="buttons">
-                                    <VButton icon="lnir lnir-arrow-left rem-100"
-                                        :to="{ name: 'module-registrasi-pasien-lama' }" light dark-outlined>
-                                        Cancel
-                                    </VButton>
                                     <VButton type="button" icon="feather:save" :loading="isLoading" color="primary"
                                         raised @click="savePasien()" v-if="!isRegistrasi"> Save
                                     </VButton>
@@ -249,7 +245,6 @@ async function listDropdown() {
         }
     }
     d_Agama.value = response.agama.map((e: any) => { return { label: e.agama, value: e.id, default: e } })
-    d_GolonganDarah.value = response.golongandarah.map((e: any) => { return { label: e.golongandarah, value: e.id, default: e } })
     // d_HubunganPasien.value = response.hubunganpasien.map((e: any) => { return { label: e.hubungankeluarga, value: e.id } })
     d_StatusPerkawinan.value = response.statusperkawinan.map((e: any) => { return { label: e.statusperkawinan, value: e.id, default: e } })
     d_Pendidikan.value = response.pendidikan.map((e: any) => { return { label: e.pendidikan, value: e.id, default: e } })

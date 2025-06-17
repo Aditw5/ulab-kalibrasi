@@ -31,7 +31,7 @@ onMounted(() => {
 })
 
 useHead({
-  title: `Transmedic`,
+  title: `ULAB`,
   meta: [
     {
       name: 'robots',

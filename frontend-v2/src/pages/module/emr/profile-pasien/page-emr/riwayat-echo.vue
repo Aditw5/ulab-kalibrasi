@@ -204,68 +204,7 @@ var HttpClient = function () {
     anHttpRequest.send(null);
   }
 }
-const hasilItems = (e: any) => {
-  e.details.forEach((dataItem: any) => {
-    dataItem.radiologiId = '00000184-3'
-    if (dataItem.radiologiId === null || dataItem.radiologiId === '') {
-      H.alert('warning', 'Hasil belum ada')
-    } else {
-      let viewer = null
-      let patienIdMr = dataItem.radiologiId.replace('null', '1')
-      let idRuangan = e.objectruangantujuanfk;
-      useApi().postNoMessage(`/general/api-tools`, {
-        'method': 'get',
-        'url': import.meta.env.VITE_URL_PACS_ENGINE + '/dcm4chee-arc/aets/TRANSMEDIC/rs/studies?limit=1&includefield=all&offset=0&PatientID=' + patienIdMr,
-        'headers': {}
-      }).then((response: any) => {
-        if (response.response == null) {
-          H.alert('warning', 'Hasil foto belum dikirim ke PACS')
-        } else {
-          let data = response.response
-          viewer = data[0]["0020000D"].Value[0]
-          window.open(import.meta.env.VITE_URL_PACS_VIEWER
-            + "/viewer/" + idRuangan
-            + "/" + dataItem.norec_pp
-            + "/" + props.registrasi.norec_pd
-            + "/" + e.noorder + "/" + viewer, "pacs");
-        }
-      })
 
-
-      // let client = new HttpClient();
-
-
-      // let errorFunc = function () {
-      //   H.alert('error', 'Ada kesalahan pada jaringan ke server')
-      // }
-      // let awal = true
-      //
-      // let noMrFunc = function (response) {
-      //   if (response === undefined || response === null || response == '') {
-      //     if (awal) {
-      //       awal = false
-      //       client.get(import.meta.env.VITE_URL_PACS_ENGINE + '/dcm4chee-arc/aets/TRANSMEDIC/rs/'
-      //         + 'studies?limit=1&includefield=all&offset=0&PatientID=' + patienIdMr.split('-')[0],
-      //         noMrFunc, errorFunc)
-      //     } else {
-      //       H.alert('warning', 'Hasil foto belum dikirim ke PACS')
-      //     }
-      //   } else {
-      //     let data = JSON.parse(response)
-      //     viewer = data[0]["0020000D"].Value[0]
-      //     window.open(import.meta.env.VITE_URL_PACS_VIEWER
-      //       + "/viewer/" + idRuangan
-      //       + "/" + dataItem.norec_pp
-      //       + "/" + norec_pd
-      //       + "/" + dataItem.noorder + "/" + viewer, "pacs");
-      //   }
-      // }
-
-      // client.get(import.meta.env.VITE_URL_PACS_ENGINE + '/dcm4chee-arc/aets/TRANSMEDIC/rs/' +
-      //   'studies?limit=1&includefield=all&offset=0&PatientID=' + patienIdMr, noMrFunc, errorFunc)
-    }
-  });
-}
 const expertiseItems = (e: any) => {
 
   item.norec_pp = e.norec_pp

@@ -363,7 +363,7 @@ import { useHead } from '@vueuse/head'
 import MasterKelompokShift from './master-kelompok-shift.vue'
 import { useToaster } from '/@src/composable/toaster'
 useHead({
-  title: 'Transmedic - Shift Kerja',
+  title: 'ULAB - Shift Kerja',
 })
 const confirm = useConfirm()
 

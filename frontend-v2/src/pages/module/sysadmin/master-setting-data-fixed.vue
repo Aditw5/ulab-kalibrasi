@@ -266,7 +266,7 @@ import { useHead } from '@vueuse/head'
 import { useToaster } from '/@src/composable/toaster'
 import moment from 'moment'
 useHead({
-  title: 'Transmedic - Ruangan',
+  title: 'ULAB - Ruangan',
 })
 const item: any = ref({
   aktif: true

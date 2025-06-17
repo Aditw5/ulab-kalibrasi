@@ -779,7 +779,7 @@ import * as H from '/@src/utils/appHelper'
 import { useViewWrapper } from '/@src/stores/viewWrapper'
 
 useHead({
-  title: 'Dashboard Logistik - Transmedic',
+  title: 'Dashboard Logistik - ULAB',
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
 useViewWrapper().setFullWidth(false)

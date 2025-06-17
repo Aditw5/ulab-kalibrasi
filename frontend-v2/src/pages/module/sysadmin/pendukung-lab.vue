@@ -60,7 +60,7 @@ import MasterKelompokProduk from './master-kelompok-produk.vue'
   import * as H from '/@src/utils/appHelper'
   import MappingRuanganToProduk from './mapping-ruangan-to-produk.vue'
   useHead({
-    title: 'Transmedic - Produk',
+    title: 'ULAB - Produk',
   })
   useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
 useViewWrapper().setFullWidth(false)

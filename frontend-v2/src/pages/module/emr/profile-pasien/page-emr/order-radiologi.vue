@@ -1041,59 +1041,6 @@ var HttpClient = function () {
         anHttpRequest.send(null);
     }
 }
-const hasilItems = (e: any) => {
-  console.log(e);
-
-    e.details.forEach((dataItem: any) => {
-
-        if (dataItem.order_complete == 0) {
-            H.alert('warning', 'Hasil belum ada')
-        } else {
-          const iframeURL: any = ref('')
-          if (dataItem.url_pacs_hasil) {
-              const urls = dataItem.url_pacs_hasil.split(',');
-              iframeURL.value = (window.location.host.indexOf('192.168') > -1) ? urls[0] : urls[1];
-              window.open(iframeURL.value, '_blank');
-            } else {
-              console.error('Invalid URL data');
-            }
-
-            // router.push({
-            //     name: 'module-radiologi-hasil-pacs',
-            //     query: {
-            //         url: dataItem.url_pacs_hasil,
-            //     }})
-        }
-        return
-
-        if (dataItem.radiologiId === null || dataItem.radiologiId === '') {
-            H.alert('warning', 'Hasil belum ada')
-        } else {
-
-            let viewer = null
-            let patienIdMr = dataItem.radiologiId.replace('null', '1')
-            let idRuangan = e.objectruangantujuanfk;
-            useApi().postNoMessage(`/general/api-tools`, {
-                'method': 'get',
-                'url': import.meta.env.VITE_URL_PACS_ENGINE + '/dcm4chee-arc/aets/TRANSMEDIC/rs/studies?limit=1&includefield=all&offset=0&PatientID=' + patienIdMr,
-                'headers': {}
-            }).then((response: any) => {
-                if (response.response == null) {
-                    H.alert('warning', 'Hasil foto belum dikirim ke PACS')
-                } else {
-                    let data = response.response
-                    viewer = data[0]["0020000D"].Value[0]
-                    window.open(import.meta.env.VITE_URL_PACS_VIEWER
-                        + "/viewer/" + idRuangan
-                        + "/" + dataItem.norec_pp
-                        + "/" + props.registrasi.norec_pd
-                        + "/" + e.noorder + "/" + viewer, "pacs");
-                }
-            })
-
-        }
-    });
-}
 const expertiseItems = (e: any) => {
     item.norec_pp = e.norec_pp
     item.tanggal = new Date()

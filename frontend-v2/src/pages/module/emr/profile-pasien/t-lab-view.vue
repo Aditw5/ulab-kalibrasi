@@ -31,59 +31,6 @@ if (props.items.length) {
         }
     }
 }
-const lihatHasil = (dataItem: any) => {
-  if (props.pasien.namapasien == 'NY. WIWIN WINARTI') {
-  }else{
-    if (!dataItem.url_pacs_hasil) {
-        H.alert('warning', 'Hasil belum ada')
-    } else {
-      let iframeURL= ''
-      if (window.location.host.indexOf('192.168') > -1) {
-        iframeURL = dataItem.url_pacs_hasil.split(',')[0]
-      } else {
-        iframeURL = dataItem.url_pacs_hasil.split(',')[1]
-      }
-      window.open(iframeURL,'_blank')
-        // router.push({
-        //     name: 'module-radiologi-hasil-pacs',
-        //     query: {
-        //         url: dataItem.url_pacs_hasil,
-        //     },
-        // })
-    }
-    return
-  }
-
-
-    if (dataItem.radiologiid === null || dataItem.radiologiid === '') {
-        H.alert('warning', 'Hasil belum ada')
-    } else {
-
-        let viewer = null
-        let patienIdMr = dataItem.radiologiid.replace('null', '1')
-        dataItem.isLoading = true
-        useApi().postNoMessage(`/general/api-tools`, {
-            'method': 'get',
-            'url': import.meta.env.VITE_URL_PACS_ENGINE + '/dcm4chee-arc/aets/TRANSMEDIC/rs/studies?limit=1&includefield=all&offset=0&PatientID=' + patienIdMr,
-            'headers': {}
-        }).then((response: any) => {
-            dataItem.isLoading = false
-            if (response.response == null) {
-                H.alert('warning', 'Hasil foto belum dikirim ke PACS')
-            } else {
-                let data = response.response
-                viewer = data[0]["0020000D"].Value[0]
-                window.open(import.meta.env.VITE_URL_PACS_VIEWER
-                    + "viewer/" + dataItem.objectruangantujuanfk
-                    + "/" + dataItem.norec_pp
-                    + "/" + props.norec_pd
-                    + "/" + dataItem.noorder + "/" + viewer, "pacs");
-            }
-        })
-
-    }
-
-}
 
 const lihatExpertise = (item) => {
   H.printBlade("radiologi/cetak-ekspertise?norec=" + item.norec_exper);

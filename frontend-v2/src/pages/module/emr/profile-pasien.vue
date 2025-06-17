@@ -2330,7 +2330,7 @@ const cetakBladeSKDP = (nosuratkontrol: any, tglrencanakontrol: any, txttglentri
 const shareAPI = () => {
   if (navigator.share) {
     navigator.share({
-      title: 'TRANSMEDIC',
+      title: 'ULAB',
       // URL to share
       url: window.location.href,
     }).then(() => {
@@ -3009,48 +3009,6 @@ const getCatatanDokter = async () => {
     })
 }
 
-const lihatHasil = (dataItem: any) => {
-
-if (dataItem.order_complete == 0) {
-    H.alert('warning', 'Hasil belum ada')
-} else {
-    router.push({
-        name: 'module-radiologi-hasil-pacs',
-        query: {
-            url: dataItem.url_pacs_hasil,
-        },
-    })
-}
-return
-if (dataItem.radiologiid === null || dataItem.radiologiid === '') {
-    H.alert('warning', 'Hasil belum ada')
-} else {
-
-    let viewer = null
-    let patienIdMr = dataItem.radiologiid.replace('null', '1')
-    dataItem.isLoading = true
-    useApi().postNoMessage(`/general/api-tools`, {
-        'method': 'get',
-        'url': import.meta.env.VITE_URL_PACS_ENGINE + '/dcm4chee-arc/aets/TRANSMEDIC/rs/studies?limit=1&includefield=all&offset=0&PatientID=' + patienIdMr,
-        'headers': {}
-    }).then((response: any) => {
-        dataItem.isLoading = false
-        if (response.response == null) {
-            H.alert('warning', 'Hasil foto belum dikirim ke PACS')
-        } else {
-            let data = response.response
-            viewer = data[0]["0020000D"].Value[0]
-            window.open(import.meta.env.VITE_URL_PACS_VIEWER
-                + "/viewer/" + dataItem.objectruangantujuanfk
-                + "/" + dataItem.norec_pp
-                + "/" + props.norec_pd
-                + "/" + dataItem.noorder + "/" + viewer, "pacs");
-        }
-    })
-
-}
-
-}
 
 const cetakExpertise = (e:any) => {
   H.printBlade("radiologi/cetak-ekspertise?echo=true&norec=" + e.norec_exper);

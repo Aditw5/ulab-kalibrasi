@@ -111,7 +111,7 @@ import * as XLSX from "xlsx";
 import moment from 'moment'
 import { keterangan } from '../emr/profile-pasien/page-emr-plugins/cat-kep-pasca-tindakan-cathlab'
 useHead({
-  title: 'Transmedic - Laporan Penggunaan Obat Alkes',
+  title: 'ULAB - Laporan Penggunaan Obat Alkes',
 })
 
 useViewWrapper().setFullWidth(true)

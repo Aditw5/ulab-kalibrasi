@@ -145,7 +145,6 @@ class MitraBaruCtrl extends Controller
         $res['jk'] = JenisKelamin::mine()->get();
         $res['agama'] = Agama::mine()->get();
         $res['statusperkawinan'] = StatusPerkawinan::mine()->get();
-        $res['golongandarah'] = GolonganDarah::mine()->get();
         $res['pendidikan'] = Pendidikan::mine()->get();
         $res['pekerjaan'] = Pekerjaan::mine()->get();
         $res['negara'] = Negara::mine()->get();
@@ -197,7 +196,6 @@ class MitraBaruCtrl extends Controller
                 $newId = $dataPS->generateNewId();
                 $dataPS->id = $newId;
                 $dataPS->statusenabled = true;
-                $dataPS->norec = $newId;
             } else {
                 $dataPS = Mitra::where('id', $PSN['id'])
                     ->where('statusenabled', true)

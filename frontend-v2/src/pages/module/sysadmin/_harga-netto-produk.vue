@@ -311,7 +311,7 @@ import * as H from '/@src/utils/appHelper'
 
 const TITLE_PAGE = 'Harga Netto Produk By Kelas'
 useHead({
-    title: `${TITLE_PAGE} - Transmedic`,
+    title: `${TITLE_PAGE} - ULAB`,
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
 let ID_HARGANETTO = useRoute().query.id as string

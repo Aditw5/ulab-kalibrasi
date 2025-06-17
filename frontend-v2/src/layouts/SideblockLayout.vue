@@ -137,7 +137,7 @@ watch(
           <RouterLink :to="{ name: 'index' }" class="sidebar-block-logo">
             <AnimatedLogo width="36px" />
           </RouterLink>
-          <h3>Transmedic</h3>
+          <h3>ULAB</h3>
         </template>
         <template #links>
           <li>

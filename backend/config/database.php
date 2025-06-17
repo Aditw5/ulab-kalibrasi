@@ -77,19 +77,6 @@ return [
             'schema' => 'public',
             'sslmode' => 'prefer',
         ],
-        'mongodb' => [
-            'driver' => 'mongodb',
-            'url' => env('DATABASE_URL_MONGO'),
-            'host' => env('DB_HOST_MONGO', 'apps.transmedic.co.id'),
-            'port' => env('DB_PORT_MONGO', '2255'),
-            'database' => env('DB_DATABASE_MONGO', 'transmedic_v3'),
-            'username' => env('DB_USERNAME_MONGO', 'mongodb'),
-            'password' => env('DB_PASSWORD_MONGO', ''),
-            'options'  => [
-                'database' => 'admin', // The admin database, required for some MongoDB operations
-                'timeout' => 1000, // Set the timeout in milliseconds (1 second in this example)
-            ],
-        ],
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',

@@ -123,7 +123,7 @@ import { useViewWrapper } from '/@src/stores/viewWrapper'
 import * as XLSX from "xlsx";
 import moment from 'moment'
 useHead({
-  title: 'Transmedic - Laporan Penggunaan Obat Alkes',
+  title: 'ULAB - Laporan Penggunaan Obat Alkes',
 })
 const remakeData: any = ref([])
 const namaruangan = ref('');

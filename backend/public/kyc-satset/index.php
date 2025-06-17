@@ -11,7 +11,7 @@ include('auth.php');
 include('function.php');
 
 // nama petugas/operator Fasilitas Pelayanan Kesehatan (Fasyankes) yang akan melakukan validasi
-$agent_name = isset($_GET['profile']) ? $_GET['profile'] : 'TRANSMEDIC';
+$agent_name = isset($_GET['profile']) ? $_GET['profile'] : 'ULAB';
 
 // NIK petugas/operator Fasilitas Pelayanan Kesehatan (Fasyankes) yang akan melakukan validasi
 $agent_nik = '-';

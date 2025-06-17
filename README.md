@@ -1,5 +1,4 @@
-<h1 align="center">TRANSMEDIC v3.0</h1>
-<h4 align="center">Hospital Information & Management System</h4>
+<h1 align="center">ULAB 1.0</h1>
 
 
 <p align="center">
