@@ -591,13 +591,6 @@ function detailPasien(e: any) {
 
 }
 const registrasi = async(e: any) => {
-  e.isLoading = true
-  let response = await useApi().get( `/registrasi/cek-pasien-pulang?id=${e.id}`)
-  e.isLoading = false
-  if(response != null){
-    useToaster().error('Pasien belum dipulangkan')
-    return
-  }
   router.push({
     name: 'module-registrasi-registrasi-mitra',
     query: {

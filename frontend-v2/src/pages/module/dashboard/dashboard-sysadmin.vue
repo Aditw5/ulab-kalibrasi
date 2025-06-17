@@ -43,57 +43,6 @@
             </div>
             <div class="column is-12">
               <div class="recent-rookies">
-                <div class="recent-rookies-header">
-                  <h3 class="dark-inverted">Mapping Data Master</h3>
-                  <VTag color="danger" label="Tag Label" rounded elevated> 6 Tabel</VTag>
-                </div>
-
-                <div class="columns user-grid user-grid-v4 is-flex-tablet-p">
-                  <!--Rookie-->
-                  <div class="column is-4">
-
-                    <div class="grid-item">
-
-                      <VAvatar picture="/images/avatars/svg/room.svg" size="large" />
-
-                      <h3 class="dark-inverted"> Ruangan To Produk</h3>
-                      <VTag color="purple" label="Tag Label" rounded elevated> {{ item.totalMapRuanganToProduk }}</VTag>
-                      <div class="button-wrap has-text-centered">
-                        <VButton color="info" RouterLink :to="{ name: 'module-sysadmin-mapping-ruangan-to-produk' }"
-                          raised rounded>Lihat Data</VButton>
-                      </div>
-                    </div>
-                  </div>
-                  <!--Rookie-->
-                  <div class="column is-4">
-                    <div class="grid-item">
-                      <VAvatar picture="/images/avatars/svg/paket.svg" size="large" />
-                      <h3 class="dark-inverted">Paket To Produk</h3>
-                      <VTag color="purple" label="Tag Label" rounded elevated> {{ item.totalMapPaketToProduk }}</VTag>
-                      <div class="button-wrap has-text-centered">
-                        <VButton color="info" RouterLink :to="{ name: 'module-sysadmin-mapping-paket-to-produk' }" raised
-                          rounded>Lihat Data</VButton>
-                      </div>
-                    </div>
-                  </div>
-                  <!--Rookie-->
-                  <div class="column is-4">
-                    <div class="grid-item">
-                      <VAvatar picture="/images/avatars/svg/class.svg" size="large" />
-                      <h3 class="dark-inverted"> Ruangan To Kelas</h3>
-                      <VTag color="purple" label="Tag Label" rounded elevated> {{ item.totalMapRuanganToKelas }}</VTag>
-                      <div class="button-wrap has-text-centered">
-                        <VButton color="info" RouterLink :to="{ name: 'module-sysadmin-mapping-ruangan-to-kelas' }" raised
-                          rounded>Lihat Data</VButton>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-            <div class="column is-12">
-              <div class="recent-rookies">
                 <div class="columns user-grid user-grid-v4 is-flex-tablet-p">
                   <!--Rookie-->
                   <div class="column is-4">
@@ -124,7 +73,7 @@
                     </div>
                   </div>
                   <!--Rookie-->
-                  <div class="column is-4">
+                  <!-- <div class="column is-4">
                     <div class="grid-item">
                       <VAvatar picture="/images/avatars/svg/jenispetugas.svg" size="large" />
                       <h3 class="dark-inverted">Jenis Petugas To Jenis Pegawai </h3>
@@ -136,7 +85,7 @@
                           Data</VButton>
                       </div>
                     </div>
-                  </div>
+                  </div> -->
 
                 </div>
               </div>

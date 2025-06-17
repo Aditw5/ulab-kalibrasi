@@ -35,6 +35,10 @@
     .pdf-content {
         /* kosong, gunakan margin @page */
     }
+
+    .page-break {
+        page-break-before: always;
+    }
 </style>
 
 <body style="padding:25px">
@@ -73,8 +77,8 @@
 
                 <tr>
 
-                    <table width="100%" cellspacing="0" cellpadding="0" border="0"
-                        style="border-collapse: collapse;">
+                    <table width="70%" cellspacing="0" cellpadding="0" border="0"
+                        style="border-collapse: collapse; margin-left: 150px">
                         <tbody>
                             <tr>
                                 <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
@@ -143,44 +147,6 @@
                     </span>
                 </td>
             </tr>
-            {{-- <tr>
-                <td width="15%">
-                </td>
-                <td width="15%">
-                    <span style="font-size: 9pt;color:#000000">
-                        Pemilik Alat
-                    </span>
-                </td>
-                <td width="2%">
-                    <span style="font-size: 9pt;color:#000000">
-                        :
-                    </span>
-                </td>
-                <td>
-                    <span style="font-size: 9pt;;color:#000000">
-                        {{ $res['identitas']->namaperusahaan }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td width="15%">
-                </td>
-                <td width="15%">
-                    <span style="font-size: 9pt;color:#000000">
-                        Alamat
-                    </span>
-                </td>
-                <td width="2%">
-                    <span style="font-size: 9pt;color:#000000">
-                        :
-                    </span>
-                </td>
-                <td>
-                    <span style="font-size: 9pt;;color:#000000">
-                        {{ $res['identitas']->alamatktr }}
-                    </span>
-                </td>
-            </tr> --}}
         </table>
         <table width="100%" style="margin-top: 5px; ">
             <tr>
@@ -189,12 +155,12 @@
 
                         </b></span>
                 </td>
-                <td width="20%">
+                <td width="30%">
                     <span style="font-size: 9pt;color:#000000"><b>
                             Menugaskan karyawan dibawah ini ,
                         </b></span>
                 </td>
-                <td width="40%">
+                <td width="30%">
                     <span style="font-size: 9pt;color:#000000"><b>
 
                         </b></span>
@@ -398,9 +364,11 @@
 
 </body>
 
+<div class="page-break"></div>
+
 <!-- Halaman Kedua -->
 <div class="sheet" style="padding:25px">
-    <table width="100%" style="margin-top: 100px; ">
+    <table width="100%" style="margin-top: 50px; ">
         <tr>
             <td width="40%">
                 <span style="font-size: 9pt;olor:#000000">
@@ -500,8 +468,8 @@
                     <span style="font-size: 10pt;" class="text-biasa"> Kepala Laboratorium Kalibrasi </span>
                 </td>
                 <td width="30%" class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa"> Penyelia Teknik
-                        {{ $res['alat'][0]->lingkupkalibrasi }}</span>
+                    <span style="font-size: 10pt;" class="text-biasa"> Assistant Manager Non Mechanical Workshop
+                       </span>
                 </td>
             </tr>
             <tr>
@@ -513,7 +481,7 @@
                     {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
                 </td>
                 <td align="center">
-                    <img src="data:image/png;base64, {!! $res['ttdPenyelia'] !!}"
+                    <img src="data:image/png;base64, {!! $res['ttdAsman'] !!}"
                         style="margin-top: 5px; margin-bottom: 5px">
                     {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
                 </td>
@@ -526,7 +494,7 @@
                         ( {{ $res['alat'][0]->namamanager }} )</span>
                 </td>
                 <td height="10" valign="bottom" height="100" width="15%" class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa">( {{ $res['alat'][0]->penyeliateknik }}
+                    <span style="font-size: 10pt;" class="text-biasa">( {{ $res['alat'][0]->namaasman }}
                         )</span>
                 </td>
             </tr>

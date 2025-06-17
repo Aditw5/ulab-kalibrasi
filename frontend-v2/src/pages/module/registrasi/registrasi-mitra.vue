@@ -401,7 +401,7 @@ const saveRegistrasi = async () => {
       'namapenanggungjawab': item.namapenanggungjawab,
       'jabatanpenanggungjawab': item.jabatanpenanggungjawab,
       'rentangUkur': item.rentangUkur,
-      'rentangUkurketPermintaanPelanggan': item.rentangUkurketPermintaanPelanggan,
+      'rentangUkurketPermintaanPelanggan': item.rentangUkurketPermintaanPelanggan ?? null ,
     },
     'mitraregistrasidetail': mappedOrderAlat
   }

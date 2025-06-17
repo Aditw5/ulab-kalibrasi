@@ -60,14 +60,6 @@ class AuthCtrl extends Controller
                 );
                 return response()->json($response, $response['metaData']['code']);
             }
-            $mapLoginUserToRuangan = DB::table('maploginusertoruangan_s as mlur')
-                ->join('loginuser_s as lu', 'lu.id', '=', 'mlur.objectloginuserfk')
-                ->join('ruangan_m as ru', 'ru.id', '=', 'mlur.objectruanganfk')
-                ->join('departemen_m as dept', 'dept.id', '=', 'ru.objectdepartemenfk')
-                ->select('ru.id', 'ru.namaruangan', 'ru.objectdepartemenfk', 'dept.namadepartemen as departemen')
-                ->where('ru.statusenabled', true)
-                ->where('lu.id', '=', $login->id)
-                ->get();
             $jenisPegawai = MasterJenisPegawai::where('id', '=', $pegawai->objectjenispegawaifk)
                 ->select('id', 'jenispegawai')
                 ->first();
@@ -98,7 +90,6 @@ class AuthCtrl extends Controller
                 'kelompokUser' => $kelompokUser,
                 'pegawai' => $resPegawai,
                 'profile' => $profile,
-                'mapLoginUserToRuangan' => $mapLoginUserToRuangan,
             );
 
             $expired=  date("Y-m-d H:i:s", strtotime("+".config('app.JWT_EXPIRED_MINUTE')." minutes"));

@@ -45,83 +45,25 @@ class MasterPegawaiCtrl extends Controller
     {
         $data  = DB::table('pegawai_m as pg')
             ->leftjoin('agama_m as ag', 'pg.objectagamafk', '=', 'ag.id')
-            ->leftjoin('jabatan_m as jb', 'pg.objectjabatanfungsionalfk', '=', 'jb.id')
-            ->leftjoin('departemen_m as dd', 'pg.objectunitkerjapegawaifk', '=', 'dd.id')
+            ->leftjoin('jabatan_m as jb', 'pg.jabatan1fk', '=', 'jb.id')
             ->leftjoin('jeniskelamin_m as jk', 'pg.objectjeniskelaminfk', '=', 'jk.id')
-            ->leftjoin('detailkategorypegawai_m as dkp', 'pg.objectdetailkategorypegawaifk', '=', 'dkp.id')
             ->leftjoin('jenispegawai_m as jp', 'pg.objectjenispegawaifk', '=', 'jp.id')
-            ->leftjoin('negara_m as ne', 'pg.objectnegarafk', '=', 'ne.id')
-            ->leftjoin('pendidikan_m as pe', 'pg.objectpendidikanterakhirfk', '=', 'pe.id')
-            ->leftjoin('statuspegawai_m as sp', 'pg.objectstatuspegawaifk', '=', 'sp.id')
-            ->leftjoin('statusperkawinan_m as spk', 'pg.objectstatusperkawinanfk', '=', 'spk.id')
-            ->leftjoin('suku_m as su', 'pg.objectsukufk', '=', 'su.id')
-            ->leftjoin('typepegawai_m as tp', 'pg.objecttypepegawaifk', '=', 'tp.id')
-            ->leftjoin('kelompokjabatan_m as kj', 'pg.objectkelompokjabatanfk', '=', 'kj.id')
-            ->leftjoin('sdm_kedudukan_m as sku', 'pg.kedudukanfk', '=', 'sku.id')
-            ->leftjoin('sdm_golongan_m as gpi', 'pg.objectgolonganpegawaifk', '=', 'gpi.id')
-            ->leftjoin('eselon_m as es', 'pg.objecteselonfk', '=', 'es.id')
-            ->leftjoin('sdm_kelompokshift_m as ksk', 'pg.objectshiftkerja', '=', 'ksk.id')
-            // ->leftjoin('ruangan_m as ru', 'jd.objectruanganfk', 'ru.id')
             ->select(
                 'pg.id',
                 'ag.agama',
-                'jb.namajabatan',
-                'pg.objectjabatanfungsionalfk',
-                'pg.objectagamafk',
-                'sp.statuspegawai',
-                'pe.pendidikan',
-                'spk.statusperkawinan',
-                'pg.objectstatusperkawinanfk',
-                'ne.namanegara',
-                'su.suku',
-                'pg.kedudukanfk',
-                'sku.kedudukan',
-                'dd.namadepartemen',
-                'pg.objectunitkerjapegawaifk',
-                'kj.namakelompokjabatan',
-                'pg.objectkelompokjabatanfk',
-                'tp.typepegawai',
+                'jb.namajabatanulab as namajabatan',
                 'jk.jeniskelamin',
                 'jp.jenispegawai',
                 'pg.namalengkap',
                 'pg.statusenabled',
-                'pg.namapanggilan',
                 'pg.statusenabled',
-                'pg.bankrekeningatasnama',
-                'pg.bankrekeningnama',
-                'pg.bankrekeningnomor',
-                'pg.fingerprintid',
-                'pg.nik_intern',
-                'pg.nip_pns',
-                'pg.noidentitas',
-                'pg.npwp',
-                'pg.photodiri',
-                'pg.qpegawai',
-                'pg.qtyanak',
-                'pg.qtytanggungan',
-                'pg.qtytotaljiwa',
-                'pg.tempatlahir',
                 'pg.email',
                 'pg.nohandphone',
                 'pg.notlp',
-                'pg.nobpjs',
                 'pg.alamat',
                 'pg.tgllahir',
                 'pg.tglmasuk',
                 'pg.tglkeluar',
-                'pg.nosip',
-                'pg.nostr',
-                'pg.tglberakhirsip',
-                'pg.tglberakhirstr',
-                'pg.tglterbitsip',
-                'pg.tglterbitstr',
-                'dkp.detailkategorypegawai',
-                'pg.objectgolonganpegawaifk',
-                'gpi.name',
-                'es.eselon',
-                'pg.objecteselonfk',
-                'ksk.kelompokshiftkerja',
-                'pg.objectshiftkerja'
 
             )
             ->where('pg.statusenabled', true)
@@ -275,109 +217,6 @@ class MasterPegawaiCtrl extends Controller
         );
         return $this->respond($result);
     }
-
-    // public function savePegawai(Request $r)
-    // {
-    //     DB::beginTransaction();
-    //     try {
-    //         //region Save Pegawai
-
-    //         $PSN =  $r['pegawai'];
-    //         if ($PSN['id'] == '') {
-    //             $uuid1 = Uuid::uuid4();
-    //             $id = $uuid1->toString();
-    //             $dataPS = new Pegawai();
-    //             $dataPS->id = $id;
-    //             $dataPS->kdprofile = (int)$this->kdProfile;
-    //             $dataPS->statusenabled = true;
-    //         } else {
-    //             $dataPS = Pegawai::where('id', $PSN['id'])
-    //                 ->where('statusenabled', true)
-    //                 ->first();
-    //             $id =  $dataPS->id;
-    //         }
-    //         $dataPS->namalengkap =  $PSN['namalengkap'];
-    //         $dataPS->namapanggilan =  $PSN['namapanggilan'];
-    //         $dataPS->objectpendidikanterakhirfk = isset($PSN['objectpendidikanterakhirfk']['objectpendidikanterakhirfk'])?$PSN['objectpendidikanterakhirfk']['objectpendidikanterakhirfk']:null;
-    //         $dataPS->objectstatuspegawaifk = isset($PSN['objectstatuspegawaifk']['objectstatuspegawaifk'])?$PSN['objectstatuspegawaifk']['objectstatuspegawaifk']:null;
-    //         $dataPS->objectjeniskelaminfk = isset($PSN['objectjeniskelaminfk']['objectjeniskelaminfk'])?$PSN['objectjeniskelaminfk']['objectjeniskelaminfk']:null;
-    //         $dataPS->objectagamafk = $PSN['objectagamafk'];
-    //         $dataPS->objectnegarafk = $PSN['objectnegarafk'];
-    //         $dataPS->objectdetailkategorypegawaifk = $PSN['objectdetailkategorypegawaifk'];
-    //         $dataPS->objectstatusperkawinanfk = $PSN['objectstatusperkawinanfk'];
-    //         $dataPS->objectjenispegawaifk = $PSN['objectjenispegawaifk'];
-    //         $dataPS->bankrekeningatasnama = $PSN['bankrekeningatasnama'];
-    //         $dataPS->bankrekeningnomor = $PSN['bankrekeningnomor'];
-    //         $dataPS->objectsukufk = $PSN['objectsukufk'];
-    //         $dataPS->objecttypepegawaifk = $PSN['objecttypepegawaifk'];
-    //         $dataPS->objectkelompokjabatanfk = $PSN['objectkelompokjabatanfk'];
-    //         $dataPS->fingerprintid = $PSN['fingerprintid'];
-    //         $dataPS->nik_intern =  $PSN['nik_intern'];
-    //         $dataPS->nip_pns =  $PSN['nip_pns'];
-    //         $dataPS->noidentitas =  $PSN['noidentitas'];
-    //         $dataPS->npwp =  $PSN['npwp'];
-    //         $dataPS->photodiri =  $PSN['photodiri'];
-    //         $dataPS->qpegawai =  $PSN['qpegawai'];
-    //         $dataPS->qtyanak =  $PSN['qtyanak'];
-    //         $dataPS->qtytanggungan =  $PSN['qtytanggungan'];
-    //         $dataPS->qtytotaljiwa =  $PSN['qtytotaljiwa'];
-    //         $dataPS->tempatlahir =  $PSN['tempatlahir'];
-    //         $dataPS->tgllahir =  $PSN['tgllahir'];
-    //         $dataPS->tglmasuk =  $PSN['tglmasuk'];
-    //         $dataPS->tglkeluar =  $PSN['tglkeluar'];
-    //         $dataPS->nosip =  $PSN['nosip'];
-    //         $dataPS->nostr =  $PSN['nostr'];
-    //         $dataPS->tglberakhirsip =  $PSN['tglberakhirsip'];
-    //         $dataPS->tglberakhirstr =  $PSN['tglberakhirstr'];
-    //         $dataPS->tglterbitsip =  $PSN['tglterbitsip'];
-    //         $dataPS->tglterbitstr =  $PSN['tglterbitstr'];
-    //         $dataPS->email =  $PSN['email'];
-    //         $dataPS->nohandphone =  $PSN['nohandphone'];
-    //         $dataPS->notlp =  $PSN['notlp'];
-    //         $dataPS->nobpjs =  $PSN['nobpjs'];
-    //         $dataPS->alamat =  $PSN['alamat'];
-    //         $dataPS->kedudukanfk =  $PSN['kedudukanfk'];
-    //         $dataPS->objectjabatanstrukturalfk =  $PSN['objectjabatanstrukturalfk'];
-    //         $dataPS->objecteselonfk =  $PSN['objecteselonfk'];
-    //         $dataPS->objectjenispegawaifk =  $PSN['objectjenispegawaifk'];
-    //         $dataPS->objectshiftkerja =  $PSN['objectshiftkerja'];
-    //         $dataPS->nilaijabatan =  $PSN['nilaijabatan'];
-    //         $dataPS->grade =  $PSN['grade'];
-
-    //         $dataPS->save();
-
-    //         //endregion
-
-    //         $transStatus = 'true';
-    //     } catch (\Exception $e) {
-    //         $transStatus = 'false';
-    //     }
-
-    //     if ($transStatus == 'true') {
-    //         $transMessage = "Sukses";
-    //         DB::commit();
-
-    //         $result = array(
-    //             "status" => 200,
-    //             "result" => array(
-    //                 "data"  => $dataPS,
-    //                 "as" => '@epic',
-    //             ),
-    //         );
-    //     } else {
-    //         $transMessage = "Simpan Gagal";
-    //         DB::rollBack();
-
-    //         $result = array(
-    //             "status" => 400,
-    //             "result"  => array(
-    //                 "e"  => $e->getLine() . ' ' . $e->getMessage(),
-    //             ),
-
-    //         );
-    //     }
-    //     return $this->respond($result['result'], $result['status'], $transMessage);
-    // }
 
     public function savePegawaiFoto(Request $r)
     {
@@ -611,19 +450,14 @@ class MasterPegawaiCtrl extends Controller
         $res['detailkategorypegawai'] = DetailKategoryPegawai::mine()->get();
         $res['jenispegawai'] = JenisPegawai::mine()->get();
         $res['namanegara'] = Negara::mine()->get();
-        $res['suku'] = Suku::mine()->get();
         $res['namadepartemen'] = Departemen::mine()->get();
         $res['pendidikan'] = Pendidikan::mine()->get();
         $res['statusperkawinan'] = StatusPerkawinan::mine()->get();
         $res['typepegawai'] = TypePegawai::mine()->get();
         $res['statuspegawai'] = StatusPegawai::mine()->get();
-        $res['namakelompokjabatan'] = KelompokJabatan::mine()->get();
         $res['kedudukan'] = KedudukanPegawai::mine()->get();
         $res['name'] = GolonganPegawai::mine()->get();
         $res['namajabatan'] = Jabatan::mine()->get();
-        $res['eselon'] = Eselon::mine()->get();
-        $res['kelompokshiftkerja'] = KelompokShiftKerja::mine()->get();
-        $res['hubungankeluarga'] = HubunganKeluarga::mine()->get();
         $res['pekerjaan'] = Pekerjaan::mine()->get();
 
 
@@ -717,30 +551,7 @@ class MasterPegawaiCtrl extends Controller
         );
         return $this->respond($result);
     }
-    public function masterPegawaiSatset(Request $r)
-    {
-        $data  = DB::table('pegawai_m as pg')
-            ->join('jenispegawai_m as dp', 'pg.objectjenispegawaifk', '=', 'dp.id')
-            ->select(
-                'pg.id',
-                'pg.namalengkap',
-                'dp.jenispegawai',
-                'pg.ihs_id',
-                'pg.noidentitas'
-            )
-            ->where('pg.kdprofile', $this->kdProfile)
-            ->where('pg.statusenabled', true);
 
-
-        if (isset($r['ihs_id']) && $r['ihs_id'] != '') {
-            $data = $data->whereNotNull('pg.ihs_id');
-        }
-        $data = $data->orderByRaw('pg.namalengkap,dp.jenispegawai');
-        $data = $data->get();
-
-        $res['data'] = $data;
-        return $this->respond($res);
-    }
     public function updatePegawai(Request $r)
     {
         DB::beginTransaction();
@@ -769,25 +580,6 @@ class MasterPegawaiCtrl extends Controller
 
     public function jadwalKerja(Request $r)
     {
-        $data  = DB::table('jadwaldokter_m as jd')
-            ->join('pegawai_m as pg', 'pg.id', 'jd.objectpegawaifk')
-            ->join('ruangan_m as ru', 'ru.id', 'jd.objectruanganfk')
-            ->select(
-                'ru.namaruangan',
-                'jd.hari',
-                'jd.jammulai',
-                'jd.jamakhir',
-                'pg.namalengkap'
-            )
-            // ->where('pg.id', $r['id'])
-            ->where('pg.kdprofile', $this->kdProfile)
-            ->where('jd.statusenabled', true);
-
-        if (isset($r['idpegawai']) && $r['idpegawai'] != '') {
-            $data = $data->where('pg.id', '=',  $r['idpegawai']);
-        }
-
-        $data = $data->get();
 
         $login  = DB::table('loginuser_s as ru')
         ->join('kelompokuser_s as dp', 'ru.objectkelompokuserfk', '=', 'dp.id')
@@ -798,7 +590,6 @@ class MasterPegawaiCtrl extends Controller
             'dp.kelompokuser',
             'pg.namalengkap',
         )
-        ->where('ru.kdprofile', $this->kdProfile)
         ->where('ru.statusenabled', true);
 
         if (isset($r['idpegawai']) && $r['idpegawai'] != '') {
@@ -806,7 +597,6 @@ class MasterPegawaiCtrl extends Controller
         }
         $login = $login->get();
 
-        $res['data'] = $data;
         $res['login'] = $login;
 
         return $this->respond($res);

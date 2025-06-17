@@ -366,7 +366,7 @@
                     <td width="15%"> <span style="font-size: 9pt;" class="text-biasa">{{ trim($alat->namamerk) }}
                             {{ $alat->namatipe }}</span></td>
                     <td width="15%"> <span style="font-size: 9pt;"
-                            class="text-biasa">{{ $alat->namaserialnumber }}<< /span>
+                            class="text-biasa">{{ $alat->namaserialnumber }}</span>
                     </td>
                     <td width="15%"> <span style="font-size: 9pt;" class="text-biasa">1 Set </span></td>
                     <td width="25%" style="text-align: center">

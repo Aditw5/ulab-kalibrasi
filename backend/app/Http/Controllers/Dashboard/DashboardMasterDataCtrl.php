@@ -4,10 +4,6 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Master\ListMaster;
-use App\Models\Master\MapJenisPetugasToJenisPegawai;
-use App\Models\Master\MapPaketToProduk;
-use App\Models\Master\MapRuanganToKelas;
-use App\Models\Master\MapRuanganToProduk;
 use App\Models\Standar\MapLoginUserToModulAplikasi;
 use App\Models\Standar\MapLoginUserToRuangan;
 use App\Traits\Valet;
@@ -24,31 +20,10 @@ class DashboardMasterDataCtrl extends Controller
     public function dashboardMasterData(Request $r)
     {
         $kdProfile = $this->kdProfile;
-        //get total data map ruangan to produk
-        $totalMapRuanganToProdukTrue = MapRuanganToProduk::where('statusenabled',true)->where('kdprofile',$kdProfile)->count();
-
-        //get total data map paket to produk
-        $totalMapPaketToProdukTrue = MapPaketToProduk::where('statusenabled',true)->where('kdprofile',$kdProfile)->count();
-
-        //get total data map ruangan to kelas
-        $totalMapRuanganToKelasTrue = MapRuanganToKelas::where('statusenabled',true)->where('kdprofile',$kdProfile)->count();
-        
-        //get total data map login user to ruangan
         $totalMapLoginuserToRuangan = MapLoginUserToRuangan::where('statusenabled',true)->where('kdprofile',$kdProfile)->count();
-
-        //get total data map login user to modul aplikasi
         $totalMapLoginuserToModulAplikasi  = MapLoginUserToModulAplikasi::where('statusenabled',true)->where('kdprofile',$kdProfile)->count();
-           
-        //get total data map jenis petugas to jenis pelaksana
-        $totalMapJenisPetugasToJenisPegawai  = MapJenisPetugasToJenisPegawai::where('statusenabled',true)->where('kdprofile',$kdProfile)->count();
-
-        $result['totalMapRuanganToProduk'] =  $totalMapRuanganToProdukTrue;
-        $result['totalMapPaketToProduk'] =  $totalMapPaketToProdukTrue;
-        $result['totalMapRuanganToKelas'] =  $totalMapRuanganToKelasTrue;
         $result['totalMapLoginuserToRuangan'] =  $totalMapLoginuserToRuangan;
         $result['totalMapLoginuserToModulAplikasi'] =  $totalMapLoginuserToModulAplikasi;
-        $result['totalMapJenisPetugasToJenisPegawai'] =  $totalMapJenisPetugasToJenisPegawai;
-
         return $this->respond($result);
     }
 
@@ -87,8 +62,6 @@ class DashboardMasterDataCtrl extends Controller
             $kdProfile = $this->kdProfile;
             DB::beginTransaction();
             try {
-                //region Save List Master
-    
                 $PSN =  $r['listmaster'];
                 if ($PSN['id'] == '') {
                     $id = $this->Uuid4();
@@ -106,7 +79,6 @@ class DashboardMasterDataCtrl extends Controller
                 $dataPS->link =  $PSN['link'];
                
                 $dataPS->save();
-                //endregion
     
                 $transStatus = 'true';
             } catch (\Exception $e) {

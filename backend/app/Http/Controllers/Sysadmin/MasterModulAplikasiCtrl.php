@@ -384,7 +384,7 @@ class MasterModulAplikasiCtrl extends Controller
     {
         $kdProfile = $this->kdProfile;
         DB::beginTransaction();
-        try {
+        // try {
             if ($request['id'] == '') {
                 $objekmodulaplikasi = new ObjekModulAplikasi();
                 $newID =  $this->SEQUENCE_MASTER(new ObjekModulAplikasi(), 'id', $this->kdProfile);
@@ -431,17 +431,17 @@ class MasterModulAplikasiCtrl extends Controller
                     "as" => '@epic',
                 ),
             );
-        } catch (Exception $e) {
-            DB::rollback();
-            $transMessage = "Simpan Gagal";
-            $result = array(
-                "status" => 400,
-                "result" => array(
-                    "as" => '@epic',
-                    "ex" => $e->getMessage() . ' ' . $e->getLine(),
-                ),
-            );
-        }
+        // } catch (Exception $e) {
+        //     DB::rollback();
+        //     $transMessage = "Simpan Gagal";
+        //     $result = array(
+        //         "status" => 400,
+        //         "result" => array(
+        //             "as" => '@epic',
+        //             "ex" => $e->getMessage() . ' ' . $e->getLine(),
+        //         ),
+        //     );
+        // }
         return $this->respond($result['result'], $result['status'], $transMessage);
     }
     public function hapusObjekModulAplikasiMap(Request $request)

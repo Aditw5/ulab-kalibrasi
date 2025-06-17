@@ -199,45 +199,7 @@
                       <span> {{ item.nobpjs }}</span>
                     </div>
                   </div>
-                  <div class="languages-item">
-                    <VIconWrap picture="/images/pegawai/str.svg">
-                      <template #after>
-                        <VPeity
-                          type="donut"
-                          :values="[100, 100]"
-                          :fill="['var(--primary)', 'transparent']"
-                          :height="50"
-                          :inner-radius="22"
-                          :width="50"
-                        />
-                      </template>
-                    </VIconWrap>
-
-                    <div class="meta">
-                      <span class="dark-inverted">Nomor STR</span>
-                      <span> {{ item.nostr }}</span>
-                    </div>
-                  </div>
-                  <div class="languages-item">
-                    <VIconWrap picture="/images/pegawai/card.svg">
-                      <template #after>
-                        <VPeity
-                          type="donut"
-                          :values="[100, 100]"
-                          :fill="['var(--primary)', 'transparent']"
-                          :height="50"
-                          :inner-radius="22"
-                          :width="50"
-                        />
-                      </template>
-                    </VIconWrap>
-
-                    <div class="meta">
-                      <span class="dark-inverted">NIK Intern / NIP PNS</span>
-                      <span> {{ item.nik_intern }} .</span>
-                     <span> {{ item.nip_pns }}</span>
-                    </div>
-                  </div>
+                 
                   <div class="languages-item">
                     <VIconWrap picture="/images/pegawai/ktp.svg">
                       <template #after>
@@ -300,52 +262,10 @@
                   <div class="experience-item">
                     <i class="fas fa-user-nurse" aria-hidden="true"></i>
                     <div class="meta">
-                      <span class="dark-inverted">Jabatan Fungsional / Struktural</span>
+                      <span class="dark-inverted">Jabatan</span>
                       <span>
                         <span> {{ item.objectjabatanfungsionalfk }}</span>
     
-                      </span>
-                    </div>
-                  </div>
-                  <div class="experience-item">
-                    <i class="fas fa-user-nurse" aria-hidden="true"></i>
-                    <div class="meta">
-                      <span class="dark-inverted">Kelompok Jabatan</span>
-                      <span>
-                        <span> {{ item.objectkelompokjabatanfk }}</span>
-    
-                      </span>
-                    </div>
-                  </div>
-                  <div class="experience-item">
-                    <i class="fas fa-user-nurse" aria-hidden="true"></i>
-                    <div class="meta">
-                      <span class="dark-inverted">Detail Kategory Pegawai</span>
-                      <span>
-                        <span> {{ item.objectdetailkategorypegawaifk }}</span>
-    
-                      </span>
-                    </div>
-                  </div>
-                  <div class="experience-item">
-                    <i class="fas fa-address-book" aria-hidden="true"></i>
-                    <div class="meta">
-                      <span class="dark-inverted">Rekening Bank</span>
-                      <span>
-                        <span> {{ item.bankrekeningnama }}</span>
-                        <i aria-hidden="true" class="fas fa-circle"></i>
-                        <span> {{ item.bankrekeningatasnama }}</span>
-                        <i aria-hidden="true" class="fas fa-circle"></i>
-                        <span> {{ item.bankrekeningnomor }}</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="experience-item">
-                    <i class="fas fa-id-card" aria-hidden="true"></i>
-                    <div class="meta">
-                      <span class="dark-inverted">ID Fingerprint</span>
-                      <span>
-                        <span> {{ item.fingerprintid }} </span>
                       </span>
                     </div>
                   </div>
@@ -402,48 +322,7 @@
             </div>
           </div>
 
-          <div class="profile-card">
-            <div class="profile-card-section no-padding">
-              <div class="section-title">
-                <h4  style="margin-bottom: 1rem;">Jadwal Kerja </h4>
-              </div>
-      
-        <div class="tile-grid tile-grid-v2">
-          <VPlaceholderPage :class="[dataJadwal.length !== 0 && 'is-hidden']" title="Tidak Ada Dokter Praktek Hari Ini."
-            subtitle=" Silakan Pilih Ruangan untuk Melihat Jadwal Praktek Dokter" larger>
-            <template #image>
-              <img class="light-image" src="/@src/assets/illustrations/placeholders/search-4.png" alt="" />
-              <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
-            </template>
-          </VPlaceholderPage>
-
-          <!--Tile Grid v1-->
-
-          <div name="list" tag="div" class="columns is-multiline">
-            <!--Grid item-->
-            <div class="columns is-multiline p-2" style="max-height:500px;overflow: auto;">
-              <div v-for="item in dataJadwal" :key="item.id" class="column is-12 p-0 pb-2 pl-2 pr-2 ">
-                <div class="tile-grid-item">
-                  <div class="tile-grid-item-inner">
-                    <VAvatar size="small" picture="/images/avatars/svg/dokter.svg" color="primary" bordered />
-                    <div class="meta">
-                      <span class="dark-inverted text-elipsis-wrap" style="width:200px !important">{{ item.hari }}</span>
-                      <span>
-                        <i aria-hidden="true" class="iconify" data-icon="feather:clock" style="padding-right: 3px;"></i>
-                        {{ item.jammulai }} s.d {{ item.jamakhir }}</span>
-                  
-
-                    </div>
-                   
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        </div>
-        </div>
+        
         </div>
       </div>
     </div>
@@ -574,10 +453,10 @@ async function pegawaiByID(id: any) {
   const fetchPegawai = async (id: any) => {
   isLoading.value = true
   dataLogin.value = []
-  dataJadwal.value = []
+  // dataJadwal.value = []
   await useApi().get(`/sysadmin/jadwal-kerja?idpegawai=${id}`).then((response) => {
     isLoading.value = false
-    dataJadwal.value = response.data
+    // dataJadwal.value = response.data
     dataLogin.value = response.login
   })
 }
