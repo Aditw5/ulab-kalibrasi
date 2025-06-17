@@ -897,6 +897,9 @@ class AsmanCtrl extends Controller
                 'pg3.namalengkap as asamanverifikasi',
                 'mtrd.noorderalat',
                 'mtrd.namamanager',
+                'mtrd.setujuilembarkerjamanager',
+                'mtrd.setujuilembarkerjaasman',
+                'mtrd.setujuilembarkerjapenyelia',
                 'prd.namaproduk',
                 'mrk.namamerk',
                 'tp.namatipe',
@@ -913,11 +916,11 @@ class AsmanCtrl extends Controller
         $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
         $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->penyeliateknik));
         $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->namamanager));
+        $res['halamanPertama'] = true;
 
         $blade = 'report.pelaksana.sertifikat-lembar-kerja';
 
         if ($res['pdf'] == 'true') {
-            // ======== RENDER 1 (UNTUK MENGHITUNG JUMLAH HALAMAN) =========
             $pdfDummy = App::make('dompdf.wrapper');
             $pdfDummy->loadView(
                 $blade . '-dom',
@@ -926,14 +929,13 @@ class AsmanCtrl extends Controller
                     'pageWidth' => $pageWidth,
                     'print' => $print,
                     'res' => $res,
-                    'jumlahHalaman' => null, // sementara kosong
+                    'jumlahHalaman' => null,
                 )
             );
             $dompdfDummy = $pdfDummy->getDomPDF();
             $dompdfDummy->render();
             $jumlahHalaman = $dompdfDummy->getCanvas()->get_page_count();
 
-            // ======== RENDER 2 (RENDER UTAMA DENGAN JUMLAH HALAMAN) =========
             $pdf = App::make('dompdf.wrapper');
             $pdf->loadView(
                 $blade . '-dom',
@@ -942,11 +944,11 @@ class AsmanCtrl extends Controller
                     'pageWidth' => $pageWidth,
                     'print' => $print,
                     'res' => $res,
-                    'jumlahHalaman' => $jumlahHalaman, // dikirim ke Blade
+                    'jumlahHalaman' => $jumlahHalaman,
                 )
             );
 
-            // Tambah penomoran halaman otomatis di footer PDF
+
             $dompdf = $pdf->getDomPDF();
             $canvas = $dompdf->get_canvas();
             $canvas->page_text(230, 780, "Halaman ke {PAGE_NUM} dari {PAGE_COUNT} halaman", null, 8, array(0, 0, 0));
@@ -955,7 +957,6 @@ class AsmanCtrl extends Controller
 
             return $pdf->stream();
         }
-
 
         if (isset($r['storage'])) {
             $res['storage']  = true;

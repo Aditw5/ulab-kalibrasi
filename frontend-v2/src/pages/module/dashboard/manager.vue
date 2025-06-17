@@ -721,7 +721,7 @@ const lembarKerja = (e: any) => {
 
 const getDetailVerify = (e: any) => {
     router.push({
-        name: 'module-asman-detail-registrasi',
+        name: 'module-manager-detail-registrasi',
         query: {
             norec_pd: e.iddetail,
         },

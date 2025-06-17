@@ -118,8 +118,10 @@
                                       }}
                                     </span>
                                   </div>
-                                  <VTag v-if="!item.iskaji" color="warning" rounded>Belum Kaji</VTag>
-                                  <VTag v-if="item.iskaji" color="info" rounded>Sudah Kaji</VTag>
+                                  <VTag v-if="!item.iskaji" color="danger" rounded>Belum Kaji</VTag>
+                                  <VTag v-if="item.iskaji && item.statusorder != 1" color="warning" rounded>Sudah Kaji
+                                  </VTag>
+                                  <VTag v-if="item.statusorder == 1" color="info" rounded>Sudah Diverif Asman</VTag>
                                 </div>
                               </div>
                               <div class="flex-head" style=" display: flex; justify-content: space-between;">
@@ -142,13 +144,22 @@
                                         <span>Cetak Tanda Terima </span>
                                       </div>
                                     </a>
-                                    <a v-if="item.iskaji !== null" role="menuitem"
+                                    <a v-if="item.iskaji !== null && item.statusorder == 1 && item.tanggalkonfirmasipendaftaran != null" role="menuitem"
                                       @click="cetakPermintaanKalibrasi(item)" class="dropdown-item is-media">
                                       <div class="icon">
                                         <i aria-hidden="true" class="lnil lnil-printer"></i>
                                       </div>
                                       <div class="meta">
                                         <span>Cetak Permintaan Kalibrasi dan Kontrak </span>
+                                      </div>
+                                    </a>
+                                    <a v-if="item.iskaji !== null && item.statusorder == 1 && item.tanggalkonfirmasipendaftaran == null" role="menuitem" @click="konfirmaasiPendaftaran(item)"
+                                      class="dropdown-item is-media">
+                                      <div class="icon">
+                                        <i aria-hidden="true" class="lnil lnil-checkmark"></i>
+                                      </div>
+                                      <div class="meta">
+                                        <span>Konfirmasi Permintaan Kalibrasi dan kontrak</span>
                                       </div>
                                     </a>
 
@@ -451,6 +462,125 @@
       </VButton>
     </template>
   </VModal>
+  <VModal :open="modalKonfirmasiPendaftaran" title="Konfirmasi Pendaftaran" size="big" actions="right"
+    @close="modalKonfirmasiPendaftaran = false" cancelLabel="Tutup">
+    <template #content>
+      <div class="columns is-multiline">
+        <div class="column is-6">
+          <VField>
+            <VLabel class="required-field">Tanggal Konfirmasi</VLabel>
+            <VDatePicker v-model="item.tanggalkonfirmasi" mode="dateTime" style="width: 100%" trim-weeks
+              :max-date="new Date()">
+              <template #default="{ inputValue, inputEvents }">
+                <VField>
+                  <VControl icon="feather:calendar" fullwidth>
+                    <VInput :value="inputValue" placeholder="Tanggal" v-on="inputEvents" disabled />
+                  </VControl>
+                </VField>
+              </template>
+            </VDatePicker>
+          </VField>
+        </div>
+        <div class="column is-6">
+          <VField>
+            <VLabel class="required-field">Nama Perusahaan</VLabel>
+            <VControl icon="feather:map-pin">
+              <VInput type="text" v-model="item.perusahaan" placeholder="Tempat Lahir" class="is-rounded_Z" disabled />
+            </VControl>
+          </VField>
+        </div>
+        <div class="column is-12">
+          <Fieldset legend="Data Alat" :toggleable="true">
+            <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataOrder">
+              <div class="columns is-multiline">
+                <div class="column is-2" style="margin-top: 27px;">
+                  <VPlaceload class="mx-2" />
+                </div>
+                <div class="column">
+                  <VPlaceloadText :lines="4" width="75%" last-line-width="20%" />
+                </div>
+
+              </div>
+            </div>
+            <div class="timeline-wrapper" v-else>
+              <div class="timeline-wrapper-inner">
+                <div class="timeline-container">
+                  <div class="timeline-item is-unread" v-for="(items, index) in detailOrderLayanan" :key="items.norec">
+                    <div :class="'dot is-' + listColor[index + 1]"></div>
+
+                    <div class="content-wrap is-grey">
+                      <div class="content-box">
+                        <div class="status"></div>
+                        <VIconBox size="medium" :color="listColor[index + 1]" rounded>
+                          <i class="iconify" data-icon="feather:package" aria-hidden="true"></i>
+                        </VIconBox>
+                        <div class="box-text" style="width:70%">
+                          <div class="meta-text">
+                            <p>
+                              <span>{{ items.namaproduk }}</span>
+                            </p>
+                            <table class="tb-order">
+                              <tr>
+                                <td>Lingkup</td>
+                                <td>:</td>
+                                <td>{{ items.lingkupkalibrasi }} </td>
+                              </tr>
+                              <tr>
+                                <td>Lokasi</td>
+                                <td>:</td>
+                                <td>{{ items.lokasi }} </td>
+                              </tr>
+                              <tr>
+                                <td>Penyelias Teknik </td>
+                                <td>:</td>
+                                <td class="font-values">{{ items.penyeliateknik }}</td>
+                              </tr>
+                              <tr>
+                                <td>Pelaksana Teknik</td>
+                                <td>:</td>
+                                <td>{{ items.pelaksanateknik }} </td>
+                              </tr>
+                              <tr>
+                                <td>Durasi</td>
+                                <td>:</td>
+                                <td>
+                                  <VTag v-if="items.durasikalbrasi" color="warning" rounded> {{ items.durasikalbrasi }}
+                                  </VTag>
+                                </td>
+                              </tr>
+                            </table>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Fieldset>
+        </div>
+        <div class="column is-9" style="text-align: center;">
+
+        </div>
+        <div class="column is-3" style="text-align: center;">
+          <p class="label-ppap" style="font-weight: bold;">Penanggung Jawab</p>
+          <TandaTangan :elemenID="'signaturePenanggungJawab'" :width="'180'" :height="'180'" class="dek" />
+          <div class="column pl-0 pr-0 pt-5">
+            <VField class="pt-2">
+              <VControl class="prime-auto">
+                <VInput type="text" v-model="item.namapenanggungjawab" />
+              </VControl>
+            </VField>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template #action>
+      <VButton icon="feather:plus" color="primary" @click="saveKonfirmasiPendaftaran" :loading="isLoading" raised>Simpan
+      </VButton>
+    </template>
+  </VModal>
 </template>
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
@@ -468,6 +598,8 @@ import AutoComplete from 'primevue/autocomplete';
 import * as qzService from '/@src/utils/qzTrayService'
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
+// import TandaTangan from '../emr/profile-pasien/page-emr-plugins/tanda-tangan.vue'
+import TandaTangan from '../registrasi/tanda-tangan.vue'
 
 useHead({
   title: 'Dashboard Registrasi ' + import.meta.env.VITE_PROJECT,
@@ -490,6 +622,8 @@ const router = useRouter()
 const filters = ref('')
 const modalFilter: any = ref(false)
 const modalBatalRegis: any = ref(false)
+const modalKonfirmasiPendaftaran: any = ref(false)
+let isLoadDataOrder: any = ref(false)
 const themeColors = useThemeColors()
 const userLogin = useUserSession().getUser()
 const checkboxKel: any = ref([])
@@ -535,8 +669,10 @@ const rowGroupMetadata = ref({})
 const order: any = ref(0)
 const norecPd: string = ref('');
 const apd: any = reactive({})
+let detailOrderLayanan: any = ref(0)
 const item = reactive({
   filterDate: new Date(),
+  tanggalkonfirmasi: new Date(),
   qPeriode: [
     new Date(),
     new Date()
@@ -740,6 +876,22 @@ const batalRegis = async (e: any) => {
   modalBatalRegis.value = true
 }
 
+const konfirmaasiPendaftaran = async (e: any) => {
+  console.log(e)
+  detailOrderLayanan.value = []
+  modalKonfirmasiPendaftaran.value = true
+  item.perusahaan = e.namaperusahaan
+  item.namapenanggungjawab = e.namapenanggungjawab
+  item.norecregis = e.iddetail
+  isLoadDataOrder.value = true
+  const response = await useApi().get(`/asman/layanan-verif?norec_pd=${e.iddetail}`)
+  response.detail.forEach((element: any, i: any) => {
+    element.no = i + 1
+  });
+  isLoadDataOrder.value = false
+  detailOrderLayanan.value = response.detail
+}
+
 const saveBatalRegis = async () => {
   if (!item.alasanpembatalan) { H.alert('warning', 'Alasan Pembatalan harus di isi'); return }
   let json = {
@@ -762,6 +914,34 @@ const saveBatalRegis = async () => {
     })
 }
 
+const saveKonfirmasiPendaftaran = async () => {
+  let object: any = {}
+  object.ttdPenanggungJawab = H.tandaTangan().get("signaturePenanggungJawab")
+
+  console.log(object.ttdPenanggungJawab)
+
+  let json = {
+    mitrakonfirmasi: {
+      'norecregis': item.norecregis,
+      'tanggalkonfirmasi': item.tanggalkonfirmasi,
+      'namapenanggungjawab': item.namapenanggungjawab,
+      'datattd': object,
+    }
+  }
+  isLoading.value = true
+  await useApi()
+    .post(`/registrasi/save-konfirmasi-pendaftaran`, json)
+    .then((response: any) => {
+      isLoading.value = false
+      modalKonfirmasiPendaftaran.value = false
+      clear()
+      fetchMitra()
+    })
+    .catch((e: any) => {
+      isLoading.value = false
+    })
+}
+
 const detail = (e: any) => {
   // console.log(e)
   item.nocmfk_baru = e.id
@@ -773,6 +953,7 @@ const detail = (e: any) => {
 const clear = () => {
   item.alasanpembatalan = ''
   item.tanggalpembatalan = ''
+  item.tanggalkonfirmasi = ''
 
   modalBatalRegis.value = false
 }
@@ -838,6 +1019,7 @@ fetchAlatKalibrasi(0)
 @import '/@src/scss/module/dashboard/registrasi.scss';
 @import '/@src/scss/module/dashboard/penyelia.scss';
 @import '/@src/scss/module/registrasi/list-pasien';
+@import '/@src/scss/module/dashboard/bedah.scss';
 
 .c-title {
   border-top-left-radius: 11px;

@@ -39,6 +39,9 @@ class MitraCtrl extends Controller
                 'mtr.lokasikalibrasi',
                 'mtr.norec as iddetail',
                 'mtr.iskaji',
+                'mtr.statusorder',
+                'mtr.namapenanggungjawab',
+                'mtr.tanggalkonfirmasipendaftaran',
             )
             ->where('mt.statusenabled', true)
             ->where('mtr.statusenabled', true)
@@ -480,6 +483,42 @@ class MitraCtrl extends Controller
         return $this->respond($result['result'], $result['status'], $result['message']);
     }
 
+    public function saveKonfirmasiPendaftaran(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $r_NewMitra = $request['mitrakonfirmasi'];
+            DB::table('mitraregistrasi_t')
+                ->where('norec', $r_NewMitra['norecregis'])
+                ->update([
+                    'tanggalkonfirmasipendaftaran' => $r_NewMitra['tanggalkonfirmasi'] ?? null,
+                    'ttdpenanggungjawab' => $r_NewMitra['datattd'] ?? null,
+                    'namapenanggungjawab' => $r_NewMitra['namapenanggungjawab'],
+                ]);
+
+            $message = 'Berhasil Konfirmasi Pendaftaran';
+
+            DB::commit();
+
+            $result = array(
+                "status" => 200,
+                "message" => $message,
+                "result" => array(
+                    "as" => '@adit',
+                )
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $result = array(
+                "status" => 400,
+                "message" => "Something Went Wrong",
+                "result"  => $e->getMessage() . ' | Line: ' . $e->getLine()
+            );
+        }
+
+        return $this->respond($result['result'], $result['status'], $result['message']);
+    }
+
     public function cetakTandaTerima(Request $r)
     {
 
@@ -617,7 +656,8 @@ class MitraCtrl extends Controller
                 'pg.namalengkap as namapetugaskaji',
                 'lk.lokasi',
                 'mtr.jabatanpenanggungjawab',
-                'mtr.namapenanggungjawab'
+                'mtr.namapenanggungjawab',
+                'mtr.ttdpenanggungjawab'
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)

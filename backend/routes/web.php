@@ -586,6 +586,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('registrasi/save-kajian-ulang-item', 'saveKajianUlangItem');
         Route::post('registrasi/save-kaji-ulang', 'saveKajiUlang');
         Route::post('registrasi/save-batal-regis-mitra', 'saveBatalRegis');
+        Route::post('registrasi/save-konfirmasi-pendaftaran', 'saveKonfirmasiPendaftaran');
         Route::get('registrasi/cetak-tanda-terima', 'cetakTandaTerima');
         Route::get('registrasi/cetak-permintaan-kalibrasi', 'cetakPermintaanKalibrasi');
     });

@@ -50,10 +50,14 @@
 </head>
 
 <body>
-    <div style="margin-top: -90px; margin-bottom: 20px;">
-        <img src="{{ public_path('img/header_cover_KAN_002.png') }}" alt="Header Halaman Pertama"
-            style="width:100%; height:auto; display:block;">
-    </div>
+
+    @if ($res['alat']->setujuilembarkerjamanager == true && $res['halamanPertama'] == true)
+        <div style="margin-top: -90px; margin-bottom: 20px;">
+            <img src="{{ public_path('img/header_cover_KAN_002.png') }}" alt="Header Halaman Pertama"
+                style="width:100%; height:auto; display:block;">
+        </div>
+    @endif
+
 
 
     <div class="pdf-footer">
@@ -70,298 +74,304 @@
     {{-- {{ dd($res) }} --}}
 
 
-    <div class="pdf-content">
-        <table width="100%" style="margin-top: -35px; " border="0">
-            <tr>
-                <td width="35%">
-                </td>
-                <td width="30%">
-                    <img src="{{ public_path('img/pln.png') }}" alt="Footer Surat PLN" style="height:5%; width: 95%">
-                </td>
-                <td width="35%">
-                </td>
-            </tr>
-        </table>
-        <table width="100%" style="margin-top: -5px; " border="0">
-            <tr>
-                <td width="35%">
+     @if ($res['alat']->setujuilembarkerjamanager == true && $res['halamanPertama'] == true)
+        <div class="pdf-content">
+            <table width="100%" style="margin-top: -35px; " border="0">
+                <tr>
+                    <td width="35%">
+                    </td>
+                    <td width="30%">
+                        <img src="{{ public_path('img/pln.png') }}" alt="Footer Surat PLN"
+                            style="height:5%; width: 95%">
+                    </td>
+                    <td width="35%">
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" style="margin-top: -5px; " border="0">
+                <tr>
+                    <td width="35%">
 
-                </td>
-                <td align="center" width="30%" style="line-height: 1.1;">
-                    <div style="font-size: 14pt; color:#000000; font-weight: bold; margin-bottom: 2px;">
-                        Sertifikat Kalibrasi
-                    </div>
-                    <div
-                        style="font-size: 9pt; color:#000000; font-style: italic; font-weight: bold; margin-bottom: 2px;">
-                        Calibration Certificate
-                    </div>
-                    <div style="font-size: 7pt; color:#000000; margin-bottom: 1px;">
-                        Nomor Sertifikat : U-LAB/J/2025/123
-                    </div>
-                    <div style="font-size: 7pt; color:#000000;">
-                        No Order : {{ $res['alat']->noorderalat }}
-                    </div>
-                </td>
-                <td width="35%">
-                </td>
-            </tr>
-        </table>
+                    </td>
+                    <td align="center" width="30%" style="line-height: 1.1;">
+                        <div style="font-size: 14pt; color:#000000; font-weight: bold; margin-bottom: 2px;">
+                            Sertifikat Kalibrasi
+                        </div>
+                        <div
+                            style="font-size: 9pt; color:#000000; font-style: italic; font-weight: bold; margin-bottom: 2px;">
+                            Calibration Certificate
+                        </div>
+                        <div style="font-size: 7pt; color:#000000; margin-bottom: 1px;">
+                            Nomor Sertifikat : U-LAB/J/2025/123
+                        </div>
+                        <div style="font-size: 7pt; color:#000000;">
+                            No Order : {{ $res['alat']->noorderalat }}
+                        </div>
+                    </td>
+                    <td width="35%">
+                    </td>
+                </tr>
+            </table>
 
-        <table width="100%" style="padding-left: 5px margin-top: 20px; ">
-            <tr>
-                <td width="30%">
-                    <div style="font-size: 9pt; color:#000000; font-weight: bold; margin-bottom: 1px;">
-                        Identitas Alat
-                    </div>
-                    <div style="font-size: 8pt; color:#000000; font-style: italic;">
-                        Instrument Details
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <table width="100%" style="padding-left: 45px; margin-top: 5px; border-collapse: collapse;">
-            <tr style="line-height: 1.1;">
-                <td width="10%" style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;"><b>Nama Alat Ukur</b></span><br>
-                    <span style="font-size: 8pt; color: #000000; font-style: italic;">Instrument</span>
-                </td>
-                <td width="1%" style="padding-bottom: 2px;">:</td>
-                <td width="30%" style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;">{{ $res['alat']->namaproduk }}</span>
-                </td>
-            </tr>
-            <tr style="line-height: 1.1;">
-                <td style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;"><b>Merk Pabrik / Tipe</b></span><br>
-                    <span style="font-size: 8pt; color: #000000; font-style: italic;">Manufacture/ type</span>
-                </td>
-                <td style="padding-bottom: 2px;">:</td>
-                <td style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;">{{ $res['alat']->namamerk }} /
-                        {{ $res['alat']->namatipe }}</span>
-                </td>
-            </tr>
-            <tr style="line-height: 1.1;">
-                <td style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;"><b>Nomor Seri</b></span><br>
-                    <span style="font-size: 8pt; color: #000000; font-style: italic;">Serial number</span>
-                </td>
-                <td style="padding-bottom: 2px;">:</td>
-                <td style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;">{{ $res['alat']->namaserialnumber }}</span>
-                </td>
-            </tr>
-            <tr style="line-height: 1.1;">
-                <td style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;"><b>Identifikasi lain</b></span><br>
-                    <span style="font-size: 8pt; color: #000000; font-style: italic;">Other identification</span>
-                </td>
-                <td style="padding-bottom: 2px;">:</td>
-                <td style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;">-</span>
-                </td>
-            </tr>
-        </table>
-        <table border="0" width="100%" style="padding-left: 5px; margin-top: 10px; ">
-            <tr>
-                <td width="30%">
-                    <span style="font-size: 9pt;color:#000000"><b>
-                            Idetitas Pemilik </b>
-                    </span><br>
-                    <span style="font-size: 8pt;color:#000000; font-style: italic;">
-                        Owner's Identification
-                    </span>
-                </td>
-            </tr>
-        </table>
-        <table width="100%" style="padding-left: 45px; margin-top: 5px; border-collapse: collapse;">
-            <tr style="line-height: 1.1;">
-                <td width="10%" style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;"><b>Nama</b></span><br>
-                    <span style="font-size: 8pt; color: #000000; font-style: italic;">Designation</span>
-                </td>
-                <td width="1%" style="padding-bottom: 2px;">:</td>
-                <td width="30%" style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;">{{ $res['identitas']->namaperusahaan }}</span>
-                </td>
-            </tr>
-            <tr style="line-height: 1.1;">
-                <td width="10%" style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;"><b> Alamat</b></span><br>
-                    <span style="font-size: 8pt; color: #000000; font-style: italic;">Address</span>
-                </td>
-                <td width="1%" style="padding-bottom: 2px;">:</td>
-                <td width="30%" style="padding-bottom: 2px;">
-                    <span style="font-size: 9pt; color: #000000;">{{ $res['identitas']->alamatktr }}</span>
-                </td>
-            </tr>
-        </table>
-
-        <table border="0" width="100%" style="padding-left: 5px; margin-top: 10px; ">
-            <tr>
-                <td width="30%">
-                    <span style="font-size: 9pt;color:#000000"><b>
-                            Pengesahan </b>
-                    </span><br>
-                    <span style="font-size: 8pt;color:#000000; font-style: italic;">
-                        Authorization
-                    </span>
-                </td>
-            </tr>
-        </table>
-        <table width="100%" style="margin-top: -10px;">
-            <tr>
-                <!-- Kolom Kiri -->
-                <td width="60%" valign="top" style="padding-left: 15px;">
-                    <!-- Bisa isi Pengesahan jika diperlukan -->
-                </td>
-
-                <!-- Kolom Kanan Tengah -->
-                <td width="40%" align="center">
-                    <table cellspacing="0" cellpadding="0" style="line-height: 1.1;">
-                        <tr>
-                            <td style="font-size: 9pt; font-weight: bold; color:#000000;">
-                                Sertifikat ini terdiri dari
-                            </td>
-                            <td style="font-size: 9pt; font-weight: bold; color:#000000;" align="center"
-                                width="30">
-                                {{ $jumlahHalaman ?? '...' }}
-                            </td>
-                            <td style="font-size: 9pt; font-weight: bold; color:#000000;">
-                                Halaman
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-size: 8pt; font-style: italic; color:#000000;">
-                                This certificate consist of
-                            </td>
-                            <td style="font-size: 8pt; font-style: italic; color:#000000;" align="center">
-                                {{ $jumlahHalaman ?? '...' }}
-                            </td>
-                            <td style="font-size: 8pt; font-style: italic; color:#000000;">
-                                Pages
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-size: 9pt; font-weight: bold; color:#000000;">
-                                Diterbitkan tanggal
-                            </td>
-                            <td></td>
-                            <td style="font-size: 9pt; color:#000000;">
-                                {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-size: 8pt; font-style: italic; color:#000000;">
-                                Date of Issue
-                            </td>
-                            <td></td>
-                            <td style="font-size: 8pt; color:#000000;">
-                                {{ \Carbon\Carbon::now()->format('F d, Y') }}
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-
-
-
-        <table border="0" width="100%" cellspacing="0" cellpadding="0" style="padding-top: 1px">
-            <tbody style="font-size: 11pt">
+            <table width="100%" style="padding-left: 5px margin-top: 20px; ">
                 <tr>
                     <td width="30%">
+                        <div style="font-size: 9pt; color:#000000; font-weight: bold; margin-bottom: 1px;">
+                            Identitas Alat
+                        </div>
+                        <div style="font-size: 8pt; color:#000000; font-style: italic;">
+                            Instrument Details
+                        </div>
                     </td>
-                    <td width="30%" class="text-center">
+                </tr>
+            </table>
+            <table width="100%" style="padding-left: 45px; margin-top: 5px; border-collapse: collapse;">
+                <tr style="line-height: 1.1;">
+                    <td width="10%" style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;"><b>Nama Alat Ukur</b></span><br>
+                        <span style="font-size: 8pt; color: #000000; font-style: italic;">Instrument</span>
                     </td>
-                    <td align="center" width="40%" class="text-center">
+                    <td width="1%" style="padding-bottom: 2px;">:</td>
+                    <td width="30%" style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;">{{ $res['alat']->namaproduk }}</span>
+                    </td>
+                </tr>
+                <tr style="line-height: 1.1;">
+                    <td style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;"><b>Merk Pabrik / Tipe</b></span><br>
+                        <span style="font-size: 8pt; color: #000000; font-style: italic;">Manufacture/ type</span>
+                    </td>
+                    <td style="padding-bottom: 2px;">:</td>
+                    <td style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;">{{ $res['alat']->namamerk }} /
+                            {{ $res['alat']->namatipe }}</span>
+                    </td>
+                </tr>
+                <tr style="line-height: 1.1;">
+                    <td style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;"><b>Nomor Seri</b></span><br>
+                        <span style="font-size: 8pt; color: #000000; font-style: italic;">Serial number</span>
+                    </td>
+                    <td style="padding-bottom: 2px;">:</td>
+                    <td style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;">{{ $res['alat']->namaserialnumber }}</span>
+                    </td>
+                </tr>
+                <tr style="line-height: 1.1;">
+                    <td style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;"><b>Identifikasi lain</b></span><br>
+                        <span style="font-size: 8pt; color: #000000; font-style: italic;">Other identification</span>
+                    </td>
+                    <td style="padding-bottom: 2px;">:</td>
+                    <td style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;">-</span>
+                    </td>
+                </tr>
+            </table>
+            <table border="0" width="100%" style="padding-left: 5px; margin-top: 10px; ">
+                <tr>
+                    <td width="30%">
                         <span style="font-size: 9pt;color:#000000"><b>
-                                Manager Repair </b>
+                                Idetitas Pemilik </b>
                         </span><br>
                         <span style="font-size: 8pt;color:#000000; font-style: italic;">
-                            Manager Repair
+                            Owner's Identification
                         </span>
                     </td>
                 </tr>
-                <tr>
-                    <td>
+            </table>
+            <table width="100%" style="padding-left: 45px; margin-top: 5px; border-collapse: collapse;">
+                <tr style="line-height: 1.1;">
+                    <td width="10%" style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;"><b>Nama</b></span><br>
+                        <span style="font-size: 8pt; color: #000000; font-style: italic;">Designation</span>
                     </td>
-                    <td>
-                    </td>
-                    <td align="center">
-                        <img src="data:image/png;base64, {!! $res['ttdManager'] !!}"
-                            style="margin-top: 5px; margin-bottom: 5px">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                    </td>
-                    <td>
-                    </td>
-                    <td align="center" height="10" valign="bottom" height="100" width="15%"
-                        class="text-center">
-                        <span style="font-size: 10pt;" class="text-biasa">
-                            <b> {{ $res['alat']->namamanager }}</span></b>
+                    <td width="1%" style="padding-bottom: 2px;">:</td>
+                    <td width="30%" style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;">{{ $res['identitas']->namaperusahaan }}</span>
                     </td>
                 </tr>
-            <tbody>
-        </table>
-        <table border="0" width="100%" style="padding-left: 5px; margin-top: 5px; ">
-            <tr>
-                <td width="30%">
-                    <span style="font-size: 9pt;color:#000000"><b>
-                            Keterangan </b>
-                    </span><br>
-                    <span style="font-size: 8pt;color:#000000; font-style: italic;">
-                        Notes
-                    </span>
-                </td>
-            </tr>
-        </table>
-        <table border="0" width="100%" style="padding-left: 45px; margin-top: -5px;">
-            <tr>
-                <td width="100%">
-                    <div style="margin-bottom: 6px;">
-                        <div style="font-size: 9pt; color:#000000;"><b>
-                                Kalibrasi atau pengukuran yang dilaporkan dalam sertifikat ini tercakup dalam lingkup
-                                akreditasi menurut SNI ISO/IEC 17025:2017 oleh Komite Akreditasi Nasional, kecuali
-                                dinyatakan lain dalam badan sertifikat.
-                            </b></div>
-                        <div style="font-size: 8pt; color:#000000; font-style: italic;">
-                            The calibration or measurement reported in this certificate is covered in the accreditation
-                            scope according to SNI ISO/IEC 17025:2017 by the
-                            National Accreditation Committee of Indonesia, unless marked otherwise in the body of
-                            certificate.
+                <tr style="line-height: 1.1;">
+                    <td width="10%" style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;"><b> Alamat</b></span><br>
+                        <span style="font-size: 8pt; color: #000000; font-style: italic;">Address</span>
+                    </td>
+                    <td width="1%" style="padding-bottom: 2px;">:</td>
+                    <td width="30%" style="padding-bottom: 2px;">
+                        <span style="font-size: 9pt; color: #000000;">{{ $res['identitas']->alamatktr }}</span>
+                    </td>
+                </tr>
+            </table>
+
+            <table border="0" width="100%" style="padding-left: 5px; margin-top: 10px; ">
+                <tr>
+                    <td width="30%">
+                        <span style="font-size: 9pt;color:#000000"><b>
+                                Pengesahan </b>
+                        </span><br>
+                        <span style="font-size: 8pt;color:#000000; font-style: italic;">
+                            Authorization
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" style="margin-top: -10px;">
+                <tr>
+                    <!-- Kolom Kiri -->
+                    <td width="60%" valign="top" style="padding-left: 15px;">
+                        <!-- Bisa isi Pengesahan jika diperlukan -->
+                    </td>
+
+                    <!-- Kolom Kanan Tengah -->
+                    <td width="40%" align="center">
+                        <table cellspacing="0" cellpadding="0" style="line-height: 1.1;">
+                            <tr>
+                                <td style="font-size: 9pt; font-weight: bold; color:#000000;">
+                                    Sertifikat ini terdiri dari
+                                </td>
+                                <td style="font-size: 9pt; font-weight: bold; color:#000000;" align="center"
+                                    width="30">
+                                    {{ $jumlahHalaman ?? '...' }}
+                                </td>
+                                <td style="font-size: 9pt; font-weight: bold; color:#000000;">
+                                    Halaman
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 8pt; font-style: italic; color:#000000;">
+                                    This certificate consist of
+                                </td>
+                                <td style="font-size: 8pt; font-style: italic; color:#000000;" align="center">
+                                    {{ $jumlahHalaman ?? '...' }}
+                                </td>
+                                <td style="font-size: 8pt; font-style: italic; color:#000000;">
+                                    Pages
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 9pt; font-weight: bold; color:#000000;">
+                                    Diterbitkan tanggal
+                                </td>
+                                <td></td>
+                                <td style="font-size: 9pt; color:#000000;">
+                                    {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 8pt; font-style: italic; color:#000000;">
+                                    Date of Issue
+                                </td>
+                                <td></td>
+                                <td style="font-size: 8pt; color:#000000;">
+                                    {{ \Carbon\Carbon::now()->format('F d, Y') }}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+
+
+            <table border="0" width="100%" cellspacing="0" cellpadding="0" style="padding-top: 1px">
+                <tbody style="font-size: 11pt">
+                    <tr>
+                        <td width="30%">
+                        </td>
+                        <td width="30%" class="text-center">
+                        </td>
+                        <td align="center" width="40%" class="text-center">
+                            <span style="font-size: 9pt;color:#000000"><b>
+                                    Manager Repair </b>
+                            </span><br>
+                            <span style="font-size: 8pt;color:#000000; font-style: italic;">
+                                Manager Repair
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td align="center">
+                            <img src="data:image/png;base64, {!! $res['ttdManager'] !!}"
+                                style="margin-top: 5px; margin-bottom: 5px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td align="center" height="10" valign="bottom" height="100" width="15%"
+                            class="text-center">
+                            <span style="font-size: 10pt;" class="text-biasa">
+                                <b> {{ $res['alat']->namamanager }}</span></b>
+                        </td>
+                    </tr>
+                <tbody>
+            </table>
+            <table border="0" width="100%" style="padding-left: 5px; margin-top: 5px; ">
+                <tr>
+                    <td width="30%">
+                        <span style="font-size: 9pt;color:#000000"><b>
+                                Keterangan </b>
+                        </span><br>
+                        <span style="font-size: 8pt;color:#000000; font-style: italic;">
+                            Notes
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <table border="0" width="100%" style="padding-left: 45px; margin-top: -5px;">
+                <tr>
+                    <td width="100%">
+                        <div style="margin-bottom: 6px;">
+                            <div style="font-size: 9pt; color:#000000;"><b>
+                                    Kalibrasi atau pengukuran yang dilaporkan dalam sertifikat ini tercakup dalam
+                                    lingkup
+                                    akreditasi menurut SNI ISO/IEC 17025:2017 oleh Komite Akreditasi Nasional, kecuali
+                                    dinyatakan lain dalam badan sertifikat.
+                                </b></div>
+                            <div style="font-size: 8pt; color:#000000; font-style: italic;">
+                                The calibration or measurement reported in this certificate is covered in the
+                                accreditation
+                                scope according to SNI ISO/IEC 17025:2017 by the
+                                National Accreditation Committee of Indonesia, unless marked otherwise in the body of
+                                certificate.
+                            </div>
                         </div>
-                    </div>
 
-                    <div style="margin-bottom: 6px;">
-                        <div style="font-size: 9pt; color:#000000;"><b>
-                                Sertifikat ini hanya berlaku untuk peralatan dengan spesifikasi yang dinyatakan di atas.
-                            </b></div>
-                        <div style="font-size: 8pt; color:#000000; font-style: italic;">
-                            This certificate applies only for the item specified above.
+                        <div style="margin-bottom: 6px;">
+                            <div style="font-size: 9pt; color:#000000;"><b>
+                                    Sertifikat ini hanya berlaku untuk peralatan dengan spesifikasi yang dinyatakan di
+                                    atas.
+                                </b></div>
+                            <div style="font-size: 8pt; color:#000000; font-style: italic;">
+                                This certificate applies only for the item specified above.
+                            </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <div style="font-size: 9pt; color:#000000;"><b>
-                                Dilarang keras mengutip/memperbanyak dan/atau mempublikasikan sebagian isi sertifikat
-                                ini
-                                tanpa ijin tertulis dari PT PLN NP UMRO.
-                            </b></div>
-                        <div style="font-size: 8pt; color:#000000; font-style: italic;">
-                            It is prohibited to quote/reproduce and/or publish part of this certificate without written
-                            permission from PT PLN NP UMRO.
+                        <div>
+                            <div style="font-size: 9pt; color:#000000;"><b>
+                                    Dilarang keras mengutip/memperbanyak dan/atau mempublikasikan sebagian isi
+                                    sertifikat
+                                    ini
+                                    tanpa ijin tertulis dari PT PLN NP UMRO.
+                                </b></div>
+                            <div style="font-size: 8pt; color:#000000; font-style: italic;">
+                                It is prohibited to quote/reproduce and/or publish part of this certificate without
+                                written
+                                permission from PT PLN NP UMRO.
+                            </div>
                         </div>
-                    </div>
-                </td>
-            </tr>
-        </table>
-
-
-    </div>
-    <div class="page-break"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="page-break"></div>
+    @endif
     {{-- Header untuk halaman kedua dan seterusnya --}}
     <div class="pdf-header">
         <img src="{{ public_path('img/Header_isi_002.png') }}" alt="Header Halaman Lainnya"
@@ -746,31 +756,38 @@
                 </tr>
                 <tr>
                     <td align="center">
-                        <img src="data:image/png;base64, {!! $res['ttdAsman'] !!}"
-                            style="margin-top: 5px; margin-bottom: 5px">
-                        {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
+                        @if ($res['alat']->setujuilembarkerjaasman)
+                            <img src="data:image/png;base64, {!! $res['ttdAsman'] !!}"
+                                style="margin-top: 5px; margin-bottom: 5px">
+                        @endif
                     </td>
                     <td align="center">
-                        <img src="data:image/png;base64, {!! $res['ttdPenyelia'] !!}"
-                            style="margin-top: 5px; margin-bottom: 5px">
-                        {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
+                        @if ($res['alat']->setujuilembarkerjapenyelia)
+                            <img src="data:image/png;base64, {!! $res['ttdPenyelia'] !!}"
+                                style="margin-top: 5px; margin-bottom: 5px">
+                        @endif
                     </td>
                     <td align="center">
                         <img src="data:image/png;base64, {!! $res['ttdPelaksana'] !!}"
                             style="margin-top: 5px; margin-bottom: 5px">
-                        {{-- <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data={{isset($res) ? $res['kepala']->namalengkap : ''}}" alt=""> --}}
                     </td>
                 </tr>
                 <tr>
                     <td align="center" height="10" valign="bottom" height="100" width="15%"
                         class="text-center">
-                        <span style="font-size: 10pt;" class="text-biasa">
-                            ( {{ $res['alat']->asamanverifikasi }} )</span>
+                        @if ($res['alat']->setujuilembarkerjaasman)
+                            <span style="font-size: 10pt;" class="text-biasa">
+                                ( {{ $res['alat']->asamanverifikasi }} )
+                            </span>
+                        @endif
                     </td>
                     <td align="center" height="10" valign="bottom" height="100" width="15%"
                         class="text-center">
-                        <span style="font-size: 10pt;" class="text-biasa">( {{ $res['alat']->penyeliateknik }}
-                            )</span>
+                        @if ($res['alat']->setujuilembarkerjapenyelia)
+                            <span style="font-size: 10pt;" class="text-biasa">
+                                ( {{ $res['alat']->penyeliateknik }})
+                            </span>
+                        @endif
                     </td>
                     <td align="center" height="10" valign="bottom" height="100" width="15%"
                         class="text-center">

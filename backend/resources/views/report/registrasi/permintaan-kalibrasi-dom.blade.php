@@ -77,7 +77,7 @@
 
                 <tr>
 
-                    <table width="75%" cellspacing="0" cellpadding="0" border="0" 
+                    <table width="75%" cellspacing="0" cellpadding="0" border="0"
                         style="border-collapse: collapse; margin-left: 90px">
                         <tbody>
                             <tr>
@@ -253,6 +253,327 @@
                             </tr>
                         @endif
                     </table>
+                </td>
+            </tr>
+        </table>
+        {{-- <table border="0" width="100%" style="margin-top: 10px; ">
+                <tr>
+                    <td width="30%">
+                        <span style="font-size: 9pt;color:#000000"><b>
+                                Denagn menandatangani formulir ini saya nyatakan data diatas benar </b>
+                        </span><br>
+                    </td>
+                </tr>
+            </table> --}}
+        <table border="0" width="100%" cellspacing="0" cellpadding="0" style="padding-top: -30px">
+            <tbody style="font-size: 11pt">
+                <tr>
+                    <td width="90%">
+                        <span style="font-size: 9pt;color:#000000"><b>
+                                Denagn menandatangani formulir ini saya nyatakan data diatas benar </b>
+                        </span>
+                    </td>
+                    <td align="center" width="40%" class="text-center">
+                        <span style="font-size: 10pt;" class="text-biasa">{{ $res['identitas']->lokasi }},
+                            {{ \Carbon\Carbon::parse(date('Y-m-d H:i'))->isoFormat('DD MMMM Y') }}</span>
+                    </td>
+                </tr>
+                {{-- <tr>
+                    <td  width="90%">
+                    </td>
+                    <td align="center">
+                        <img src="data:image/png;base64, {!! $res['ttdPelanggan'] !!}"
+                            style="margin-top: 5px; margin-bottom: 5px">
+                    </td>
+                </tr> --}}
+                @php
+                    $ttdData = json_decode($res['identitas']->ttdpenanggungjawab);
+                @endphp
+                <tr>
+                    <td width="90%">
+                    </td>
+                    <td align="center">
+                        @if (!empty($ttdData->ttdPenanggungJawab))
+                            <img src="{{ $ttdData->ttdPenanggungJawab }}"
+                                style="margin-top: 5px; margin-bottom: 5px; max-height: 80px;" />
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td width="90%">
+                    </td>
+                    <td align="center" height="8" valign="bottom" height="100" width="15%"
+                        class="text-center">
+                        <span style="font-size: 10pt;" class="text-biasa">
+                            <b> ({{ $res['identitas']->namapenanggungjawab }})</span></b>
+                    </td>
+                </tr>
+            <tbody>
+        </table>
+        <table border="0" width="100%" style="margin-top: 10px; ">
+            <tr>
+                <td width="30%">
+                    <span style="font-size: 9pt;color:#000000"><b>
+                            Status Pendaftaran</b>
+                    </span>
+                    <span style="font-size: 8pt;color:#000000">
+                        (diisi oleh petuugas U-Lab)
+                    </span>
+                </td>
+                <td width="30%">
+                    <span style="font-size: 9pt;color:#000000"><b>
+                            Status Alat</b>
+                    </span>
+                    <span style="font-size: 9pt;color:#000000"><b>
+                            Diisi saat alat diterima oleh U-Lab</b>
+                    </span>
+
+                </td>
+            </tr>
+            <tr>
+                <td width="30%" style="vertical-align: top;">
+
+                    <input type="checkbox" />
+                    <span style="font-size: 9pt;position: relative;top:-7px">
+                        Pendaftaran diterima, Alat harus diserahkan ke U-Lab
+                    </span><br>
+                    <span style="font-size: 9pt;position: relative;top:-7px; margin-left: 24px">
+                        Tanggal .... s//d ...
+                    </span><br>
+                    <input type="checkbox" />
+                    <span style="font-size: 9pt;position: relative;top:-7px">
+                        Layanan ditangguhkan karena
+                    </span><br>
+                    <input type="checkbox" style="margin-left: 24px" />
+                    <span style="font-size: 9pt;position: relative;top:-7px">
+                        Kapasitas penuh
+                    </span><br>
+                    <input type="checkbox" style="margin-left: 24px" />
+                    <span style="font-size: 9pt;position: relative;top:-7px">
+                        Diluar lingkup pelayanan
+                    </span><br>
+                    <input type="checkbox" style="margin-left: 24px" />
+                    <span style="font-size: 9pt;position: relative;top:-7px">
+                        Sedang dalam pemilihan standar
+                    </span><br>
+                    <input type="checkbox" style="margin-left: 24px" />
+                    <span style="font-size: 9pt;position: relative;top:-7px">
+                        Lain-lain :
+                    </span><br>
+
+                </td>
+                <td width="30%" style="vertical-align: top;">
+                    <table border="0" width="100%" style="margin-top: -10px; ">
+                        <tr>
+                            <td width="40%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    No. Order
+                                </span>
+                            </td>
+                            <td width="2%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    :
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-size: 9pt;color:#000000">
+
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    Tanggal Penyerahan
+                                </span>
+                            </td>
+                            <td width="2%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    :
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-size: 9pt;color:#000000">
+
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    Kelengkapan alat
+                                </span>
+                            </td>
+                            <td width="2%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    :
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-size: 9pt;color:#000000">
+
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    Catatan Kondisi alat
+                                </span>
+                            </td>
+                            <td width="2%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    :
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-size: 9pt;color:#000000">
+
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <span style="font-size: 7pt;color:#000000">
+                                    (visual dan fungsional cek)
+                                </span>
+                            </td>
+                            <td width="2%">
+                                <span style="font-size: 7pt;color:#000000">
+                                    :
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-size: 7pt;color:#000000">
+
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    Catatan Kondisi alat
+                                </span>
+                            </td>
+                            <td width="2%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    :
+                                </span>
+                            </td>
+                            <td>
+                                <img src="data:image/png;base64, {!! $res['ttdPetugas'] !!}"
+                                    style="margin-top: 5px; margin-bottom: 5px">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    Nama
+                                </span>
+                            </td>
+                            <td width="2%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    :
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-size: 9pt;color:#000000">
+                                    {{ $res['identitas']->namapetugaskaji ?? '-' }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="40%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    Catatan penyimpangan hasil obeservasi teknis
+                                </span>
+                            </td>
+                            <td width="2%">
+                                <span style="font-size: 9pt;color:#000000">
+                                    :
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-size: 9pt;color:#000000">
+                                   
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <table border="0" width="100%" style="margin-top: 15px; ">
+            <tr>
+                <td>
+                    <span style="font-size: 9pt;color:#000000">
+                        <b>Kontrak kesepakatan</b>
+                    </span>
+                    <span style="font-size: 7pt;color:#000000">
+                        (diisi oleh petugas U-Lab dan ttd oleh pelanggan saat penyerahan alat)
+                    </span>
+                </td>
+            </tr>
+        </table>
+        <table border="0" width="100%" style="margin-top: 1px; ">
+            <tr>
+                <td width="30%">
+                    <span style="font-size: 9pt;color:#000000">
+                        Tanggal Order
+                    </span>
+                </td>
+                <td width="2%">
+                    <span style="font-size: 9pt;color:#000000">
+                        :
+                    </span>
+                </td>
+                <td>
+                    <span style="font-size: 9pt;color:#000000">
+                       
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td width="15%">
+                    <span style="font-size: 9pt;color:#000000">
+                        Tanggal selesai
+                    </span>
+                </td>
+                <td width="2%">
+                    <span style="font-size: 9pt;;color:#000000">
+                        :
+                    </span>
+                </td>
+                <td>
+                    <span style="font-size: 9pt;color:#000000">
+                       
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td width="15%">
+                    <span style="font-size: 9pt;color:#000000">
+                       Durasi Pekerjaan
+                    </span>
+                </td>
+                <td width="2%">
+                    <span style="font-size: 9pt;color:#000000">
+                        :
+                    </span>
+                </td>
+                <td>
+                    <span style="font-size: 9pt;;color:#000000">
+                        
+                    </span>
+                </td>
+            </tr>
+        </table>
+         <table border="0" width="100%" style="margin-top: 0px; ">
+            <tr>
+                <td>
+                    <span style="font-size: 9pt;color:#000000">
+                        Kontrak kesepakatan telah disepakati oleh kedua belah pihak, apabila ada perubahan dalam kontrak akan diberitahukan sebelumnya.
+                    </span>
                 </td>
             </tr>
         </table>

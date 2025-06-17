@@ -848,6 +848,10 @@ class ManagerCtrl extends Controller
             ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
             ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
             ->select(
                 'pg.id as penyeliateknikfk',
                 'pg.namalengkap as penyeliateknik',
@@ -855,6 +859,15 @@ class ManagerCtrl extends Controller
                 'pg2.namalengkap as pelaksanateknik',
                 'pg3.id as asmanfk',
                 'pg3.namalengkap as asamanverifikasi',
+                'mtrd.noorderalat',
+                'mtrd.namamanager',
+                'mtrd.setujuilembarkerjamanager',
+                'mtrd.setujuilembarkerjaasman',
+                'mtrd.setujuilembarkerjapenyelia',
+                'prd.namaproduk',
+                'mrk.namamerk',
+                'tp.namatipe',
+                'sn.namaserialnumber',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -866,12 +879,28 @@ class ManagerCtrl extends Controller
         $res['ttdPelaksana'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->pelaksanateknik));
         $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
         $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->penyeliateknik));
+        $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->namamanager));
+        $res['halamanPertama'] = true;
 
         $blade = 'report.pelaksana.sertifikat-lembar-kerja';
 
         if ($res['pdf'] == 'true') {
+            $pdfDummy = App::make('dompdf.wrapper');
+            $pdfDummy->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                    'jumlahHalaman' => null,
+                )
+            );
+            $dompdfDummy = $pdfDummy->getDomPDF();
+            $dompdfDummy->render();
+            $jumlahHalaman = $dompdfDummy->getCanvas()->get_page_count();
+
             $pdf = App::make('dompdf.wrapper');
-            // $pdf->setpaper('a4', 'landscape');
             $pdf->loadView(
                 $blade . '-dom',
                 array(
@@ -879,16 +908,16 @@ class ManagerCtrl extends Controller
                     'pageWidth' => $pageWidth,
                     'print' => $print,
                     'res' => $res,
+                    'jumlahHalaman' => $jumlahHalaman,
                 )
             );
 
-            // Tambah penomoran halaman otomatis di footer PDF
+
             $dompdf = $pdf->getDomPDF();
             $canvas = $dompdf->get_canvas();
-            $canvas->page_text(200, 780, "Halaman ke {PAGE_NUM} dari {PAGE_COUNT} halaman", null, 11, array(0, 0, 0));
-            $canvas->page_text(230, 795, "Page {PAGE_NUM} of {PAGE_COUNT} pages", null, 9, array(0, 0, 0));
-
-
+            $canvas->page_text(230, 780, "Halaman ke {PAGE_NUM} dari {PAGE_COUNT} halaman", null, 8, array(0, 0, 0));
+            $font = $dompdf->getFontMetrics()->getFont('Helvetica', 'italic');
+            $canvas->page_text(260, 788, "Page {PAGE_NUM} of {PAGE_COUNT} pages", $font, 7, array(0, 0, 0));
 
             return $pdf->stream();
         }
