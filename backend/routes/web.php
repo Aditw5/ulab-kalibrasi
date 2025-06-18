@@ -236,6 +236,8 @@ Route::middleware(['log'])->group(function () {
         Route::get('asman/get-lembar-kerja-asman', 'getLembarKerjaAsman');
         Route::post('asman/save-setujui-serti-asman', 'setujuiSertifikatAsman');
         Route::get('asman/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
+        Route::get('asman/download-file-terunggah', 'downloadFileTerunggah');
+        Route::get('asman/excel-length', 'getExcelLength');
     });
 
     Route::controller(ManagerCtrl::class)->group(function () {
@@ -248,6 +250,8 @@ Route::middleware(['log'])->group(function () {
         Route::get('manager/get-lembar-kerja-manager', 'getLembarKerjaManager');
         Route::post('manager/save-setujui-serti-manager', 'setujuiSertifikatManager');
         Route::get('manager/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
+        Route::get('manager/download-file-terunggah', 'downloadFileTerunggah');
+        Route::get('manager/excel-length', 'getExcelLength');
     });
 
     Route::controller(PenyeliaCtrl::class)->group(function () {
@@ -263,6 +267,8 @@ Route::middleware(['log'])->group(function () {
         Route::get('penyelia/detail-produk-lembar-kerja', 'detailProdukLembarKerjaPenyelia');
         Route::get('penyelia/cetak-spk', 'cetakSPK');
         Route::get('penyelia/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
+        Route::get('penyelia/download-file-terunggah', 'downloadFileTerunggah');
+        Route::get('penyelia/excel-length', 'getExcelLength');
     });
 
     Route::controller(PelaksanaCtrl::class)->group(function () {
@@ -279,6 +285,9 @@ Route::middleware(['log'])->group(function () {
         Route::get('pelaksana/get-merk-standar', 'getMerkStandar');
         Route::get('pelaksana/get-tipe-standar', 'getTipeStandar');
         Route::get('pelaksana/get-sn-standar', 'getSnStandar');
+        Route::post('pelaksana/save-excel-lembar-kerja', 'saveExcelLembarKerja');
+        Route::get('pelaksana/download-file-terunggah', 'downloadFileTerunggah');
+        Route::get('pelaksana/excel-length', 'getExcelLength');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {
@@ -326,109 +335,8 @@ Route::middleware(['log'])->group(function () {
         Route::post('dokter/save-catatan', 'saveCatatanDokter');
     });
     Route::controller(EMRCtrl::class)->group(function () {
-        Route::get('emr/get-emr', 'getEMR');
-        Route::get('emr/get-emr-perdosi', 'getEMRPerdosi');
-        Route::get('emr/riwayat-emr', 'getRiwayatEMR');
-        Route::get('emr/riwayat-emr-detail', 'getRiwayatEMR_DETAIL');
-        Route::get('emr/menu-emr-detail', 'menuEMR');
-        Route::get('emr/get-list-pegawai', 'getDataComboPegawai');
-        Route::get('emr/get-diagnosa-pasien-icd9', 'getDiagnosaPasienByNoregICD9');
-        Route::get('emr/get-diagnosa-pasien-icd10', 'getDiagnosaPasienICD10');
-        Route::get('emr/get-data-diagnosa', 'getDataComboDiagnosa');
         Route::get('emr/dropdown/{table}', 'dropdownEMR');
-        Route::get('emr/get-emr-dynamic', 'getEMRDynamic');
-        Route::get('emr/get-data-exist', 'getDataExist');
-        Route::get('emr/get-dokter-dpjp', 'getDokterDPJP');
-        Route::get('emr/tanda-tangan/{pegawaifk}', 'getTandaTangan');
-        Route::get('emr/auto-fill', 'getAutoFill');
-        Route::get('emr/auto-fill-cppt', 'getAutoFillCppt');
-        Route::get('emr/menu-emr', 'menuNavigasi');
-        Route::get('emr/master-bundle-hais', 'getDataBundleHais');
-        Route::get('emr/get-obat', 'getDataComboPartObat');
-        Route::get('emr/auto-fill-icd10/{noregistrasi}', 'getAutoFillICD10');
-        Route::get('emr/auto-fill-icd9/{noregistrasi}', 'getAutoFillICD9');
-        Route::get('emr/register-pasien-emr', 'getAutoRegisterPasien');
-        Route::get('emr/master-faktor-resiko', 'getFaktorRisiko');
-        Route::get('emr/get-ecg-fukuda', 'getFukuda');
-        Route::get('emr/combo-jenis-berkas', 'getComboBerkas');
-        Route::get('emr/berkas-pasien', 'getBerkasPasien');
-        Route::get('emr/get-perjanjian', 'getPasienPerjanjian');
-        Route::get('emr/collection/{url_form}', 'getCollectionNameByForm');
-        Route::get('emr/get-order-konsul', 'getOrderKonsul');
-        Route::get('emr/get-resume-medis', 'getResumeMedis');
-        Route::get('emr/get-dropdown-diagnosa-keperawatan', 'getDropdownDiagnosaKeper');
-        Route::get('emr/get-emr-cppt', 'getEMRCPPT');
-        Route::get('emr/get-emr-cppt-ranap', 'getEMRCPPTRanap');
-        Route::get('emr/list-diagnosa-keperawatan', 'listDiagnosaKeperawatan');
-        Route::get('emr/list-diagnosa-keperawatan-edokep', 'listDiagnosaKeperawatanEdokep');
-        Route::get('emr/list-tujuan-diagnosa-keperawatan-edokep', 'listTujuanDiagnosaKeperawatan');
-        Route::get('emr/list-intervensi-diagnosa-keperawatan-edokep', 'listIntervensiDiagnosaKeperawatan');
-        Route::get('emr/list-aktifitas-diagnosa-keperawatan-edokep', 'listAktifitasDiagnosaKeperawatan');
-        Route::get('emr/list-kriteria-diagnosa-keperawatan-edokep', 'listKriteriaDiagnosaKeperawatan');
-        Route::get('emr/list-tujuan-keperawatan', 'listTujuanKeperawatan');
-        Route::get('emr/list-intervensi', 'listIntervensiKeperawatan');
-        Route::get('emr/list-implementasi', 'implementasiKeperawatan');
-        Route::get('emr/auto-resep', 'getResep');
-        Route::get('emr/get-petugas', 'getPetugasPe');
-        Route::get('emr/get-hasil-radiologi', 'getHasilRadiologi');
-        Route::get('emr/get-hasil-radiologi-emr', 'getHasilRadiologiEmr');
-        Route::get('emr/pemantauan-penunjang', 'pemantauanPemeriksaanPenunjang');
-        Route::get('emr/get-tabs-emr', 'getEMRTabs');
-
-        Route::post('emr/simpan-emr', 'saveEMR');
-        Route::post('emr/hapus-emr', 'hapusEMR');
-        Route::post('emr/simpan-emr-cppt', 'saveEMRCPPT');
-        Route::post('emr/simpan-diagnosa-x-cppt-ranap', 'saveDiagnosaXCPPTRanap');
-        Route::post('emr/simpan-diagnosa-ix-cppt-ranap', 'saveDiagnosaIXCPPTRanap');
-        Route::post('emr/hapus-emr-cppt', 'hapusEMRCPPT');
-        Route::post('emr/verif-emr-cppt', 'verifEMRCPPT');
-        Route::post('emr/verif-harian-emr-cppt', 'verifHarianEMRCPPT');
-        Route::post('emr/simpan-bundle-hais', 'saveBundleHis');
-        Route::post('emr/hapus-bundle-hais', 'hapusBundleHis');
-        Route::post('emr/simpan-berkas-pasien', 'saveBerkasPasien');
-        Route::post('emr/hapus-berkas-pasien', 'hapusBerkasPasien');
-        Route::post('emr/simpan-perjanjian', 'simpanPerjanjian');
-        Route::post('emr/hapus-perjanjian', 'hapusOrderPerjanjian');
-        Route::post('emr/simpan-order-konsul', 'saveOrderKonsul');
-        Route::post('emr/hapus-order-konsul', 'hapusOrderKonsul');
-        Route::post('emr/jawab-order-konsul', 'jawabOrderKonsul');
-        Route::post('emr/uploadImage', 'uploadImageBarcode');
-        Route::post('emr/update-status-dpjp-koder', 'updatestausdpjpkoder');
-
-        Route::post('emr/simpan-resume', 'saveResumeMedis');
         Route::post('emr/kirim-wa-resume', 'kirimResumeMedis');
-        Route::post('emr/hapus-resume-medis', 'hapusResumeMedis');
-    });
-
-    Route::controller(ReportEMRCtrl::class)->group(function () {
-        Route::get('emr/cetak-asesmen-medis-ri', 'cetakAsesmenMedisRI');
-        Route::get('emr/cetak-asesmen-gizi-awal', 'cetakAsesmenGiziAwal');
-        Route::get('emr/cetak-asesmen-awal-keper-ri', 'cetakAsesmenAwalKeperawatanRI');
-        Route::get('emr/cetak-triase', 'cetakTriase');
-        Route::get('emr/cetak-resume-medis-rj', 'cetakResumeRJ');
-        Route::get('emr/cetak-asesmen-keper-rj', 'cetakAsesmenAwalKeperRJ');
-        Route::get('emr/cetak-asesmen-medis-rj', 'cetakAsesmenMedisRJ');
-        Route::get('emr/cetak-hasil-pemeriksaan-mcu', 'cetakHasilPemeriksaanMCU');
-        Route::get('emr/cetak-pola-nafas-tidak-efektif', 'cetakPolaNafasTidakEfektif');
-        Route::get('emr/cetak-formulir-skrining-igd', 'cetakFormulirSkriningIGD');
-        Route::get('emr/cetak-resume-medis', 'cetakResumeMedis');
-        Route::get('emr/cetak-formulir-permintaan-konseling-gizi', 'cetakFormulirPermintaanKonselingGizi');
-        Route::get('emr/cetak-asesmen-keperawatan-igd', 'cetakAsesmenKeperawatanIGD');
-        Route::get('emr/cetak/{collection}', 'cetakEMR');
-        Route::get('emr/cetak-obat/{collection}', 'cetakSuratObatEMR');
-        Route::get('emr/cetak-rehab-layanan/{collection}', 'cetakRehabLayanan');
-        Route::get('emr/cetak-rehab-perdosi/{collection}', 'cetakRehabPerdosi');
-        Route::get('emr/cetak-rehab-prosedur/{collection}', 'cetakRehabProsedur');
-        Route::get('emr/cetak-surat-pengantar-ranap/{collection}', 'cetakSuratPengantarRananp');
-        Route::get('emr/cetak-lembar-assesmen-gizi/{collection}', 'cetakLembarAssesmenGizi');
-        Route::get('emr/cetak-lembar-assesmen-gizi-monitoring/{collection}', 'cetakLembarAssesmenGiziMonitoring');
-        Route::get('emr/cetak-surat-kontrol', 'cetakSuratKontrol');
-        Route::get('emr/cetak-spri', 'cetakSPRI');
-        Route::get('emr/cetak-rujukan', 'cetakRujukan');
-        Route::get('emr/get-riwayat-resep', 'getResep');
-        Route::get('emr/cetak-pengkajian-dokter-ri', 'cetakPengkajianDokterRi');
-
-        Route::post('/emr/send-WA', 'kirimWARujukan');
     });
 
     Route::controller(LaporanPengunjungCtrl::class)->group(function () {
@@ -462,52 +370,6 @@ Route::middleware(['log'])->group(function () {
         Route::get('laporan/pilihan-search', 'pilihanSearch');
     });
 
-    Route::controller(KartuStokCtrl::class)->group(function () {
-        Route::get('logistik/kartu-stok-grid', 'getDataGrid');
-        Route::get('logistik/penggunaan-obat-alkes', 'getPenggunaanObatAlkes');
-        Route::get('logistik/kartu-stok-cbo', 'getCombo');
-        Route::get('logistik/list-produk', 'listProduk');
-    });
-    Route::controller(DistribusiBarangCtrl::class)->group(function () {
-        Route::get('logistik/distribusi-barang-produk', 'getProduk');
-        Route::get('logistik/distribusi-barang-cbo', 'getCombo');
-        Route::get('logistik/distribusi-edit', 'getDetailKirim');
-        Route::get('logistik/distribusi-detail', 'getDetailKirimBarang');
-        Route::get('logistik/get-detail-kirim-order', 'getDetailOrderBarangForKirim');
-        Route::get('logistik/daftar-distribusi', 'getDaftarDistribusiBarang');
-        Route::get('logistik/daftar-retur-distribusi', 'getReturDistribusiBarang');
-        Route::post('logistik/chekstok-validasi', 'checkStok');
-        Route::post('logistik/distribusi-barang-produk-save', 'saveKirimBarangRuangan');
-        Route::post('logistik/retur-distribusi-barang-save', 'SaveReturDistribusi');
-        Route::post('logistik/save-kirim-order-barang', 'saveKirimOrderBarang');
-        Route::get('logistik/cetak-bukti-kirim', 'cetakBuktiKirim');
-        Route::get('logistik/kirim-barang-farmasi', 'getDataKirimBarangFarmasi');
-        Route::get('logistik/terima-barang-farmasi', 'getDataTerimaBarangFarmasi');
-        Route::get('logistik/rekap-kirim-barang-farmasi', 'getRekapKirimBarangFarmasi');
-        Route::get('logistik/rekap-terima-barang-farmasi', 'getRekapTerimaBarangFarmasi');
-        Route::get('logistik/daftar-retur-ruangan', 'getDaftarReturBarangRuangan');
-        Route::post('logistik/save-retur-order-barang', 'saveReturOrderBarang');
-        Route::post('logistik/retur-barang-produk-save', 'saveReturBarangRuangan');
-        Route::post('logistik/batal-retur-barang-ruangan', 'BatalReturBarangRuangan');
-        Route::get('logistik/cetak-bukti-terima-retur', 'cetakBuktiTerimaRetur');
-    });
-    Route::controller(PenerimaanBarangCtrl::class)->group(function () {
-        Route::get('logistik/penerimaan-barang', 'getDaftarPenerimaanSuplier');
-        Route::get('logistik/get-retur-barang-suplier', 'getDaftarReturPenerimaanSuplier');
-        Route::get('logistik/get-detail-penerimaan', 'getDetailPenerimaanBarang');
-        Route::get('logistik/penerimaan-barang-suplier', 'saveDataPenerimaanBarang');
-        Route::get('logistik/penerimaan-barang/get-data-combo', 'getDataCombo');
-        Route::get('logistik/penerimaan-barang/get-produkdetail', 'getHargaTerakhir');
-        Route::get('logistik/penerimaan-barang/get-no-terima', 'getNoTerimaGenerate');
-        Route::get('logistik/penerimaan-barang/get-produk-bykelompok', 'getDataProdukDetail');
-        Route::post('logistik/penerimaan-barang/save-penerimaan-suplier', 'savePenerimaanBarangSuplier');
-        Route::post('logistik/penerimaan-barang/retur-penerimaan-suplier', 'SaveReturPenerimaan');
-        Route::post('logistik/penerimaan-barang/delete-penerimaan-suplier', 'DeletePenerimaanBarangSupplier');
-        Route::get('logistik/penerimaan-barang/get-data-produk-logistik', 'getDataProdukLogitik');
-        Route::get('logistik/report/cetak-bukti-penerimaan-barang', 'cetakBuktiPenerimaanBarang');
-        Route::post('logistik/penerimaan-barang/save-faktur-penerimaan', 'uploadFile');
-    });
-
     Route::controller(MasterRuanganCtrl::class)->group(function () {
         Route::get('sysadmin/master-ruangan', 'masterRuangan');
         Route::get('sysadmin/master-ruangan-dropdown', 'masterRuangandropdown');
@@ -516,37 +378,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/delete-master-ruangan', 'deleteRuangan');
         Route::post('sysadmin/detail-master-ruangan', 'detailRuangan');
         Route::post('sysadmin/update-master-ruangan', 'updateRuangan');
-    });
-
-    Route::controller(MasterDepartemenCtrl::class)->group(function () {
-        Route::get('sysadmin/master-departemen', 'masterDepartemen');
-        Route::get('sysadmin/master-departemen-dropdown', 'masterDepartemendropdown');
-
-        Route::post('sysadmin/save-master-departemen', 'saveDepartemen');
-        Route::post('sysadmin/delete-master-departemen', 'deleteDepartemen');
-        Route::post('sysadmin/detail-master-departemen', 'detailDepartemen');
-    });
-
-    Route::controller(MasterKelompokPasienCtrl::class)->group(function () {
-        Route::get('sysadmin/master-kelompok-pasien', 'masterKelompokPasien');
-        Route::get('sysadmin/master-kelompok-pasien-dropdown', 'masterKelompokPasiendropdown');
-
-        Route::post('sysadmin/save-master-kelompok-pasien', 'saveKelompokPasien');
-        Route::post('sysadmin/delete-master-kelompok-pasien', 'deleteKelompokPasien');
-    });
-
-    Route::controller(MasterRekananCtrl::class)->group(function () {
-        Route::get('sysadmin/master-rekanan', 'masterRekanan');
-        Route::get('sysadmin/master-rekanan-dropdown', 'masterRekanandropdown');
-        Route::get('sysadmin/desa-kelurahan-paging', 'listDesaKelurahanPaging');
-        Route::get('sysadmin/kecamatan-paging', 'listKecamatanPaging');
-        Route::get('sysadmin/kotakabupaten', 'listKotaKab');
-        Route::get('sysadmin/kecamatan', 'listKecamatan');
-        Route::get('sysadmin/desakelurahan', 'listDesa');
-
-        Route::post('sysadmin/save-master-rekanan', 'saveRekanan');
-        Route::post('sysadmin/delete-master-rekanan', 'deleteRekanan');
-        Route::post('sysadmin/detail-master-rekanan', 'detailRekanan');
     });
 
     Route::controller(MasterMapKelompokCtrl::class)->group(function () {
@@ -558,14 +389,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/detail-map-kelompok', 'detailMapKelompok');
     });
 
-    Route::controller(MasterMapDepoToRuanganCtrl::class)->group(function () {
-        Route::get('sysadmin/master-map-depo-to-ruangan', 'masterMapDepoToRuangan');
-        Route::get('sysadmin/master-map-depo-to-ruangan-dropdown', 'masterMapDepoToRuangandropdown');
-
-        Route::post('sysadmin/save-map-depo-to-ruangan', 'saveMapDepoToRuangan');
-        Route::post('sysadmin/delete-map-depo-to-ruangan', 'deleteMapDepoToRuangan');
-    });
-
     Route::controller(MapKelompokLaporanCtrl::class)->group(function () {
         Route::get('sysadmin/get-combo-map-laporan', 'getCombo');
         Route::get('sysadmin/get-map-laporan-rl', 'getMapLaporanRL');
@@ -573,16 +396,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/save-map-laporan-rl', 'SaveMappingRl');
         Route::post('sysadmin/delete-map-laporan-rl', 'deleteMap');
     });
-
-    Route::controller(MasterKelompokLaporanCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-kelompok-laporan')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/get-jenis-laporan', 'getJenisLaporan');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
 
     Route::controller(GeneralCtrl::class)->group(function () {
         Route::get('general/pasien-registrasi', 'pasienRegistrasiSearching');
@@ -632,14 +445,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/delete-jenis-produk', 'deleteJenisProduk');
         Route::post('sysadmin/detail-jenis-produk', 'detailJenisProduk');
     });
-    Route::controller(MasterDetailJenisProdukCtrl::class)->group(function () {
-        Route::get('sysadmin/master-detail-jenis-produk', 'masterDetailJenisProduk');
-        Route::get('sysadmin/master-detail-jenis-produk-dropdown', 'masterDetailJenisProdukdropdown');
-
-        Route::post('sysadmin/save-master-detail-jenis-produk', 'saveDetailJenisProduk');
-        Route::post('sysadmin/delete-detail-jenis-produk', 'deleteDetailJenisProduk');
-        Route::post('sysadmin/detail-jenis-produk', 'detailJenisProduk');
-    });
     Route::controller(MasterProdukCtrl::class)->group(function () {
         Route::get('sysadmin/master-produk', 'masterProduk');
         Route::get('sysadmin/master-produk-tidak-aktif', 'masterProdukTidakAktif');
@@ -655,14 +460,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/detail-produk', 'detailProduk');
         Route::post('sysadmin/update-produk', 'updateProduk');
     });
-    Route::controller(MasterSatuanStandarCtrl::class)->group(function () {
-        Route::get('sysadmin/master-satuan-standar', 'masterSatuanStandar');
-        Route::get('sysadmin/master-satuan-standar-dropdown', 'masterSatuanStandardropdown');
-
-        Route::post('sysadmin/save-satuan-standar', 'saveSatuanStandar');
-        Route::post('sysadmin/delete-satuan-standar', 'deleteSatuanStandar');
-        Route::post('sysadmin/detail-satuan-standar', 'detailSatuanStandar');
-    });
     Route::controller(MasterKelompokTransaksiCtrl::class)->group(function () {
         Route::get('sysadmin/master-kelompok-transaksi', 'masterKelompokTransaksi');
         Route::get('sysadmin/master-kelompok-transaksi-dropdown', 'masterKelompokTransaksidropdown');
@@ -670,14 +467,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/save-kelompok-transaksi', 'saveKelompokTransaksi');
         Route::post('sysadmin/delete-kelompok-transaksi', 'deleteKelompokTransaksi');
         Route::post('sysadmin/detail-kelompok-transaksi', 'detailKelompokTransaksi');
-    });
-    Route::controller(MasterAsalProdukCtrl::class)->group(function () {
-        Route::get('sysadmin/master-asal-produk', 'masterAsalProduk');
-        Route::get('sysadmin/master-asal-produk-dropdown', 'masterAsalProdukdropdown');
-
-        Route::post('sysadmin/save-asal-produk', 'saveAsalProduk');
-        Route::post('sysadmin/delete-asal-produk', 'deleteAsalProduk');
-        Route::post('sysadmin/detail-asal-produk', 'detailAsalProduk');
     });
     Route::controller(MasterAgamaCtrl::class)->group(function () {
         Route::get('sysadmin/master-agama', 'masterAgama');
@@ -691,25 +480,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/save-jenis-kelamin', 'saveJenisKelamin');
         Route::post('sysadmin/delete-jenis-kelamin', 'deleteJenisKelamin');
         Route::post('sysadmin/detail-jenis-kelamin', 'detailJenisKelamin');
-    });
-    Route::controller(MasterKSMCtrl::class)->group(function () {
-        Route::get('sysadmin/master-ksm', 'masterKSM');
-        Route::post('sysadmin/save-ksm', 'saveKSM');
-        Route::post('sysadmin/delete-ksm', 'deleteKSM');
-        Route::post('sysadmin/detail-ksm', 'detailKSM');
-    });
-    Route::controller(MapKsmToRuanganCtrl::class)->group(function () {
-        Route::get('sysadmin/get-combo-map-ksm', 'getComboMapKsm');
-        Route::get('sysadmin/get-map-ksm-to-ruangan', 'getMapKsmToRuangan');
-
-        Route::post('sysadmin/save-map-ksm-to-ruangan', 'saveMapKsmToRuangan');
-        Route::post('sysadmin/delete-map-ksm-to-ruangan', 'deleteMapKsmToRuangan');
-    });
-    Route::controller(MasterStatusPerkawinanCtrl::class)->group(function () {
-        Route::get('sysadmin/master-status-perkawinan', 'masterStatusPerkawinan');
-
-        Route::post('sysadmin/save-status-perkawinan', 'saveStatusPerkawinan');
-        Route::post('sysadmin/delete-status-perkawinan', 'deleteStatusPerkawinan');
     });
     Route::controller(MasterPendidikanCtrl::class)->group(function () {
         Route::get('sysadmin/master-pendidikan', 'masterPendidikan');
@@ -731,12 +501,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/save-golongan-darah', 'saveGolonganDarah');
         Route::post('sysadmin/delete-golongan-darah', 'deleteGolonganDarah');
     });
-    Route::controller(MasterSatuanResepCtrl::class)->group(function () {
-        Route::get('sysadmin/master-satuan-resep', 'masterSatuanResep');
-
-        Route::post('sysadmin/save-satuan-resep', 'saveSatuanResep');
-        Route::post('sysadmin/delete-satuan-resep', 'deleteSatuanResep');
-    });
     Route::controller(MasterNegaraCtrl::class)->group(function () {
         Route::get('sysadmin/master-negara', 'masterNegara');
 
@@ -749,12 +513,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/save-signa', 'saveSigna');
         Route::post('sysadmin/delete-signa', 'deleteSigna');
     });
-    Route::controller(MasterRouteFarmasiCtrl::class)->group(function () {
-        Route::get('sysadmin/master-route-farmasi', 'masterRouteFarmasi');
-
-        Route::post('sysadmin/save-route-farmasi', 'saveRouteFarmasi');
-        Route::post('sysadmin/delete-route-farmasi', 'deleteRouteFarmasi');
-    });
     Route::controller(MasterSukuCtrl::class)->group(function () {
         Route::get('sysadmin/master-suku', 'masterSuku');
 
@@ -766,13 +524,6 @@ Route::middleware(['log'])->group(function () {
 
         Route::post('sysadmin/save-provinsi', 'saveProvinsi');
         Route::post('sysadmin/delete-provinsi', 'deleteProvinsi');
-    });
-    Route::controller(MasterKotaKabupatenCtrl::class)->group(function () {
-        Route::get('sysadmin/master-kota-kabupaten', 'masterKotaKabupaten');
-        Route::get('sysadmin/master-kota-kabupaten-dropdown', 'masterKotaKabupatendropdown');
-
-        Route::post('sysadmin/save-kota-kabupaten', 'saveKotaKabupaten');
-        Route::post('sysadmin/delete-kota-kabupaten', 'deleteKotaKabupaten');
     });
     Route::controller(MasterKecamatanCtrl::class)->group(function () {
         Route::get('sysadmin/master-kecamatan', 'masterKecamatan');
@@ -793,50 +544,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/delete-harga-netto-produk-by-kelas', 'deleteHargaNettoProdukByKelas');
         Route::post('sysadmin/import-harga-netto-produk-by-kelas', 'importTarif');
     });
-    Route::controller(MasterMapRuanganToProdukCtrl::class)->group(function () {
-        Route::get('sysadmin/master-map-ruangan-to-produk', 'masterMapRuanganToProduk');
-        Route::get('sysadmin/master-map-ruangan-to-produk-dropdown', 'masterMapRuanganToProdukdropdown');
-        Route::get('sysadmin/master-map-ruangan-to-produk-dropdown-produk', 'masterMapRuanganToProdukdropdownProduk');
-        Route::get('sysadmin/ruangan', 'listRuangan');
-        Route::get('sysadmin/kelompok-produk', 'listKelompokProduk');
-        Route::get('sysadmin/jenis-produk-', 'listJenisProduk');
-        Route::get('sysadmin/detail-jenis-produk-', 'listDetailJenisProduk');
-        Route::get('sysadmin/list-produk', 'listProduk');
-
-        Route::post('sysadmin/save-map-ruangan-to-produk', 'saveMapRuanganToProduk');
-        Route::post('sysadmin/delete-map-ruangan-to-produk', 'deleteMapRuanganToProduk');
-        Route::post('sysadmin/detail-map-ruangan-to-produk', 'detailMapRuanganToProduk');
-    });
-    Route::controller(MasterPaketCtrl::class)->group(function () {
-        Route::get('sysadmin/master-paket', 'masterPaket');
-        Route::get('sysadmin/master-paket-dropdown', 'masterPaketdropdown');
-
-        Route::post('sysadmin/save-master-paket', 'savePaket');
-        Route::post('sysadmin/delete-master-paket', 'deletePaket');
-    });
-    Route::controller(MasterKelasCtrl::class)->group(function () {
-        Route::get('sysadmin/master-kelas', 'masterKelas');
-
-        Route::post('sysadmin/save-master-kelas', 'saveKelas');
-        Route::post('sysadmin/delete-master-kelas', 'deleteKelas');
-    });
-    Route::controller(MasterMapRuanganToKelasCtrl::class)->group(function () {
-        Route::get('sysadmin/master-map-ruangan-to-kelas', 'masterMapRuanganToKelas');
-        Route::get('sysadmin/master-map-ruangan-to-kelas-dropdown', 'masterMapRuanganToKelasdropdown');
-        Route::get('sysadmin/ruangan', 'listRuangan');
-
-        Route::post('sysadmin/save-map-ruangan-to-kelas', 'saveMapRuanganToKelas');
-        Route::post('sysadmin/delete-map-ruangan-to-kelas', 'deleteMapRuanganToKelas');
-        Route::post('sysadmin/detail-map-ruangan-to-kelas', 'detailMapRuanganToKelas');
-    });
-    Route::controller(MasterMapPaketToProdukCtrl::class)->group(function () {
-        Route::get('sysadmin/master-map-paket-to-produk', 'masterMapPaketToProduk');
-        Route::get('sysadmin/master-map-paket-to-produk-dropdown', 'masterMapPaketToProdukdropdown');
-
-        Route::post('sysadmin/save-map-paket-to-produk', 'saveMapPaketToProduk');
-        Route::post('sysadmin/delete-map-paket-to-produk', 'deleteMapPaketToProduk');
-        Route::post('sysadmin/detail-map-paket-to-produk', 'detailMapPaketToProduk');
-    });
     Route::controller(MasterJabatanCtrl::class)->group(function () {
         Route::get('sysadmin/master-jabatan', 'masterJabatan');
         Route::get('sysadmin/master-jabatan-dropdown', 'masterJabatandropdown');
@@ -844,32 +551,12 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/save-master-jabatan', 'saveJabatan');
         Route::post('sysadmin/delete-master-jabatan', 'deleteJabatan');
     });
-    Route::controller(MasterKelompokJabatanCtrl::class)->group(function () {
-        Route::get('sysadmin/master-kelompok-jabatan', 'masterKelompokJabatan');
-        Route::get('sysadmin/master-kelompok-jabatan-dropdown', 'masterKelompokJabatandropdown');
-
-        Route::post('sysadmin/save-master-kelompok-jabatan', 'saveKelompokJabatan');
-        Route::post('sysadmin/delete-master-kelompok-jabatan', 'deleteKelompokJabatan');
-    });
     Route::controller(MasterJenisJabatanCtrl::class)->group(function () {
         Route::get('sysadmin/master-jenis-jabatan', 'masterJenisJabatan');
         Route::get('sysadmin/master-jenis-jabatan-dropdown', 'masterJenisJabatandropdown');
 
         Route::post('sysadmin/save-master-jenis-jabatan', 'saveJenisJabatan');
         Route::post('sysadmin/delete-master-jenis-jabatan', 'deleteJenisJabatan');
-    });
-    Route::controller(MasterAsalRujukanCtrl::class)->group(function () {
-        Route::get('sysadmin/master-asal-rujukan', 'masterAsalRujukan');
-
-        Route::post('sysadmin/save-asal-rujukan', 'saveAsalRujukan');
-        Route::post('sysadmin/delete-asal-rujukan', 'deleteAsalRujukan');
-    });
-    Route::controller(MasterSlottingOnlineCtrl::class)->group(function () {
-        Route::get('sysadmin/master-slotting-online', 'masterSlottingOnline');
-        Route::get('sysadmin/master-slotting-online-dropdown', 'masterSlottingOnlinedropdown');
-
-        Route::post('sysadmin/save-slotting-online', 'saveSlottingOnline');
-        Route::post('sysadmin/delete-slotting-online', 'deleteSlottingOnline');
     });
     Route::controller(MasterKelompokUserCtrl::class)->group(function () {
         Route::get('sysadmin/master-kelompok-user', 'masterKelompokUser');
@@ -909,20 +596,6 @@ Route::middleware(['log'])->group(function () {
 
         Route::post('sysadmin/save-map-jenis-petugas-to-jenis-pegawai', 'saveMapJenisPetugasToJenisPegawai');
         Route::post('sysadmin/delete-map-jenis-petugas-to-jenis-pegawai', 'deleteMapJenisPetugasToJenisPegawai');
-    });
-    Route::controller(MasterDetailKategoryPegawaiCtrl::class)->group(function () {
-        Route::get('sysadmin/master-detail-kategory-pegawai', 'masterDetailKategoriPegawai');
-        Route::get('sysadmin/master-detail-kategory-pegawai-dropdown', 'masterDetailKategoryPegawaidropdown');
-
-        Route::post('sysadmin/save-detail-kategory-pegawai', 'saveDetailKategoryPegawai');
-        Route::post('sysadmin/delete-detail-kategory-pegawai', 'deleteDetailKategoryPegawai');
-    });
-    Route::controller(MasterJadwalDokterCtrl::class)->group(function () {
-        Route::get('sysadmin/master-jadwal-dokter', 'masterJadwalDokter');
-        Route::get('sysadmin/master-jadwal-dokter-dropdown', 'masterJadwalDokterDropdown');
-
-        Route::post('sysadmin/save-jadwal-dokter', 'saveJadwalDokter');
-        Route::post('sysadmin/delete-jadwal-dokter', 'deleteJadwalDokter');
     });
     Route::controller(MasterTambahLoginUserCtrl::class)->group(function () {
         Route::get('sysadmin/master-tambah-login-user', 'masterTambahLoginUser');
@@ -996,21 +669,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/delete-kategory-diet', 'deleteKategoryDiet');
     });
 
-    Route::controller(MasterSatuanGiziCtrl::class)->group(function () {
-        Route::get('sysadmin/master-satuan-gizi', 'masterSatuanGizi');
-
-        Route::post('sysadmin/save-satuan-gizi', 'saveSatuanGizi');
-        Route::post('sysadmin/delete-satuan-gizi', 'deleteSatuanGizi');
-    });
-
-    Route::controller(MasterVendorGiziCtrl::class)->group(function () {
-        Route::get('sysadmin/master-vendor-gizi', 'masterVendorGizi');
-
-        Route::post('sysadmin/save-vendor-gizi', 'saveVendorGizi');
-        Route::post('sysadmin/delete-vendor-gizi', 'deleteVendorGizi');
-    });
-
-
     Route::controller(MasterJenisWaktuCtrl::class)->group(function () {
         Route::get('sysadmin/master-jenis-waktu', 'masterJenisWaktu');
         Route::get('sysadmin/dropdown-departemen', 'DropdownKP');
@@ -1018,51 +676,6 @@ Route::middleware(['log'])->group(function () {
         Route::post('sysadmin/save-jenis-waktu', 'saveJenisWaktu');
         Route::post('sysadmin/delete-jenis-waktu', 'deleteJenisWaktu');
     });
-
-
-    Route::controller(MasterStatusPulangCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-status-pulang')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterStatusPegawaiCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-status-pegawai')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterProdusenProdukCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-produsen-produk')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-            Route::get('/select-item', 'dropdownItem');
-        });
-    });
-
-    Route::controller(MasterBahanProdukCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-bahan-produk')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-            Route::get('/select-item', 'dropdownItem');
-        });
-    });
-
-    Route::controller(MasterBentukProdukCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-bentuk-produk')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-            Route::get('/select-item', 'dropdownItem');
-        });
-    });
-
     Route::controller(MasterKamarCtrl::class)->group(function () {
         Route::prefix('sysadmin/master-kamar')->group(function () {
             Route::get('/', 'index');
@@ -1072,30 +685,12 @@ Route::middleware(['log'])->group(function () {
         });
     });
 
-    Route::controller(MasterStatusKeluarCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-status-keluar')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-            Route::get('/select-jenis-kondisi', 'jenisKondisiPasien');
-        });
-    });
     Route::controller(MasterJenisKondisiPasienCtrl::class)->group(function () {
         Route::prefix('sysadmin/master-jenis-kondisi-pasien')->group(function () {
             Route::get('/', 'index');
             Route::get('/cek', 'test');
             Route::post('/save', 'store');
             Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterKondisiPasienCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-kondisi-pasien')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::get('/detail/{id}', 'detail');
-            Route::post('/delete', 'delete');
-            Route::get('/jenis-kondisi-pasien', 'jenisKondisiPasien');
         });
     });
 
@@ -1123,29 +718,9 @@ Route::middleware(['log'])->group(function () {
         });
     });
 
-    Route::controller(MasterDiagnosaCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-diagnosa')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/select-item', 'dropdownItem');
-            Route::get('/export-diagnosa', 'exportDiagnosa');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-            Route::get('/coba', 'coba');
-        });
-    });
-
     Route::controller(MasterKategoriDiagnosaCtrl::class)->group(function () {
         Route::prefix('sysadmin/master-kategori-diagnosa')->group(function () {
             Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterDiagnosaTindakanCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-diagnosa-tindakan')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/select-item', 'kategoriDiagnosa');
             Route::post('/save', 'store');
             Route::post('/delete', 'delete');
         });
@@ -1168,14 +743,6 @@ Route::middleware(['log'])->group(function () {
         });
     });
 
-    Route::controller(MasterJadwalPraktekCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-jadwal-praktek')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
     Route::controller(MasterKedudukanPegawaiCtrl::class)->group(function () {
         Route::prefix('sysadmin/master-kedudukan-pegawai')->group(function () {
             Route::get('/', 'index');
@@ -1187,41 +754,6 @@ Route::middleware(['log'])->group(function () {
     Route::controller(MasterHubunganKeluargaCtrl::class)->group(function () {
         Route::prefix('sysadmin/master-hubungan-keluarga')->group(function () {
             Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterTempatTidurCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-tempat-tidur')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::get('/select-item', 'dropdownItem');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterStatusBedCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-status-bed')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterSatuanBesarCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-satuan-besar')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/select-item', 'dropdownItem');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterSatuanKecilCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-satuan-kecil')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/select-item', 'dropdownItem');
             Route::post('/save', 'store');
             Route::post('/delete', 'delete');
         });
@@ -1256,22 +788,6 @@ Route::middleware(['log'])->group(function () {
 
     Route::controller(MasterJenisTarifCtrl::class)->group(function () {
         Route::prefix('sysadmin/master-jenis-tarif')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterAsalAnggaranCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-asal-anggaran')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterAsalSukuCadangCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-asal-suku-cadang')->group(function () {
             Route::get('/', 'index');
             Route::post('/save', 'store');
             Route::post('/delete', 'delete');
@@ -1319,58 +835,6 @@ Route::middleware(['log'])->group(function () {
         });
     });
 
-    Route::controller(MasterStatusApotikCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-status-apotik')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterSediaanCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-sediaan')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterRhesusCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-rhesus')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterStatusApotikCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-status-apotik')->group(function () {
-            Route::get('/', 'index');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterAsuransiPasienCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-asuransi-pasien')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/select-item', 'dropdownItem');
-            Route::post('/save', 'store');
-            Route::post('/delete', 'delete');
-        });
-    });
-
-    Route::controller(MasterKonversiSatuanCtrl::class)->group(function () {
-        Route::prefix('sysadmin/master-konversi-satuan')->group(function () {
-            Route::get('/', 'index');
-            Route::get('/get-produk', 'getProduk');
-            Route::get('/list-satuan', 'listSatuanStandar');
-            Route::post('/save', 'store');
-            Route::get('/data-konversi-satuan-by-produk', 'getDataKonversiSatuan');
-            Route::post('/delete', 'delete');
-        });
-    });
-
     Route::controller(MasterTandaTanganCtrl::class)->group(function () {
         Route::prefix('sysadmin/master-tanda-tangan')->group(function () {
             Route::get('/', 'index');
@@ -1405,26 +869,7 @@ Route::middleware(['log'])->group(function () {
     Route::controller(WaServerWaServerCtrl::class)->group(function(){
         Route::post('radiologi/send-WA', 'kirimWARadiologi');
     });
-  
-    Route::controller(MapAdministrasiCtrl::class)->group(function () {
-        Route::get('sysadmin/get-ruang', 'getListCombo');
-        Route::get('sysadmin/produk-admin', 'getProdukAdmin');
-        Route::get('sysadmin/get-produk-harga', 'getTindakanKomponen');
-        Route::get('sysadmin/mapping-admin', 'getMapAdministrasi');
 
-        Route::post('sysadmin/save-map-administrasi', 'saveMapAdmin');
-        Route::post('sysadmin/delete-administrasi', 'deletMapping');
-    });
-    Route::controller(MapAkomodasiCtrl::class)->group(function () {
-        Route::get('sysadmin/get-ruang-akomodasi', 'getListComboakomodasi');
-        Route::get('sysadmin/produk-akomodasi', 'getProdukakomodasi');
-        Route::get('sysadmin/get-produk-harga-akomodasi', 'getTindakanKomponen');
-        Route::get('sysadmin/mapping-akomodasi', 'getMapAkomodasi');
-
-        Route::post('sysadmin/save-map-akomodasi', 'saveMapAkomodasi');
-        Route::post('sysadmin/save-akomodasi', 'saveAkomodasiAuto');
-        Route::post('sysadmin/delete-akomodasi', 'deletMappingAkomodasi');
-    });
     Route::controller(MapProdukPacsCtrl::class)->group(function () {
         Route::get('sysadmin/list-produk-pacs', 'getProdukRad');
         Route::get('sysadmin/list-modality', 'getMapping');

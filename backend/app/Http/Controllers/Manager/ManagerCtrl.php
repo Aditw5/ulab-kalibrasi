@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\App;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\File;
 
 class ManagerCtrl extends Controller
 {
@@ -943,5 +944,56 @@ class ManagerCtrl extends Controller
             $blade,
             compact('profile', 'pageWidth', 'print', 'res')
         );
+    }
+
+    public function downloadFileTerunggah(Request $request)
+    {
+        $norec = $request->get('norec');
+        $data = DB::table('mitraregistrasidetail_t')
+            ->select('namafileexcel')
+            ->where('norec', $norec)
+            ->first();
+        if (!$data || !$data->namafileexcel) {
+            return '
+            <script language="javascript">
+                alert("File tidak ditemukan di database.");
+                window.close();
+            </script>';
+        }
+        $filename = $data->namafileexcel;
+        $pathbundle = 'berkas-mitra-excel/' . $filename;
+        $path = public_path($pathbundle);
+
+        if (File::exists($path)) {
+            $file = File::get($path);
+            $type = File::mimeType($path);
+
+            $response = response()->make($file, 200);
+            $response->header("Content-Type", $type)
+                ->header('Content-disposition', 'attachment; filename="' . $filename . '"');
+
+            return $response;
+        } else {
+            return '
+            <script language="javascript">
+                alert("File tidak ditemukan di direktori.");
+                window.close();
+            </script>';
+        }
+    }
+
+
+    public function getExcelLength(Request $request)
+    {
+        $norec = $request['norec'];
+        $data = DB::table('mitraregistrasidetail_t')
+            ->select('namafileexcel')
+            ->where('norec', $norec)
+            ->first();
+
+        $result['data'] = $data;
+        $result['as'] = '@adit';
+
+        return $this->respond($result);
     }
 }

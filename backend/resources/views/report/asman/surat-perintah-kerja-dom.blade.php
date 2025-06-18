@@ -148,115 +148,233 @@
                 </td>
             </tr>
         </table>
-        <table width="100%" style="margin-top: 5px; ">
-            <tr>
-                <td width="40%">
-                    <span style="font-size: 9pt;font-weight: 600;olor:#000000"><b>
-
-                        </b></span>
-                </td>
-                <td width="30%">
-                    <span style="font-size: 9pt;color:#000000"><b>
-                            Menugaskan karyawan dibawah ini ,
-                        </b></span>
-                </td>
-                <td width="30%">
-                    <span style="font-size: 9pt;color:#000000"><b>
-
-                        </b></span>
-                </td>
-            </tr>
-        </table>
-        <table width="100%" style="margin-top: 5px; ">
-            <tr>
-                <td width="15%">
-                </td>
-                <td width="15%">
-                    <span style="font-size: 9pt;olor:#000000">
-                        Nama
-                    </span>
-                </td>
-                <td width="2%">
-                    <span style="font-size: 9pt;color:#000000">
-                        :
-                    </span>
-                </td>
-                <td>
-                    <span style="font-size: 9pt;color:#000000">
-                        {{ $res['alat'][0]->pelaksanateknik }}
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td width="15%">
-                </td>
-                <td width="15%">
-                    <span style="font-size: 9pt;color:#000000">
-                        NID
-                    </span>
-                </td>
-                <td width="2%">
-                    <span style="font-size: 9pt;;color:#000000">
-                        :
-                    </span>
-                </td>
-                <td>
-                    <span style="font-size: 9pt;color:#000000">
-
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td width="15%">
-                </td>
-                <td width="15%">
-                    <span style="font-size: 9pt;color:#000000">
-                        Jabatan
-                    </span>
-                </td>
-                <td width="2%">
-                    <span style="font-size: 9pt;;color:#000000">
-                        :
-                    </span>
-                </td>
-                <td>
-                    <span style="font-size: 9pt;color:#000000">
-                        {{ $res['alat'][0]->jabatanpelaksana }}
-                    </span>
-                </td>
-            </tr>
-        </table>
-
-        <table width="100%" border="1" cellspacing="0" cellpadding="5"
-            style="font-size: 10pt; border-collapse: collapse; margin-top: 20px;">
-            <thead>
+        @if ($res['penyelia'] == true)
+            <table width="100%" style="margin-top: 5px; ">
                 <tr>
-                    <th colspan="6" style="text-align: left; font-size: 11pt;">
-                        Untuk melaksanakan pekerjaan dibawah ini,
-                    </th>
+                    <td width="40%">
+                        <span style="font-size: 9pt;font-weight: 600;olor:#000000"><b>
+
+                            </b></span>
+                    </td>
+                    <td width="30%">
+                        <span style="font-size: 9pt;color:#000000"><b>
+                                Menugaskan Penyelia dibawah ini ,
+                            </b></span>
+                    </td>
+                    <td width="30%">
+                        <span style="font-size: 9pt;color:#000000"><b>
+
+                            </b></span>
+                    </td>
                 </tr>
-                <tr style="background-color: #f2f2f2;">
-                    <th style="font-size: 9pt;">No. Order</th>
-                    <th style="font-size: 9pt;">Nama Alat</th>
-                    <th style="font-size: 9pt;">Merk/Tipe</th>
-                    <th style="font-size: 9pt;">S/N</th>
-                    <th style="font-size: 9pt;">Kontak</th>
-                    <th style="font-size: 9pt;">Non - Kontak</th>
+            </table>
+            <table width="100%" style="margin-top: 5px; ">
+                <tr>
+                    <td width="15%">
+                    </td>
+                    <td width="15%">
+                        <span style="font-size: 9pt;olor:#000000">
+                            Nama
+                        </span>
+                    </td>
+                    <td width="2%">
+                        <span style="font-size: 9pt;color:#000000">
+                            :
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-size: 9pt;color:#000000">
+                            {{ $res['alat'][0]->penyeliateknik }}
+                        </span>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach ($res['alat'] as $alat)
+                <tr>
+                    <td width="15%">
+                    </td>
+                    <td width="15%">
+                        <span style="font-size: 9pt;color:#000000">
+                            NID
+                        </span>
+                    </td>
+                    <td width="2%">
+                        <span style="font-size: 9pt;;color:#000000">
+                            :
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-size: 9pt;color:#000000">
+
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%">
+                    </td>
+                    <td width="15%">
+                        <span style="font-size: 9pt;color:#000000">
+                            Jabatan
+                        </span>
+                    </td>
+                    <td width="2%">
+                        <span style="font-size: 9pt;;color:#000000">
+                            :
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-size: 9pt;color:#000000">
+                            {{ $res['alat'][0]->jabatanpenyelia }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        @endif
+        @if ($res['penyelia'] == false)
+            <table width="100%" style="margin-top: 5px; ">
+                <tr>
+                    <td width="40%">
+                        <span style="font-size: 9pt;font-weight: 600;olor:#000000"><b>
+
+                            </b></span>
+                    </td>
+                    <td width="30%">
+                        <span style="font-size: 9pt;color:#000000"><b>
+                                Menugaskan karyawan dibawah ini ,
+                            </b></span>
+                    </td>
+                    <td width="30%">
+                        <span style="font-size: 9pt;color:#000000"><b>
+
+                            </b></span>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" style="margin-top: 5px; ">
+                <tr>
+                    <td width="15%">
+                    </td>
+                    <td width="15%">
+                        <span style="font-size: 9pt;olor:#000000">
+                            Nama
+                        </span>
+                    </td>
+                    <td width="2%">
+                        <span style="font-size: 9pt;color:#000000">
+                            :
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-size: 9pt;color:#000000">
+                            {{ $res['alat'][0]->pelaksanateknik }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%">
+                    </td>
+                    <td width="15%">
+                        <span style="font-size: 9pt;color:#000000">
+                            NID
+                        </span>
+                    </td>
+                    <td width="2%">
+                        <span style="font-size: 9pt;;color:#000000">
+                            :
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-size: 9pt;color:#000000">
+
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15%">
+                    </td>
+                    <td width="15%">
+                        <span style="font-size: 9pt;color:#000000">
+                            Jabatan
+                        </span>
+                    </td>
+                    <td width="2%">
+                        <span style="font-size: 9pt;;color:#000000">
+                            :
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-size: 9pt;color:#000000">
+                            {{ $res['alat'][0]->jabatanpelaksana }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        @endif
+
+        @if ($res['penyelia'] == true)
+            <table width="100%" border="1" cellspacing="0" cellpadding="5"
+                style="font-size: 10pt; border-collapse: collapse; margin-top: 20px;">
+                <thead>
                     <tr>
-                        <td style="font-size: 9pt;">{{ $alat->noorderalat ?? '-' }}</td>
-                        <td style="font-size: 9pt;">{{ $alat->namaproduk }}</td>
-                        <td style="font-size: 9pt;">{{ trim($alat->namamerk) }} {{ $alat->namatipe }}</td>
-                        <td style="font-size: 9pt;">{{ $alat->namaserialnumber }}</td>
-                        <td style="font-size: 9pt;"></td>
-                        <td style="font-size: 9pt;"></td>
+                        <th colspan="7" style="text-align: left; font-size: 11pt;">
+                            Untuk melaksanakan pekerjaan dibawah ini,
+                        </th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="font-size: 9pt;">No. Order</th>
+                        <th style="font-size: 9pt;">Pelaksana</th>
+                        <th style="font-size: 9pt;">Nama Alat</th>
+                        <th style="font-size: 9pt;">Merk/Tipe</th>
+                        <th style="font-size: 9pt;">S/N</th>
+                        <th style="font-size: 9pt;">Kontak</th>
+                        <th style="font-size: 9pt;">Non - Kontak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($res['alat'] as $alat)
+                        <tr>
+                            <td style="font-size: 9pt;">{{ $alat->noorderalat ?? '-' }}</td>
+                            <td style="font-size: 9pt;">{{ $alat->pelaksanateknik ?? '-' }}</td>
+                            <td style="font-size: 9pt;">{{ $alat->namaproduk }}</td>
+                            <td style="font-size: 9pt;">{{ trim($alat->namamerk) }} {{ $alat->namatipe }}</td>
+                            <td style="font-size: 9pt;">{{ $alat->namaserialnumber }}</td>
+                            <td style="font-size: 9pt;"></td>
+                            <td style="font-size: 9pt;"></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+        @if ($res['penyelia'] == false)
+            <table width="100%" border="1" cellspacing="0" cellpadding="5"
+                style="font-size: 10pt; border-collapse: collapse; margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th colspan="6" style="text-align: left; font-size: 11pt;">
+                            Untuk melaksanakan pekerjaan dibawah ini,
+                        </th>
+                    </tr>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="font-size: 9pt;">No. Order</th>
+                        <th style="font-size: 9pt;">Nama Alat</th>
+                        <th style="font-size: 9pt;">Merk/Tipe</th>
+                        <th style="font-size: 9pt;">S/N</th>
+                        <th style="font-size: 9pt;">Kontak</th>
+                        <th style="font-size: 9pt;">Non - Kontak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($res['alat'] as $alat)
+                        <tr>
+                            <td style="font-size: 9pt;">{{ $alat->noorderalat ?? '-' }}</td>
+                            <td style="font-size: 9pt;">{{ $alat->namaproduk }}</td>
+                            <td style="font-size: 9pt;">{{ trim($alat->namamerk) }} {{ $alat->namatipe }}</td>
+                            <td style="font-size: 9pt;">{{ $alat->namaserialnumber }}</td>
+                            <td style="font-size: 9pt;"></td>
+                            <td style="font-size: 9pt;"></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
         <table width="100%" style="margin-top: 5px; ">
             <tr>
                 <td width="40%">
@@ -469,7 +587,7 @@
                 </td>
                 <td width="30%" class="text-center">
                     <span style="font-size: 10pt;" class="text-biasa"> Assistant Manager Non Mechanical Workshop
-                       </span>
+                    </span>
                 </td>
             </tr>
             <tr>

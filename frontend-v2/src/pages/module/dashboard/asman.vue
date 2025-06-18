@@ -471,7 +471,7 @@
                                         <VField>
                                             <VLabel>Lokasi Kalibrasi</VLabel>
                                             <VControl>
-                                                <AutoComplete v-model="item.lokasikalibrasi"
+                                                <AutoComplete v-model="item.lokasikalibrasiUpdate"
                                                     :suggestions="d_lokasikalibrasi" @complete="fetchLokasi($event)"
                                                     :optionLabel="'label'" :dropdown="true" :minLength="3"
                                                     class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
@@ -483,7 +483,7 @@
                                         <VField>
                                             <VLabel>Lingkup Kalibrasi</VLabel>
                                             <VControl>
-                                                <AutoComplete v-model="item.lingkupkalibrasi" :suggestions="d_lingkup"
+                                                <AutoComplete v-model="item.lingkupkalibrasiUpdate" :suggestions="d_lingkup"
                                                     @complete="fetchLingkup($event)" :optionLabel="'label'"
                                                     :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
                                                     :loadingIcon="'pi pi-spinner'" :field="'label'"
@@ -495,7 +495,7 @@
                                         <VField>
                                             <VLabel>Penyelia Teknik</VLabel>
                                             <VControl>
-                                                <AutoComplete v-model="item.penyeliateknik" :suggestions="d_penyelia"
+                                                <AutoComplete v-model="item.penyeliateknikUpdate" :suggestions="d_penyelia"
                                                     @complete="fetchPenyelia($event)" :optionLabel="'label'"
                                                     :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
                                                     :loadingIcon="'pi pi-spinner'" :field="'label'"
@@ -516,7 +516,7 @@
                                         <VField>
                                             <VLabel>Pelaksana Teknik</VLabel>
                                             <VControl>
-                                                <AutoComplete v-model="item.pelaksana" :suggestions="d_pelaksana"
+                                                <AutoComplete v-model="item.pelaksanaUpdate" :suggestions="d_pelaksana"
                                                     @complete="fetchPelaksana($event)" :optionLabel="'label'"
                                                     :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
                                                     :loadingIcon="'pi pi-spinner'" :field="'label'"
@@ -527,14 +527,14 @@
                                     <div class="column is-2">
                                         <VField label="Durasi Hari">
                                             <VControl icon="lnir lnir-repeat-one">
-                                                <VInput type="number" v-model="item.durasikalbrasi" placeholder="Jumlah"
+                                                <VInput type="number" v-model="item.durasikalbrasiUpdate" placeholder="Jumlah"
                                                     class="is-rounded" />
                                             </VControl>
                                         </VField>
                                     </div>
                                     <div class="columns mt-2" style="margin-left:40px">
                                         <VButtons>
-                                            <VButton color="success" raised icon="feather:edit" v-if="item.pelaksana"
+                                            <VButton color="success" raised icon="feather:edit" v-if="item.pelaksanaUpdate"
                                                 @click="update(item)" :loading="isLoadingSave"> Update
                                             </VButton>
                                             <VButton raised @click="clear()"> Batal </VButton>
@@ -661,7 +661,7 @@
                     Filter</VButton>
             </template>
         </VModal>
-        <VModal :open="modalRiwayat" noclose size="big" actions="right" @close="modalRiwayat = false, clear()"
+        <VModal :open="modalRiwayat" noclose size="big" actions="right" @close="modalRiwayat = false"
             cancelLabel="Tutup">
             <template #content>
                 <div class="column">
@@ -762,7 +762,6 @@ import { useToaster } from '/@src/composable/toaster'
 import Fieldset from 'primevue/fieldset'
 import Dropdown from 'primevue/dropdown'
 import * as H from '/@src/utils/appHelper'
-import FloatingButton from "../emr/float-tambah.vue"
 import Badge from 'primevue/badge';
 import * as qzService from '/@src/utils/qzTrayService'
 import AutoComplete from 'primevue/autocomplete';
@@ -1100,30 +1099,30 @@ const cetakSertifikatLembarKerja = (e) => {
 
 
 const edit = (e: any) => {
-    item.value.lokasikalibrasi = {
+    item.value.lokasikalibrasiUpdate = {
         value: e.lokasikalibrasifk ?? '',
         label: e.lokasi ?? ''
     };
-    item.value.lingkupkalibrasi = {
+    item.value.lingkupkalibrasiUpdate = {
         value: e.lingkupfk ?? '',
         label: e.lingkupkalibrasi ?? ''
     };
-    item.value.penyeliateknik = {
+    item.value.penyeliateknikUpdate = {
         value: e.penyeliateknikfk ?? '',
         label: e.penyeliateknik ?? ''
     };
-    item.value.pelaksana = {
+    item.value.pelaksanaUpdate = {
         value: e.pelaksanateknikfk ?? '',
         label: e.pelaksanateknik ?? ''
     };
     item.value.norec_detail = e.norec_detail
     item.value.norec = e.norec
-    item.value.durasikalbrasi = e.durasikalbrasi
+    item.value.durasikalbrasiUpdate = e.durasikalbrasi
 }
 
 const update = async (e: any) => {
-    console.log(e)
-    if (!e.durasikalbrasi) {
+    // console.log(e)
+    if (!e.durasikalbrasiUpdate) {
         H.alert('error', 'Durasi harus di isi')
         return
     }
@@ -1131,11 +1130,11 @@ const update = async (e: any) => {
         'veriItem': {
             'norec': e.norec ? e.norec : '',
             'norec_detail': e.norec_detail ? e.norec_detail : '',
-            'lokasikalibrasi': e.lokasikalibrasi.value,
-            'lingkupkalibrasi': e.lingkupkalibrasi.value,
-            'penyeliateknik': e.penyeliateknik.value,
-            'pelaksana': e.pelaksana.value,
-            'durasikalbrasi': e.durasikalbrasi,
+            'lokasikalibrasi': e.lokasikalibrasiUpdate.value,
+            'lingkupkalibrasi': e.lingkupkalibrasiUpdate.value,
+            'penyeliateknik': e.penyeliateknikUpdate.value,
+            'pelaksana': e.pelaksanaUpdate.value,
+            'durasikalbrasi': e.durasikalbrasiUpdate,
         }
     }
     isLoadingSave.value = true
@@ -1241,11 +1240,11 @@ const changeSwitchAlat = (e: any) => {
 const clear = () => {
     item.value.id = ''
     delete item.value.no
-    item.value.pelaksana = ''
-    item.value.lokasikalibrasi = ''
-    item.value.lingkupkalibrasi = ''
-    item.value.penyeliateknik = ''
-    item.value.durasikalbrasi = ''
+    item.value.pelaksanaUpdate = ''
+    item.value.lokasikalibrasiUpdate = ''
+    item.value.lingkupkalibrasiUpdate = ''
+    item.value.penyeliateknikUpdate = ''
+    item.value.durasikalbrasiUpdate = ''
 }
 
 const showModalFilter = () => {

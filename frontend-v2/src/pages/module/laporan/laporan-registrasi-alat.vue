@@ -1,4 +1,3 @@
-
 <template>
   <div class="column">
     <VCard>
@@ -6,7 +5,7 @@
         <div class="search-widget">
           <div class="field">
             <div class="columns is-multiline">
-              <!-- <div class="column is-4 pt-0 pb-0">
+              <div class="column is-4 pt-0 pb-0">
                 <span>Periode</span>
                 <VDatePicker v-model="item.qFilterTgl" is-range color="pink" trim-weeks class="pt-2">
                   <template #default="{ inputValue, inputEvents }">
@@ -23,12 +22,16 @@
                     </VField>
                   </template>
                 </VDatePicker>
-              </div> -->
-              <div class="column pt-0 pb-0" style=" margin-top: 30px">
-                  <VIconButton type="button" color="success" class="searcv-button" raised icon="fas fa-search"
-                    @click="fetchData()" :loading="isPlaceLoad">
-                  </VIconButton>
-                </div>
+              </div>
+              <div class="column is-6 mt-4">
+                <input type="text" v-model="item.search" v-on:keyup.enter="fetchData()" class="input"
+                  placeholder="Search..." />
+              </div>
+              <div class="column mt-4" style="margin-left: auto:  !important;">
+                <VIconButton type="button" color="success" class="searcv-button" raised icon="fas fa-search"
+                  @click="fetchData()" :loading="isPlaceLoad">
+                </VIconButton>
+              </div>
             </div>
           </div>
         </div>
@@ -38,7 +41,7 @@
 
   <div class="column">
     <VCard>
-      <h3 class="title is-5 mb-2">Laporan Pasien Kanker</h3>
+      <h3 class="title is-5 mb-2">Laporan Registrasi Alat</h3>
       <div class="column" v-if="isPlaceLoad">
         <VPlaceloadWrap v-for="data in 25">
           <VPlaceload class="mx-2 mb-3" />
@@ -55,27 +58,43 @@
         </VPlaceholderPage>
 
         <div v-else>
-          <DataTable :value="dataSource" class="p-datatable-sm" :loading="isLoading" :paginator="true" :rows="20"
-            :rowsPerPageOptions="[20, 40, 60]" scrollable
+          <DataTable :value="dataSource" class="p-datatable-sm" :loading="isLoading" :paginator="true" :rows="10"
+            :rowsPerPageOptions="[5, 10, 25]" scrollable
             paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
             responsiveLayout="stack" breakpoint="960px" sortMode="multiple"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" showGridlines>
 
             <template #header>
               <div class="flex flex-wrap align-items-center justify-content-between gap-2">
-                <VButton color="warning" class="mr-4 mb-3" icon="fas fa-file-excel" raised @click="exportExcel()"> Export
+                <VButton color="warning" class="mr-4 mb-3" icon="fas fa-file-excel" raised @click="exportExcel()">
+                  Export
                   to
                   Excel </VButton>
               </div>
             </template>
 
             <Column field="no" header="#" frozen></Column>
-            <Column field="namapasien" header="Nama Pasien" frozen :sortable="true" style="min-width: 200px"></Column>
-            <Column field="nocm" header="No RM" :sortable="true" style="min-width: 100px"></Column>
+            <Column field="namaproduk" header="Nama Alat" frozen :sortable="true" style="min-width: 200px"></Column>
+            <Column field="namaperusahaan" header="Nama Pelanggan" :sortable="true" style="min-width: 300px"></Column>
+            <Column field="namamerk" header="Merk" :sortable="true" style="min-width: 100px"></Column>
+            <Column field="namatipe" header="Tipe" :sortable="true" style="min-width: 100px"></Column>
+            <Column field="namaserialnumber" header="S/N" :sortable="true" style="min-width: 200px"></Column>
+            <Column field="tglregistrasi" header="Tanggal Registrasi" :sortable="true" style="min-width: 200px">
+              <template #body="slotProps">
+                <span>{{ H.formatDateToLocalString(slotProps.data.tglregistrasi) }}</span>
+              </template>
+            </Column>
+            <Column field="lingkupkalibrasi" header="Lingkup Kalibrasi" :sortable="true" style="min-width: 200px"></Column>
+            <Column field="lokasi" header="Lokasi" :sortable="true" style="min-width: 200px"></Column>
+            <Column field="nohp" header="No. HP" :sortable="true" style="min-width: 200px"></Column>
+            <!-- <Column field="statuspasien" header="Status" :sortable="true" style="min-width: 100px">
+              <template #body="slotProps">
+                <VTag class="ml-4" color="primary" rounded>{{ slotProps.data.statuspasien }}</VTag>
+              </template>
+            </Column> -->
           </DataTable>
         </div>
       </div>
-
     </VCard>
   </div>
 
@@ -98,10 +117,10 @@ import { useViewWrapper } from '/@src/stores/viewWrapper'
 import Calendar from 'primevue/calendar';
 import * as XLSX from "xlsx";
 useHead({
-  title: 'Laporan Indexing Pasien Rawat Jalan - ' + import.meta.env.VITE_PROJECT,
+  title: 'Laporan Registrasi Alat - ' + import.meta.env.VITE_PROJECT,
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
-useViewWrapper().setFullWidth(true)
+useViewWrapper().setFullWidth(false)
 
 const modalFilter: any = ref(false)
 const themeColors = useThemeColors()
@@ -123,43 +142,20 @@ const currentPage: any = ref({
 })
 const remakeData: any = ref([])
 let dataSource: any = ref([])
-let dataSourcePulang: any = ref([])
 let dataHutang: any = ref([])
-let d_Ruangan: any = ref([])
-let d_KelompokPasien: any = ref([])
-let d_JenisPasien: any = ref([])
-let d_Dokter: any = ref([])
+let d_departemen: any = ref([])
 let isLoading: any = ref(false)
 let isPlaceLoad: any = ref(false)
 const filters = ref('')
 
-// const dataTagihanBelumLunas = computed(() => {
-//   if (!item.value.qFilter) {
-//     return dataHutang.value
-//   }
-//   return dataHutang.value.filter((items: any) => {
-//     return (
-//       items.namapasien.match(new RegExp(item.value.qFilter, 'i')) ||
-//       items.noRegistrasi.match(new RegExp(item.value.qFilter, 'i'))
-//     )
-//   })
-// })
-
-// const fetchKelompokPasien = async (filter: any) => {
-//     await useApi().get(`emr/dropdown/kelompokpasien_m?select=id,kelompokpasien&param_search=kelompokpasien&query=${filter.query}&limit=10`
-//     ).then((response) => {
-//         d_KelompokPasien.value = response
-//     })
-// }
 
 const fetchData = async () => {
   isPlaceLoad.value = true
-  // let tglAwal = 'tglAwal=' + moment(item.value.qFilterTgl.start).format('YYYY-MM-DD')
-  // let tglAkhir = '&tglAkhir=' + moment(item.value.qFilterTgl.end).format('YYYY-MM-DD')
+  let tglAwal = 'tglAwal=' + moment(item.value.qFilterTgl.start).format('YYYY-MM-DD')
+  let tglAkhir = '&tglAkhir=' + moment(item.value.qFilterTgl.end).format('YYYY-MM-DD')
+  let search = item.value.search ? `&search=${item.value.search}` : ''
 
-  await useApi().get(`pasien/get-data-pasien-kanker`).then((response: any) => {
-    console.log('ieuuu', response);
-    
+  await useApi().get(`pelayanan/get-laporan-pengunjung?${tglAwal}${tglAkhir}${search}`).then((response: any) => {
     response.data.forEach((element: any, i: any) => {
       element.no = i + 1
     });
@@ -169,27 +165,15 @@ const fetchData = async () => {
 
 }
 
-// const fetchRuangan = async (filter: any) => {
-//   await useApi().get(
-//     `emr/dropdown/ruangan_m?select=id,namaruangan&param_search=namaruangan&query=${filter.query}&limit=10`
-//   ).then((response) => {
-//     d_Ruangan.value = response
-//   })
-// }
-
-// const fetchDokter = async (filter: any) => {
-//   await useApi().get(
-//     `emr/dropdown/pegawai_m?select=id,namalengkap&param_search=namalengkap&query=${filter.query}&settingdatafix=objectjenispegawaifk,idJenisPegawaiDokter&limit=10`
-//   ).then((response) => {
-//     d_Dokter.value = response
-//   })
-// }
 
 const exportExcel = () => {
   console.log(dataSource.value)
   remakeData.value = dataSource.value.map((e: any) => {
     return {
-      NamaPasien: e.namapasien, NoRM: e.nocm
+      search: e.search, NoRM: e.nocm, NoRegistrasi: e.noregistrasi, JenisKelamin: e.jeniskelamin,
+      AlamatLengkap: e.alamatlengkap, Desa: e.namadesakelurahan, Kecamatan: e.kecamatan, Kota: e.namakotakabupaten,
+      Antrian: e.noantrian, Tanggal: e.tglmasuk, Dokter: e.namalengkap, Ruangan: e.namaruangan, NoHP: e.nohp,
+      KelompokPasien: e.kelompokpasien, Status: e.statuspasien,
     }
   })
   const worksheet = XLSX.utils.json_to_sheet(remakeData.value)
@@ -210,5 +194,5 @@ const saveAsExcelFile = (buffer: any, fileName: string) => {
   // exportFilename.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
 }
 
-// fetchData()
+fetchData()
 </script>

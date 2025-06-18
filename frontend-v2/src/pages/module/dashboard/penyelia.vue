@@ -732,7 +732,7 @@ const toggleOP = (event: any, item: any) => {
 const cetakSpk = (e) => {
   console.log(e)
 
-  H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
+  H.printBlade(`penyelia/cetak-spk?pdf=true&norec=${e.norec}&penyeliateknikfk=${e.penyeliateknikfk}`);
 }
 
 const cetakSertifikatLembarKerja = (e) => {

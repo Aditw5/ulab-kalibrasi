@@ -101,6 +101,11 @@
                 <VInput v-model="item.namapenanggungjawab" placeholder="Nama Penanggung Jawab" />
               </VControl>
             </VField>
+            <VField horizontal label="No.Hp Penanggung Jawab">
+              <VControl fullwidth>
+                <VInput type="number" v-model="item.nohppenanggungjawab" placeholder="No.HP Penanggung Jawab" />
+              </VControl>
+            </VField>
             <VField horizontal label="Jabatan Penanggung Jawab">
               <VControl fullwidth>
                 <VInput v-model="item.jabatanpenanggungjawab" placeholder="Jabatan Penanggung Jawab" />
@@ -221,7 +226,7 @@
                       <div class="column is-12 pl-0 pr-0">
                         <VButtons style="justify-content: space-around;">
                           <VIconButton type="button" raised circle icon="feather:plus" v-tooltip-prime.bottom="'Tambah'"
-                            @click="addNewAlat(items)" outlined color="info">
+                            @click="addNewAlat()" outlined color="info">
                           </VIconButton>
                           <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
                             icon="feather:trash" @click="removeAlat(items)" color="danger">
@@ -255,7 +260,6 @@ import { useConfirm } from 'primevue/useconfirm'
 import * as H from '/@src/utils/appHelper'
 import { useViewWrapper } from '/@src/stores/viewWrapper'
 import AutoComplete from 'primevue/autocomplete';
-import InfoPasien from '/@src/pages/include/info-mitra.vue';
 import * as qzService from '/@src/utils/qzTrayService'
 import Fieldset from 'primevue/fieldset';
 
@@ -399,6 +403,7 @@ const saveRegistrasi = async () => {
       'namaperusahaan': mitra.value.namaperusahaan,
       'lokasikalibrasi': item.lokasi.value,
       'namapenanggungjawab': item.namapenanggungjawab,
+      'nohppenanggungjawab': item.nohppenanggungjawab,
       'jabatanpenanggungjawab': item.jabatanpenanggungjawab,
       'rentangUkur': item.rentangUkur,
       'rentangUkurketPermintaanPelanggan': item.rentangUkurketPermintaanPelanggan ?? null ,
@@ -419,7 +424,7 @@ const saveRegistrasi = async () => {
   isLoading.value = false
 }
 
-const toDashboard = (norec_pd: any) => {
+const toDashboard = () => {
   router.push({
     name: 'module-dashboard-registrasi',
   })

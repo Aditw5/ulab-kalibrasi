@@ -411,173 +411,38 @@
         <VCard>
           <div class="colum is-12">
             <div class="columns is-multiline">
-              <div class="column">
+              <div class="column is-12 mt-4" style="text-align: right;">
+                <VButton icon="feather:save" @click="simpanExcelLembarKerja()" :loading="isLoadingSave" color="info">
+                  Simpan
+                </VButton>
+              </div>
+              <div class="column is-12">
+                <FileUpload v-model="fileMitraExcel" mode="advanced" name="demo"
+                  accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                  :maxFileSize="10000000" @upload="onUpload" outlined
+                  :invalidFileTypeMessage="'{0}: File yang diupload harus CSV atau Excel (XLS/XLSX).'"
+                  :invalidFileSizeMessage="'Ukuran maksimal berkas adalah {1}'"
+                  style="background-color: transparent; color: var(--danger); border: 1px solid;"
+                  :chooseLabel="fileMitraExcel ? fileMitraExcel.name : 'Unggah'" @select="onSelect($event)"
+                  class="is-rounded w-100" />
+              </div>
+              <div class="column" v-if="dataExcel != null">
                 <div class="column is-12 mt-4-min">
-                  <VButton rounded color="warning" class="" icon="feather:download" raised bold
-                    @click="downloadTemplate()">
-                    Download Template
-                  </VButton>
                   <div class="dataTable-bottom mt-2">
-                    <div class="dataTable-info" style="font-style:italic"> *Note : Template
-                      digunakan untuk menyamakan data, agar saat di upload tidak terjadi
-                      kesalahan memasukkan data.
+                    <div class="dataTable-info" style="font-style:italic">
+                      File Excel Terunggah {{ dataExcel }}
                     </div>
+                  </div>
+                  <div class="mt-2">
+                    <VButton rounded color="warning" class="" icon="feather:download" raised bold
+                      @click="downloadFileTerunggah()">
+                      Download File
+                    </VButton>
                   </div>
                 </div>
               </div>
-              <div class="column is-12">
-                <FileUpload name="demo[]" :multiple="false" @upload="onTemplatedUpload($event)" mode="advanced"
-                  :showUploadButton="false" :showCancelButton="true" @select="onSelectedFiles" chooseLabel="Pilih"
-                  cancelLabel="Batal" :maxFileSize="50000000">
-                  <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-                    <div class="flex flex-wrap justify-content-between align-items-center flex-1 gap-2">
-                      <div class="flex gap-2">
-                        <Button @click="chooseCallback()" icon="pi pi-upload" rounded severity="info" class="mr-1"
-                          outlined></Button>
-                        <Button @click="clearCallback()" icon="pi pi-times" rounded outlined severity="danger"
-                          :disabled="!files || files.length === 0"></Button>
-                      </div>
-                      <ProgressBar :value="totalSizePercent" :showValue="false"
-                        :class="['md:w-20rem h-1rem w-full md:ml-auto', { 'exceeded-progress-bar': totalSizePercent > 100 }]">
-                        <span class="white-space-nowrap">{{ totalSize
-                        }}B / 50Mb</span>
-                      </ProgressBar>
-                    </div>
-                  </template>
-                  <template #content="{ files, uploadedFiles, removeUploadedFileCallback, removeFileCallback }">
-                    <div v-if="files.length > 0">
 
-                      <div class="flex flex-wrap p-0 sm:p-5 gap-5">
-                        <div :key="files[0].name + files[0].type + files[0].size"
-                          class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3">
-                          <div>
-                            <i class="fas fa-file-excel shadow-2 mr-2" aria-hidden="true"></i>
-                          </div>
-                          <span class="font-semibold">{{ files[0].name
-                          }}</span>
-                          <div class="ml-2">{{
-                            formatSize(files[0].size)
-                          }}
-                            <Badge :value="valueProgress >= 99 ? 'Uploaded' : 'Pending'"
-                              :severity="valueProgress >= 99 ? 'success' : 'warning'" class="ml-2 mr-2" />
-                          </div>
-
-                          <Button icon="pi pi-times" @click="onRemoveTemplatingFile(files[0], removeFileCallback, 0)"
-                            outlined rounded severity="danger" />
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                  <template #empty>
-                    <p>Drag atau drop files untuk mengupload.</p>
-                  </template>
-                </FileUpload>
-              </div>
             </div>
-          </div>
-          <div class="column" v-if="isLoading">
-            <VPlaceloadWrap v-for="data in 10">
-              <VPlaceload class="mx-2 mb-3" />
-            </VPlaceloadWrap>
-          </div>
-          <div v-else-if="dataSourcefilter.length == 0">
-            <VPlaceholderSection :title="H.assets().notFound" :subtitle="H.assets().notFoundSubtitle" class="my-6">
-              <template #image>
-                <img class="light-image" :src="H.assets().iconNotFound_rev" alt="" />
-                <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
-              </template>
-            </VPlaceholderSection>
-          </div>
-          <div class="column is-12" v-else>
-            <div class="columns is-multiline" style="align-items:right">
-              <div class="column is-3">
-                <h3 class="title is-5 mb-2 mr-1">Upload Lembar Kerja </h3>
-              </div>
-              <div class="column is-3">
-                <VCardCustom :style="'padding:5px 25px'">
-                  <div class="label-status success">
-                    <i aria-hidden="true" class="fas fa-circle"></i>
-                    <span class="ml-1">TOTAL DATA</span>
-                  </div>
-                  <small class="text-bold-custom h-100">{{ dataSourcefilter.length }}</small>
-                </VCardCustom>
-              </div>
-              <div class="column is-3">
-                <VButton icon="feather:save" @click="Save()" :loading="isLoadingSave" color="info">Simpan</VButton>
-              </div>
-            </div>
-            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourcefilter" :paginator="true" :rows="10"
-              :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm" filterDisplay="menu"
-              paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-              responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
-              <ColumnGroup type="header">
-                <Row>
-                  <Column header="No" />
-                  <Column header="group" />
-                  <Column header="Rentang" :colspan="2" />
-                  <Column header="Penunjukan Standar" :colspan="4" />
-                  <Column header="Pembacaan Alat" :colspan="2" />
-                  <Column header="koreksi" :colspan="2" />
-                  <Column header="Ketidakpastian" :colspan="2" />
-                </Row>
-              </ColumnGroup>
-              <Column field="no" />
-              <Column :rowspan="4" field="group" header="Rentang" />
-              <Column field="rentang" header="Rentang" />
-              <Column field="rentang_satuan" header="" />
-              <Column field="penunjukan_standar" header="Penunjukan Standar" />
-              <Column field="penunjukan_standar_satuan" header="" />
-              <Column v-if="penunjukan_standar_2 !== ''" field="penunjukan_standar_2" header="" />
-              <Column v-if="penunjukan_standar_satuan_2 !== ''" field="penunjukan_standar_satuan_2" header="" />
-              <Column field="pembacaan_alat" header="Pembacaan Alat" />
-              <Column field="pembacaan_alat_satuan" header="" />
-              <Column field="koreksi" header="Koreksi" />
-              <Column field="koreksi_satuan" header="" />
-              <Column field="ketidakpastian" header="Ketidakpastian" />
-              <Column field="ketidakpastian_standar" header="" />
-            </DataTable>
-          </div>
-        </VCard>
-        <VCard>
-          <div class="column is-12">
-            <div class="columns is-multiline" style="text-align:center">
-              <div class="column is-12">
-                <h3 class="title is-5 mb-2 mr-1">Data Upload Lembar Kerja </h3>
-              </div>
-            </div>
-            <DataTable rowGroupMode="rowspan" groupRowsBy="group" :value="dataSourceHasilLembarKerja" :paginator="true"
-              :rows="10" :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm"
-              filterDisplay="menu"
-              paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-              responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
-              <ColumnGroup type="header">
-                <Row>
-                  <Column header="No" />
-                  <Column header="group" />
-                  <Column header="Rentang" :colspan="2" />
-                  <Column header="Penunjukan Standar" :colspan="4" />
-                  <Column header="Pembacaan Alat" :colspan="2" />
-                  <Column header="koreksi" :colspan="2" />
-                  <Column header="Ketidakpastian" :colspan="2" />
-                </Row>
-              </ColumnGroup>
-              <Column field="no" />
-              <Column :rowspan="4" field="group" header="Rentang" />
-              <Column field="rentang" header="Rentang" />
-              <Column field="rentang_satuan" header="" />
-              <Column field="penunjukan_standar" header="Penunjukan Standar" />
-              <Column field="penunjukan_standar_satuan" header="" />
-              <Column v-if="penunjukan_standar_2 !== ''" field="penunjukan_standar_2" header="" />
-              <Column v-if="penunjukan_standar_satuan_2 !== ''" field="penunjukan_standar_satuan_2" header="" />
-              <Column field="pembacaan_alat" header="Pembacaan Alat" />
-              <Column field="pembacaan_alat_satuan" header="" />
-              <Column field="koreksi" header="Koreksi" />
-              <Column field="koreksi_satuan" header="" />
-              <Column field="ketidakpastian" header="Ketidakpastian" />
-              <Column field="ketidakpastian_standar" header="" />
-            </DataTable>
           </div>
         </VCard>
       </TabPanel>
@@ -625,6 +490,8 @@ const dataSourceHasilLembarKerja: any = ref([])
 const filterd = ref('')
 const arr3 = ref([])
 const router = useRouter()
+const fileMitraExcel: any = ref()
+const dataExcel: any = ref()
 const item: any = ref({
   filterTgl: reactive({
     start: new Date(),
@@ -723,6 +590,13 @@ const fetchAlatStandar = async (filter: any) => {
 
 const downloadTemplate = () => {
   window.open(import.meta.env.VITE_API_BASE_URL + 'pelaksana/download-template-lembar-kerja?token=' + useUserSession().token, '_blank');
+}
+
+const downloadFileTerunggah = () => {
+  const norec = NOREC_DETAIL
+  const token = useUserSession().token
+  const url = `${import.meta.env.VITE_API_BASE_URL}pelaksana/download-file-terunggah?norec=${norec}&token=${token}`
+  window.open(url, '_blank')
 }
 
 
@@ -869,6 +743,52 @@ const dataSourcefilter = computed(() => {
   console.log(item.totalTarif)
   return filteredData;
 });
+
+const onSelect = async (filez: any) => {
+  const file = filez.files[0];
+
+  console.log(file.size);
+  if (file.size > 10000000) {
+    H.alert('error', 'Maksimal file size adalah 10 MB');
+    return;
+  }
+
+  fileMitraExcel.value = file;
+};
+
+
+const simpanExcelLembarKerja = async () => {
+  if (!fileMitraExcel.value) {
+    H.alert('error', 'File harus diunggah')
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('fileMitraExcel', fileMitraExcel.value)
+  formData.append('norec', NOREC_DETAIL)
+
+  isLoadingSave.value = true
+
+  try {
+    const r = await useApi().post('/pelaksana/save-excel-lembar-kerja', formData)
+    fileMitraExcel.value = null
+
+    H.alert('success', 'File berhasil diunggah')
+  } catch (error: any) {
+    console.error('Error saat menyimpan berkas excel:', error)
+    if (error.response) {
+      H.alert('error', `Kesalahan: ${error.response.status} - ${error.response.data.message || 'Gagal menyimpan berkas mitra'}`)
+    } else if (error.request) {
+      H.alert('error', 'Tidak ada respons dari server. Silakan coba lagi.')
+    } else {
+      H.alert('error', `Terjadi kesalahan: ${error.message}`)
+    }
+  } finally {
+    isLoadingSave.value = false
+  }
+}
+
+
 const Save = async () => {
   console.log(dataSourcefilter.value)
   if (!item.value.tglkalibrasi) { H.alert('warning', 'Tgl Kalibrasi harus di isi'); return }
@@ -941,8 +861,6 @@ const detailOrder = async () => {
   item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
   item.value.suhu = data.suhulembarkerja
   item.value.kelembabanRelatif = data.kelembabanRelatiflembarkerja
-
-  // === Instruksi Kerja ===
   item.value.detailInstruksiKerja = (data.daftarinstruksikerja?.length > 0)
     ? data.daftarinstruksikerja.map(i => ({
       daftarInstruksiKerja: {
@@ -951,8 +869,6 @@ const detailOrder = async () => {
       }
     }))
     : [{ daftarInstruksiKerja: { value: '', label: '' } }]
-
-  // === Alat Standar ===
   item.value.detailPeralatanStandar = (data.daftaralatstandar?.length > 0)
     ? data.daftaralatstandar.map(a => ({
       daftaralatstandar: {
@@ -979,6 +895,10 @@ const detailOrder = async () => {
       serialalatstandar: { value: '', label: '' }
     }];
 
+
+  const norec = NOREC_DETAIL
+  const r = await useApi().get(`/pelaksana/excel-length?norec=${norec}`)
+  dataExcel.value = r.data.namafileexcel
 
 }
 

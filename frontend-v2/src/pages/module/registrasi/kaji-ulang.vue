@@ -282,7 +282,7 @@
             </VField>
           </div>
           <div class="column is-12">
-            <FileUpload v-model="fileMitra" mode="basic" name="demo" accept="image/jpeg,image/jpg"
+            <FileUpload v-model="fileMitra" mode="advanced" name="demo" accept="image/jpeg,image/jpg"
               :maxFileSize="10000000" @upload="onUpload" outlined
               :invalidFileTypeMessage="'{0}: File yang diupload harus JPEG/JPG.'"
               :invalidFileSizeMessage="'Ukuran maksimal berkas adalah {1}'"

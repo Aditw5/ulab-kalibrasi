@@ -537,7 +537,7 @@ const save = async (e: any) => {
 const cetakSpk = (e) => {
   // console.log(e)
 
-  H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
+  H.printBlade(`pelaksana/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
 }
 
 const cetakSertifikatLembarKerja = (e) => {

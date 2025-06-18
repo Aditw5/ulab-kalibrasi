@@ -718,6 +718,7 @@ class PelaksanaCtrl extends Controller
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg2.jabatan1fk')
+            ->leftJoin('jabatan_m as jb1', 'jb1.id', '=', 'pg.jabatan1fk')
             ->select(
                 'mtr.norec',
                 'mtrd.norec as norec_detail',
@@ -728,6 +729,7 @@ class PelaksanaCtrl extends Controller
                 'mtrd.noorderalat',
                 'mtrd.durasikalbrasi',
                 'mtrd.namamanager',
+                'mtrd.namaasman',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -748,6 +750,7 @@ class PelaksanaCtrl extends Controller
                 'pg2.namalengkap as pelaksanateknik',
                 'pg3.id as asmanfk',
                 'pg3.namalengkap as asamanverifikasi',
+                'jb1.namajabatanulab as jabatanpenyelia',
                 'jb.namajabatanulab as jabatanpelaksana',
             )
             ->where('mtr.statusenabled', true)
@@ -761,7 +764,9 @@ class PelaksanaCtrl extends Controller
         $res['totalDurasi'] = $res['alat']->sum('durasikalbrasi');
         $res['pdf']  = $r['pdf'];
         $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->namamanager));
+        $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->namaasman));
         $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->pelaksanateknik));
+        $res['penyelia'] = false;
 
 
         $blade = 'report.asman.surat-perintah-kerja';
@@ -925,7 +930,7 @@ class PelaksanaCtrl extends Controller
                     'pageWidth' => $pageWidth,
                     'print' => $print,
                     'res' => $res,
-                    'jumlahHalaman' => null, 
+                    'jumlahHalaman' => null,
                 )
             );
             $dompdfDummy = $pdfDummy->getDomPDF();
@@ -940,7 +945,7 @@ class PelaksanaCtrl extends Controller
                     'pageWidth' => $pageWidth,
                     'print' => $print,
                     'res' => $res,
-                    'jumlahHalaman' => $jumlahHalaman, 
+                    'jumlahHalaman' => $jumlahHalaman,
                 )
             );
 
@@ -1070,130 +1075,98 @@ class PelaksanaCtrl extends Controller
         return $this->respond($result);
     }
 
-    //     public function cetakSertifikatLembarKerja(Request $r)
-    //     {
-    //         $profile = $this->profile();
-    //         $print = false;
-    //         $pageWidth = 950;
+    public function saveExcelLembarKerja(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $file = $r->file('fileMitraExcel');
+            $allowedExtensions = ['xlsx', 'xls', 'csv'];
+            $extension = strtolower($file->getClientOriginalExtension());
 
-    //         // Query identitas
-    //         $res['identitas'] = $data = DB::table('mitraregistrasi_t as mtr')
-    //             ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
-    //             ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.petugaskaji')
-    //             ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
-    //             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
-    //             ->select(
-    //                 'jb.id as idjabatan',
-    //                 'jb.namajabatanulab as namajabanpetugaskaji',
-    //                 'mtr.norec',
-    //                 'mtr.tglregistrasi',
-    //                 'mtr.nopendaftaran',
-    //                 'mtr.catatan',
-    //                 'mt.namaperusahaan',
-    //                 'mt.alamatktr',
-    //                 'pg.id as petugaskajifk',
-    //                 'pg.namalengkap as namapetugaskaji',
-    //                 'lk.lokasi',
-    //                 'mtr.jabatanpenanggungjawab',
-    //                 'mtr.namapenanggungjawab'
-    //             )
-    //             ->where('mtr.statusenabled', true)
-    //             ->where('mtr.iskaji', true)
-    //             ->where('mtr.norec', $r['norec'])
-    //             ->first();
+            if (!in_array($extension, $allowedExtensions)) {
+                throw new \Exception("File harus berupa Excel (.xlsx, .xls) atau CSV.");
+            }
 
-    //         // Query lembar kerja
-    //         $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
-    //             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
-    //             ->select('lk.*')
-    //             ->where('mtrd.norec', $r['norec_detail'])
-    //             ->where('lk.statusenabled', true)
-    //             ->get();
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('berkas-mitra-excel'), $filename);
 
-    //         $res['pdf'] = $r['pdf'] ?? false;
-    //         $blade = 'report.pelaksana.sertifikat-lembar-kerja';
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $r->norec)
+                ->update([
+                    'namafileexcel' => $filename,
+                    'updated_at' => now(),
+                ]);
 
-    //         // PDF EXPORT
-    //         if ($res['pdf'] === 'true' || $res['pdf'] === true) {
+            $transMessage = "Simpan Excel Lembar Kerja Sukses";
+            DB::commit();
 
-    //             // Render main html
-    //             $html = view($blade, [
-    //                 'profile' => $profile,
-    //                 'pageWidth' => $pageWidth,
-    //                 'print' => $print,
-    //                 'res' => $res,
-    //             ])->render();
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@epic',
+                    "namafile" => $filename,
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
 
-    //             // Render header html
-    //             $header = view('report.pelaksana.sertifikat-header', [
-    //                 'profile' => $profile,
-    //                 'res' => $res,
-    //             ])->render();
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
 
-    //             // dd($header);
+    public function downloadFileTerunggah(Request $request)
+    {
+        $norec = $request->get('norec');
+        $data = DB::table('mitraregistrasidetail_t')
+            ->select('namafileexcel')
+            ->where('norec', $norec)
+            ->first();
+        if (!$data || !$data->namafileexcel) {
+            return '
+            <script language="javascript">
+                alert("File tidak ditemukan di database.");
+                window.close();
+            </script>';
+        }
+        $filename = $data->namafileexcel;
+        $pathbundle = 'berkas-mitra-excel/' . $filename;
+        $path = public_path($pathbundle);
 
-    //             // Render footer html
-    //             $footer = view('report.pelaksana.sertifikat-footer', [
-    //                 'profile' => $profile,
-    //                 'res' => $res,
-    //             ])->render();
+        if (File::exists($path)) {
+            $file = File::get($path);
+            $type = File::mimeType($path);
 
-    //             // Generate PDF with header & footer
-    //            $pdf = SnappyPdf::loadHTML($html)
-    //             ->setOption('header-html', $header)
-    //             ->setOption('footer-html', $footer)
-    //             ->setOption('margin-top', 200)
-    //             ->setOption('margin-bottom', 40)
-    //             ->setOption('header-spacing', 5)
-    //             ->setOption('footer-spacing', 5)
-    //             ->setPaper('a4', 'portrait');
-    //  // jarak antara footer dan konten
+            $response = response()->make($file, 200);
+            $response->header("Content-Type", $type)
+                ->header('Content-disposition', 'attachment; filename="' . $filename . '"');
 
-    //             return $pdf->inline('sertifikat.pdf');
-    //             // atau bisa juga pakai: return $pdf->download('sertifikat.pdf');
-    //         }
-
-    //         // JIKA MAU SIMPAN PDF DI STORAGE, MIRIP SAJA
-    //         if (isset($r['storage'])) {
-    //             $res['storage'] = true;
-
-    //             $html = view($blade, [
-    //                 'profile' => $profile,
-    //                 'pageWidth' => $pageWidth,
-    //                 'print' => $print,
-    //                 'res' => $res,
-    //             ])->render();
-
-    //             $header = view('report.pelaksana.sertifikat-header', [
-    //                 'profile' => $profile,
-    //                 'res' => $res,
-    //             ])->render();
+            return $response;
+        } else {
+            return '
+            <script language="javascript">
+                alert("File tidak ditemukan di direktori.");
+                window.close();
+            </script>';
+        }
+    }
 
 
-    //             $footer = view('report.pelaksana.sertifikat-footer', [
-    //                 'profile' => $profile,
-    //                 'res' => $res,
-    //             ])->render();
+    public function getExcelLength(Request $request)
+    {
+        $norec = $request['norec'];
+        $data = DB::table('mitraregistrasidetail_t')
+            ->select('namafileexcel')
+            ->where('norec', $norec)
+            ->first();
 
-    //             $pdf = SnappyPdf::loadHTML($html)
-    //                 ->setPaper('a4', 'portrait')
-    //                 ->setOption('margin-top', 50)
-    //                 ->setOption('margin-bottom', 35)
-    //                 ->setOption('header-html', $header)
-    //                 ->setOption('header-spacing', 5)
-    //                 ->setOption('footer-html', $footer)
-    //                 ->setOption('footer-spacing', 3);
+        $result['data'] = $data;
+        $result['as'] = '@adit';
 
-    //             // contoh save ke storage, jika mau
-    //             // Storage::put('public/pdf/sertifikat.pdf', $pdf->output());
-
-    //             return $pdf;
-    //         }
-
-    //         // TAMPILKAN DI BROWSER SAJA (HTML, BUKAN PDF)
-    //         return view(
-    //             $blade,
-    //             compact('profile', 'pageWidth', 'print', 'res')
-    //         );
-    //     }
+        return $this->respond($result);
+    }
 }

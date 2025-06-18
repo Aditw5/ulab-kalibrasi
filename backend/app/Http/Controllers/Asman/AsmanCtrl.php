@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\App;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\File;
 
 class AsmanCtrl extends Controller
 {
@@ -722,6 +723,7 @@ class AsmanCtrl extends Controller
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg2.jabatan1fk')
+            ->leftJoin('jabatan_m as jb1', 'jb1.id', '=', 'pg.jabatan1fk')
             ->select(
                 'mtr.norec',
                 'mtrd.norec as norec_detail',
@@ -753,13 +755,14 @@ class AsmanCtrl extends Controller
                 'pg2.namalengkap as pelaksanateknik',
                 'pg3.id as asmanfk',
                 'pg3.namalengkap as asamanverifikasi',
+                'jb1.namajabatanulab as jabatanpenyelia',
                 'jb.namajabatanulab as jabatanpelaksana',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
             ->where('mtrd.statusenabled', true)
             ->where('mtr.norec', $r['norec'])
-            ->where('mtrd.pelaksanateknikfk', $r['pelaksanateknikfk'])
+            ->where('mtrd.penyeliateknikfk', $r['penyeliateknikfk'])
             ->orderByDesc('prd.namaproduk')
             ->get();
 
@@ -768,6 +771,7 @@ class AsmanCtrl extends Controller
         $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->namamanager));
         $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->namaasman));
         $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->pelaksanateknik));
+        $res['penyelia'] = true;
 
 
         $blade = 'report.asman.surat-perintah-kerja';
@@ -981,5 +985,56 @@ class AsmanCtrl extends Controller
             $blade,
             compact('profile', 'pageWidth', 'print', 'res')
         );
+    }
+
+    public function downloadFileTerunggah(Request $request)
+    {
+        $norec = $request->get('norec');
+        $data = DB::table('mitraregistrasidetail_t')
+            ->select('namafileexcel')
+            ->where('norec', $norec)
+            ->first();
+        if (!$data || !$data->namafileexcel) {
+            return '
+            <script language="javascript">
+                alert("File tidak ditemukan di database.");
+                window.close();
+            </script>';
+        }
+        $filename = $data->namafileexcel;
+        $pathbundle = 'berkas-mitra-excel/' . $filename;
+        $path = public_path($pathbundle);
+
+        if (File::exists($path)) {
+            $file = File::get($path);
+            $type = File::mimeType($path);
+
+            $response = response()->make($file, 200);
+            $response->header("Content-Type", $type)
+                ->header('Content-disposition', 'attachment; filename="' . $filename . '"');
+
+            return $response;
+        } else {
+            return '
+            <script language="javascript">
+                alert("File tidak ditemukan di direktori.");
+                window.close();
+            </script>';
+        }
+    }
+
+
+    public function getExcelLength(Request $request)
+    {
+        $norec = $request['norec'];
+        $data = DB::table('mitraregistrasidetail_t')
+            ->select('namafileexcel')
+            ->where('norec', $norec)
+            ->first();
+
+        $result['data'] = $data;
+        $result['as'] = '@adit';
+
+        return $this->respond($result);
     }
 }

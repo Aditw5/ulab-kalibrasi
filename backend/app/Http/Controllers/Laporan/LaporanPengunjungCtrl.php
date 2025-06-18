@@ -24,100 +24,74 @@ class LaporanPengunjungCtrl extends Controller
     {
         $rangeDate = [$request->tglAwal, $request->tglAkhir];
 
-        $data = DB::table('antrianpasiendiperiksa_t as apd')
-            ->join('pasiendaftar_t as pd', 'pd.norec', '=', 'apd.noregistrasifk')
-            ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
-            ->join('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-            ->leftJoin('alamat_m as alm', 'alm.nocmfk', '=', 'ps.id')
-            ->leftJoin('desakelurahan_m as dsk', 'dsk.id', '=', 'alm.objectdesakelurahanfk')
-            ->leftJoin('kotakabupaten_m as kkb', 'kkb.id', '=', 'alm.objectkotakabupatenfk')
-            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'apd.objectpegawaifk')
-            ->join('ruangan_m as rg', 'rg.id', '=', 'apd.objectruanganfk')
-            ->leftJoin('logginguser_t AS lg', function ($join) {
-                $join->on('lg.noreff', '=', 'pd.norec')
-                    ->on('lg.kdprofile', '=', 'pd.kdprofile')
-                    ->where('lg.jenislog', '=', 'Pendaftaran Pasien');
-            })
-            ->leftJoin('loginuser_s AS lu', 'lu.id', '=', 'lg.objectloginuserfk')
-            ->leftJoin('pegawai_m AS pg1', 'pg1.id', '=', 'lu.objectpegawaifk')
-            ->leftJoin('kelompokpasien_m as klp', 'klp.id', '=', 'pd.objectkelompokpasienlastfk')
+        $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftjoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftjoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftjoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftjoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
-                'pd.norec',
-                'pd.noregistrasi',
-                'pd.created_at as tglregistrasi',
-                'apd.tglmasuk',
-                'ps.nocm',
-                'ps.namapasien',
-                'ps.nohp',
-                'ps.tgllahir',
-                'jk.jeniskelamin',
-                'alm.alamatlengkap',
-                'dsk.namadesakelurahan',
-                'alm.kecamatan',
-                'kkb.namakotakabupaten',
-                'pd.statuspasien',
-                'rg.namaruangan',
-                'pg.namalengkap',
-                'ps.tgldaftar',
-                'klp.kelompokpasien',
-                'apd.noantrian',
-                'apd.objectruanganfk',
-                'jk.reportdisplay'
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.durasikalbrasi',
+                'mtrd.namafile',
+                'mtrd.keterangan',
+                'mtrd.statusorderpenyelia',
+                'mtrd.tglisilembarkerjapelaksana',
+                'mtrd.pelaksanaisilembarkerjafk',
+                'mtrd.tglverifasman',
+                'prd.namaproduk',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'mt.namaperusahaan',
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi',
+                'mtrd.setujuilembarkerjapenyelia',
+                'mtrd.tglsetujupenyelialembarkerja',
+                'mtrd.penyeliasetujulembarkerjafk',
+                'mtrd.setujuilembarkerjaasman',
+                'mtrd.tglsetujuasmanlembarkerja',
+                'mtrd.asmansetujulembarkerjafk',
+                'mtrd.statusorderasman',
+                'mtrd.tglverifpelaksana',
             )
-            ->where('pd.statusenabled', true)
-            ->where('apd.statusenabled', true)
-            ->whereBetween(DB::raw("CAST(apd.tglmasuk AS DATE)"), $rangeDate)
-            ->where('pd.kdprofile', $this->kdProfile);
+            ->where('mtr.statusenabled', true)
+            ->where('mtrd.statusenabled', true)
+            ->whereBetween(DB::raw("CAST(mtr.tglregistrasi AS DATE)"), $rangeDate);
 
-        // FILTER
-        if ($request->filled('ruanganId') && $request->ruanganId != 'undefined') {
-            $data->where('rg.id', $request->ruanganId);
-        }
-        if ($request->filled('nocm') && $request->nocm != 'undefined') {
-            $data->where('ps.nocm', 'ilike', '%' . $request->nocm . '%');
-        }
-        if ($request->filled('nama') && $request->nama != 'undefined') {
-            $data->where('ps.namapasien', 'ilike', '%' . $request->nama . '%');
-        }
-        if ($request->filled('dokter') && $request->dokter != 'undefined') {
-            $data->where('pg.id', $request->dokter);
-        }
-        if ($request->filled('kelompokpasien') && $request->kelompokpasien != 'undefined') {
-            $data->where('klp.id', $request->kelompokpasien);
-        }
-        if ($request->filled('statuspasien') && $request->statuspasien != 'undefined') {
-            $data->where('pd.statuspasien', 'ilike', '%' . $request->statuspasien . '%');
-        }
-        if ($request->filled('departemen') && $request->departemen != 'undefined') {
-            $data->where('rg.objectdepartemenfk', 'ilike', '%' . $request->departemen . '%');
+        if (isset($request['search']) && $request['search'] != '') {
+            $searchTerm = '%' . $request['search'] . '%';
+            $data = $data->where(function ($query) use ($searchTerm) {
+                $query->where('mt.namaperusahaan', 'ilike', $searchTerm)
+                    ->orWhere('lk.lokasi', 'ilike', $searchTerm)
+                    ->orWhere('mrk.namamerk', 'ilike', $searchTerm)
+                    ->orWhere('lp.lingkupkalibrasi', 'ilike', $searchTerm)
+                    ->orWhere('mtr.nopendaftaran', 'ilike', $searchTerm)
+                    ->orWhere('prd.namaproduk', 'ilike', $searchTerm);
+            });
         }
 
-        $data = $data->orderBy('apd.tglmasuk')
-                    ->distinct()
-                    ->groupBy(
-                        'pd.norec',
-                        'pd.noregistrasi',
-                        'pd.created_at',
-                        'apd.tglmasuk',
-                        'ps.nocm',
-                        'ps.namapasien',
-                        'ps.nohp',
-                        'ps.tgllahir',
-                        'jk.jeniskelamin',
-                        'alm.alamatlengkap',
-                        'dsk.namadesakelurahan',
-                        'alm.kecamatan',
-                        'kkb.namakotakabupaten',
-                        'pd.statuspasien',
-                        'rg.namaruangan',
-                        'pg.namalengkap',
-                        'ps.tgldaftar',
-                        'klp.kelompokpasien',
-                        'apd.noantrian',
-                        'apd.objectruanganfk',
-                        'jk.reportdisplay'
-                    )
-                    ->get();
+        $data = $data->orderBy('mtr.tglregistrasi');
+        $data = $data->get();
 
         return $this->respond([
             'data' => $data,
@@ -159,15 +133,29 @@ class LaporanPengunjungCtrl extends Controller
             ->whereBetween(DB::raw("CAST(pd.tglregistrasi AS DATE)"), $rangeDate)
             ->where('ddp.objectjenisdiagnosafk', 1)
             ->whereIn('dg.kddiagnosa', [
-                'I10', 'I25.9', 'I50.9', 'E14.9', 'E66.9', 'E07.9',
-                'I64', 'J45.9', 'M32.9', 'D56.9', 'J44.9', 'M81.99',
-                'N03.9', 'D24', 'C69.2', 'C95.9', 'C53.9'
+                'I10',
+                'I25.9',
+                'I50.9',
+                'E14.9',
+                'E66.9',
+                'E07.9',
+                'I64',
+                'J45.9',
+                'M32.9',
+                'D56.9',
+                'J44.9',
+                'M81.99',
+                'N03.9',
+                'D24',
+                'C69.2',
+                'C95.9',
+                'C53.9'
             ])
             ->orderBy('pd.tglregistrasi', 'ASC');
-                if (isset($request['nama']) && $request['nama'] != "" && $request['nama'] != "undefined") {
-                    $data = $data->Where('ps.namapasien', 'ilike', '%' . $request['nama'] . '%');
-                }
-            $data =  $data->get();
+        if (isset($request['nama']) && $request['nama'] != "" && $request['nama'] != "undefined") {
+            $data = $data->Where('ps.namapasien', 'ilike', '%' . $request['nama'] . '%');
+        }
+        $data =  $data->get();
 
         $norecPds = $data->pluck('norec_pd')->toArray();
         $vitalSigns = DB::connection('mongodb')
@@ -276,7 +264,8 @@ class LaporanPengunjungCtrl extends Controller
             ->leftJoin('kelompokpasien_m as klp', 'klp.id', '=', 'pd.objectkelompokpasienlastfk')
             ->select(
                 'rg.namaruangan',
-                DB::raw('
+                DB::raw(
+                    '
                     COUNT(CASE WHEN jk.id = 1 AND pd.statuspasien ILIKE \'%baru%\' THEN apd.norec END) AS lakibaru,
                     COUNT(CASE WHEN jk.id = 1 AND pd.statuspasien ILIKE \'%lama%\' THEN apd.norec END) AS lakilama,
                     COUNT(CASE WHEN jk.id = 2 AND pd.statuspasien ILIKE \'%baru%\' THEN apd.norec END) AS perempuanbaru,
@@ -306,7 +295,7 @@ class LaporanPengunjungCtrl extends Controller
                     'dataReport' => $data,
                     'pageWidth' => $pageWidth,
                     'profile' => $profile,
-                    'periode' => \Carbon\Carbon::parse($request->tglAwal)->locale('id_ID')->isoFormat('D MMMM Y HH:mm')." - ".\Carbon\Carbon::parse($request->tglAkhir)->locale('id_ID')->isoFormat('D MMMM Y HH:mm'),
+                    'periode' => \Carbon\Carbon::parse($request->tglAwal)->locale('id_ID')->isoFormat('D MMMM Y HH:mm') . " - " . \Carbon\Carbon::parse($request->tglAkhir)->locale('id_ID')->isoFormat('D MMMM Y HH:mm'),
                     'res' => array(
                         'pdf' => true
                     ),
@@ -342,7 +331,8 @@ class LaporanPengunjungCtrl extends Controller
             ->leftJoin('pegawai_m AS pg1', 'pg1.id', '=', 'lu.objectpegawaifk')
             ->select(
                 'rg.namaruangan',
-                DB::raw('
+                DB::raw(
+                    '
                     DATE_TRUNC(\'month\', apd.tglmasuk) AS groupedTanggal,
                     COUNT(CASE WHEN jk.id = 1 AND pd.statuspasien ILIKE \'%baru%\' THEN apd.norec END) AS lakibaru,
                     COUNT(CASE WHEN jk.id = 1 AND pd.statuspasien ILIKE \'%lama%\' THEN apd.norec END) AS lakilama,
@@ -353,7 +343,8 @@ class LaporanPengunjungCtrl extends Controller
                 ),
             )
             ->groupBy(
-                'rg.namaruangan', DB::raw('DATE_TRUNC(\'month\', apd.tglmasuk)')
+                'rg.namaruangan',
+                DB::raw('DATE_TRUNC(\'month\', apd.tglmasuk)')
             )
             ->where('pd.statusenabled', true)
             ->where('apd.statusenabled', true)
@@ -382,7 +373,8 @@ class LaporanPengunjungCtrl extends Controller
             ->select(
                 'rg.namaruangan',
                 'klp.kelompokpasien',
-                DB::raw('
+                DB::raw(
+                    '
                     DATE_TRUNC(\'month\', apd.tglmasuk) AS groupedTanggal,
                     COUNT(CASE WHEN jk.id = 1 THEN apd.norec END) AS laki,
                     COUNT(CASE WHEN jk.id = 2 THEN apd.norec END) AS perempuan,
@@ -391,7 +383,9 @@ class LaporanPengunjungCtrl extends Controller
                 ),
             )
             ->groupBy(
-                'rg.namaruangan', DB::raw('DATE_TRUNC(\'month\', apd.tglmasuk)'),  'klp.kelompokpasien'
+                'rg.namaruangan',
+                DB::raw('DATE_TRUNC(\'month\', apd.tglmasuk)'),
+                'klp.kelompokpasien'
             )
             ->where('pd.statusenabled', true)
             ->where('apd.statusenabled', true)
@@ -404,26 +398,26 @@ class LaporanPengunjungCtrl extends Controller
         $dataKelompok =  $dataKelompok->get();
 
         $ruangan = DB::table('ruangan_m as ru')
-                    ->select('namaruangan')
-                    ->join('pasiendaftar_t as pd', 'pd.objectruanganlastfk', 'ru.id')
-                    ->whereRaw('EXTRACT(MONTH FROM pd.tglregistrasi) = ?', [$request->bulan])
-                    ->whereRaw('EXTRACT(YEAR FROM pd.tglregistrasi) = ?', [$request->tahun])
-                    ->where('ru.statusenabled', true)
-                    ->where('ru.objectdepartemenfk', 18)
-                    ->distinct('namaruangan')
-                    ->get();
+            ->select('namaruangan')
+            ->join('pasiendaftar_t as pd', 'pd.objectruanganlastfk', 'ru.id')
+            ->whereRaw('EXTRACT(MONTH FROM pd.tglregistrasi) = ?', [$request->bulan])
+            ->whereRaw('EXTRACT(YEAR FROM pd.tglregistrasi) = ?', [$request->tahun])
+            ->where('ru.statusenabled', true)
+            ->where('ru.objectdepartemenfk', 18)
+            ->distinct('namaruangan')
+            ->get();
         $kelompok = DB::table('kelompokpasien_m as klp')
-                    ->select('kelompokpasien')
-                    ->join('pasiendaftar_t as pd', 'pd.objectkelompokpasienlastfk', 'klp.id')
-                    ->whereRaw('EXTRACT(MONTH FROM pd.tglregistrasi) = ?', [$request->bulan])
-                    ->whereRaw('EXTRACT(YEAR FROM pd.tglregistrasi) = ?', [$request->tahun])
-                    ->where('klp.statusenabled', true)
-                    ->distinct('kelompokpasien')
-                    ->get();
+            ->select('kelompokpasien')
+            ->join('pasiendaftar_t as pd', 'pd.objectkelompokpasienlastfk', 'klp.id')
+            ->whereRaw('EXTRACT(MONTH FROM pd.tglregistrasi) = ?', [$request->bulan])
+            ->whereRaw('EXTRACT(YEAR FROM pd.tglregistrasi) = ?', [$request->tahun])
+            ->where('klp.statusenabled', true)
+            ->distinct('kelompokpasien')
+            ->get();
         $responseTanggal = [];
         $lastDate = '';
         foreach ($data as $item) {
-            if($item->groupedtanggal != $lastDate){
+            if ($item->groupedtanggal != $lastDate) {
                 $responseTanggal[] = $item->groupedtanggal;
             }
             $lastDate = $item->groupedtanggal;
@@ -438,12 +432,12 @@ class LaporanPengunjungCtrl extends Controller
 
                 $total = 0;
                 foreach ($kelompok as $row) {
-                    $responseItem->{$row->kelompokpasien."laki"} = 0;
-                    $responseItem->{$row->kelompokpasien."perempuan"} = 0;
+                    $responseItem->{$row->kelompokpasien . "laki"} = 0;
+                    $responseItem->{$row->kelompokpasien . "perempuan"} = 0;
                     foreach ($dataKelompok as $itemKel) {
-                        if($itemKel->kelompokpasien == $row->kelompokpasien && $itemKel->namaruangan == $item->namaruangan){
-                            $responseItem->{$itemKel->kelompokpasien."laki"} = $itemKel->laki;
-                            $responseItem->{$itemKel->kelompokpasien."perempuan"} = $itemKel->perempuan;
+                        if ($itemKel->kelompokpasien == $row->kelompokpasien && $itemKel->namaruangan == $item->namaruangan) {
+                            $responseItem->{$itemKel->kelompokpasien . "laki"} = $itemKel->laki;
+                            $responseItem->{$itemKel->kelompokpasien . "perempuan"} = $itemKel->perempuan;
                             $total += $itemKel->total;
                         }
                     }
@@ -451,7 +445,7 @@ class LaporanPengunjungCtrl extends Controller
                 $responseItem->kelompokTotal = $total;
 
                 foreach ($data as $status) {
-                    if($status->namaruangan == $item->namaruangan){
+                    if ($status->namaruangan == $item->namaruangan) {
                         $responseItem->lakibaru = $status->lakibaru;
                         $responseItem->lakilama = $status->lakilama;
                         $responseItem->perempuanbaru = $status->perempuanbaru;
@@ -476,7 +470,7 @@ class LaporanPengunjungCtrl extends Controller
                     'dataReport' => $response,
                     'profile' => $profile,
                     'kelompok' => $kelompok,
-                    'periode' => \Carbon\Carbon::parse($request->tahun.'-'.$request->bulan.'-01')->locale('id_ID')->isoFormat('MMMM')." ".\Carbon\Carbon::parse($request->tahun.'-'.$request->bulan.'-01')->locale('id_ID')->isoFormat('YYYY'),
+                    'periode' => \Carbon\Carbon::parse($request->tahun . '-' . $request->bulan . '-01')->locale('id_ID')->isoFormat('MMMM') . " " . \Carbon\Carbon::parse($request->tahun . '-' . $request->bulan . '-01')->locale('id_ID')->isoFormat('YYYY'),
                     'res' => array(
                         'pdf' => true
                     ),
@@ -496,48 +490,48 @@ class LaporanPengunjungCtrl extends Controller
     public function getDaftarPasienRawatInap(Request $request)
     {
         $data = DB::table('pasiendaftar_t as pd')
-        ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
-        ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
-        ->join('ruangan_m as rm1', 'rm1.id', '=', 'pd.objectruanganasalfk')
-        ->join('kamar_m as km', 'km.id', '=', 'apd.objectkamarfk')
-        ->join('tempattidur_m as tp', 'tp.id', '=', 'apd.nobed')
-        ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
-        ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
-        ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
-        ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-        ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
-        ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
-        ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
-        ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
-        ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
-        ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
-        ->select(
-            'ps.namapasien',
-            'ps.nocm',
-            'pd.noregistrasi',
-            'jk.jeniskelamin',
-            'ps.tgllahir',
-            'pd.tglregistrasi as tglmasuk',
-            'kp.kelompokpasien as jenis_pasien',
-            'rm.namaruangan as namaruanganrawat',
-            'rm1.namaruangan as namaruanganasal',
-            'pg.namalengkap as dokter',
-            'kl.namakelas',
-            'km.namakamar',
-            DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
-            'tp.reportdisplay as bed',
-            'kt.namakotakabupaten',
-            'kc.namakecamatan',
-            'ds.namadesakelurahan',
-            'pp.namapropinsi',
-            'pd.statuspasien'
-        )
-        ->where('pd.kdprofile', $this->kdProfile)
-        ->where('pd.statusenabled', true)
-        ->where('apd.statusenabled', true)
-        ->where('apd.tglkeluar', null)
-        ->where('pd.tglpulang', null)
-        ->where('rm.objectdepartemenfk', '=', 16);
+            ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
+            ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
+            ->join('ruangan_m as rm1', 'rm1.id', '=', 'pd.objectruanganasalfk')
+            ->join('kamar_m as km', 'km.id', '=', 'apd.objectkamarfk')
+            ->join('tempattidur_m as tp', 'tp.id', '=', 'apd.nobed')
+            ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
+            ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
+            ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
+            ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
+            ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
+            ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
+            ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
+            ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
+            ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
+            ->select(
+                'ps.namapasien',
+                'ps.nocm',
+                'pd.noregistrasi',
+                'jk.jeniskelamin',
+                'ps.tgllahir',
+                'pd.tglregistrasi as tglmasuk',
+                'kp.kelompokpasien as jenis_pasien',
+                'rm.namaruangan as namaruanganrawat',
+                'rm1.namaruangan as namaruanganasal',
+                'pg.namalengkap as dokter',
+                'kl.namakelas',
+                'km.namakamar',
+                DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
+                'tp.reportdisplay as bed',
+                'kt.namakotakabupaten',
+                'kc.namakecamatan',
+                'ds.namadesakelurahan',
+                'pp.namapropinsi',
+                'pd.statuspasien'
+            )
+            ->where('pd.kdprofile', $this->kdProfile)
+            ->where('pd.statusenabled', true)
+            ->where('apd.statusenabled', true)
+            ->where('apd.tglkeluar', null)
+            ->where('pd.tglpulang', null)
+            ->where('rm.objectdepartemenfk', '=', 16);
 
 
         if (isset($request['ruanganId']) && $request['ruanganId'] != "" && $request['ruanganId'] != "undefined") {
@@ -718,15 +712,95 @@ class LaporanPengunjungCtrl extends Controller
             ->where('pd.kdprofile', $idProfile)
             ->where('ddp.objectjenisdiagnosafk', 1)
             ->whereNotIn('djp.id', [
-                1405, 1406, 1407, 1408, 1409, 1587, 1588, 1589, 1590, 1591, 1592, 1593, 1594, 1595, 1596, 1597, 1598, 1599, 1600, 1601, 1346, 1347, 1348, 1349, 1350, 1351, 1352, 1353, 1354, 1355, 1356, 1357, 1358, 1359, 1360, 1361, 1362, 1363, 1364, 1365, 1366, 1367, 1368, 1369, 1370, 1371, 1372, 1373, 1374, 1375, 1376, 1377, 1378, 1379, 1380, 1381, 1382, 1383, 1384, 1385, 1386, 1387, 1388, 1389, 1390, 1391, 1392, 1393, 1394, 1395, 1396, 1397, 1398, 1399, 1400, 1401, 1402, 1403, 474
+                1405,
+                1406,
+                1407,
+                1408,
+                1409,
+                1587,
+                1588,
+                1589,
+                1590,
+                1591,
+                1592,
+                1593,
+                1594,
+                1595,
+                1596,
+                1597,
+                1598,
+                1599,
+                1600,
+                1601,
+                1346,
+                1347,
+                1348,
+                1349,
+                1350,
+                1351,
+                1352,
+                1353,
+                1354,
+                1355,
+                1356,
+                1357,
+                1358,
+                1359,
+                1360,
+                1361,
+                1362,
+                1363,
+                1364,
+                1365,
+                1366,
+                1367,
+                1368,
+                1369,
+                1370,
+                1371,
+                1372,
+                1373,
+                1374,
+                1375,
+                1376,
+                1377,
+                1378,
+                1379,
+                1380,
+                1381,
+                1382,
+                1383,
+                1384,
+                1385,
+                1386,
+                1387,
+                1388,
+                1389,
+                1390,
+                1391,
+                1392,
+                1393,
+                1394,
+                1395,
+                1396,
+                1397,
+                1398,
+                1399,
+                1400,
+                1401,
+                1402,
+                1403,
+                474
             ])
-            ->whereIn('pro.id', [6717117,
-            1002130905,
-            6712418,
-            6713354,
-            6713363,
-            6713365,
-            6713376,]);
+            ->whereIn('pro.id', [
+                6717117,
+                1002130905,
+                6712418,
+                6713354,
+                6713363,
+                6713365,
+                6713376,
+            ]);
 
         if (isset($request['tglAwal']) && $request['tglAwal'] != "" && $request['tglAwal'] != "undefined") {
             $data->where('pd.tglregistrasi', '>=', $request['tglAwal']);
@@ -939,16 +1013,16 @@ class LaporanPengunjungCtrl extends Controller
         };
 
         $kuotaPoli = DB::table('slottingkiosk_m as sk')
-                   ->join('ruangan_m as ru','ru.id','sk.objectruanganfk',)
-                   ->selectRaw("ru.namaruangan,sk.objectruanganfk,sk.quota,sk.quotafix,0 as terpakai,
+            ->join('ruangan_m as ru', 'ru.id', 'sk.objectruanganfk',)
+            ->selectRaw("ru.namaruangan,sk.objectruanganfk,sk.quota,sk.quotafix,0 as terpakai,
                                 0 as batal, 0 as sisa, 0 as bersedia, 0 as mjkn, 0 as kiosk")
-                   ->where('sk.statusenabled',true)
-                   ->where('sk.tanggal',$date)
-                   ->where('sk.kdprofile',$this->kdProfile);
-                   if (isset($request['ruanganfk'])) {
-                    $kuotaPoli =  $kuotaPoli->where('sk.objectruanganfk', $request['ruanganfk']);
-                    }
-                  $kuotaPoli = $kuotaPoli->get();
+            ->where('sk.statusenabled', true)
+            ->where('sk.tanggal', $date)
+            ->where('sk.kdprofile', $this->kdProfile);
+        if (isset($request['ruanganfk'])) {
+            $kuotaPoli =  $kuotaPoli->where('sk.objectruanganfk', $request['ruanganfk']);
+        }
+        $kuotaPoli = $kuotaPoli->get();
 
         $data = DB::table('antrianpasienregistrasi_t as apr')
             ->join('ruangan_m as ru', 'ru.id', 'apr.objectruanganfk')
@@ -970,19 +1044,19 @@ class LaporanPengunjungCtrl extends Controller
                 )
             )
             ->whereRaw("to_char(apr.tanggalreservasi, 'yyyy-MM-dd') = '$date'")
-            ->where('sk.tanggal',$date)
-            ->where('sk.statusenabled',true)
+            ->where('sk.tanggal', $date)
+            ->where('sk.statusenabled', true)
             ->whereNotNull('apr.jenis')
             ->where('apr.kdprofile', $kdProfile);
-            if (isset($request['ruanganfk'])) {
-                $data =  $data->where('apr.objectruanganfk', $request['ruanganfk']);
-            }
-            $data = $data->groupBy('apr.objectruanganfk', 'ru.namaruangan','sk.quota','sk.quotafix');
-            $data = $data->get();
-        foreach($kuotaPoli as $item){
+        if (isset($request['ruanganfk'])) {
+            $data =  $data->where('apr.objectruanganfk', $request['ruanganfk']);
+        }
+        $data = $data->groupBy('apr.objectruanganfk', 'ru.namaruangan', 'sk.quota', 'sk.quotafix');
+        $data = $data->get();
+        foreach ($kuotaPoli as $item) {
             $found = false;
-            foreach($data as $dat){
-                if($item->objectruanganfk == $dat->objectruanganfk){
+            foreach ($data as $dat) {
+                if ($item->objectruanganfk == $dat->objectruanganfk) {
                     $found = true;
                     break;
                 }
@@ -1114,57 +1188,57 @@ class LaporanPengunjungCtrl extends Controller
         $rangeDate = [$request->tglAwal, $request->tglAkhir];
 
         $data = DB::table('pasiendaftar_t as pd')
-        ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
-        ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
-        ->join('ruangan_m as ru', 'ru.id', '=', 'pd.objectruanganasalfk')
-        ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
-        ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
-        ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
-        ->leftjoin('statuspulang_m as sp' , 'sp.id' , '=' , 'pd.objectstatuspulangfk')
-        ->leftjoin('kondisipasien_m as kd' , 'kd.id' , '=' , 'pd.objectkondisipasienfk')
-        ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-        ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
-        ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
-        ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
-        ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
-        ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
-        ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
-        ->leftjoin('diagnosapasien_t as dg' , 'dg.noregistrasifk' , '=' , 'apd.norec')
-        ->leftjoin('detaildiagnosapasien_t as ddg' , 'ddg.objectdiagnosapasienfk' , '=' , 'dg.norec')
-        ->leftjoin('jenisdiagnosa_m as jd' , 'jd.id' , '=' , 'ddg.objectjenisdiagnosafk')
-        ->leftjoin('diagnosa_m as dm' , 'dm.id' , '=' , 'ddg.objectdiagnosafk')
-        ->select(
-            'ps.namapasien',
-            'ps.nocm',
-            'pd.noregistrasi',
-            'jk.jeniskelamin',
-            'dg.ketdiagnosis',
-            'ps.tgllahir',
-            'pd.tglregistrasi as tglmasuk',
-            'sp.statuspulang',
-            'pd.tglpulang',
-            'kd.kondisipasien as kondisipulang',
-            'kp.kelompokpasien as jenis_pasien',
-            'rm.namaruangan as namaruanganrawat',
-            'ru.namaruangan as namaruanganasal',
-            'pg.namalengkap as dokter',
-            'kl.namakelas',
-            DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
-            'kt.namakotakabupaten',
-            'kc.namakecamatan',
-            'ds.namadesakelurahan',
-            'pp.namapropinsi',
-            'jd.jenisdiagnosa',
-            'dm.kddiagnosa as kodediagnosa',
-            'dm.namadiagnosa as namadiagnosa',
-            'pd.statuspasien'
-        )
-        ->where('pd.kdprofile', $this->kdProfile)
-        ->where('pd.statusenabled', true)
-        ->where('apd.statusenabled', true)
-        ->where('pd.tglpulang', '!=' , null)
-        ->where('rm.objectdepartemenfk', '=', 16)
-        ->whereBetween(DB::raw("CAST(pd.tglpulang AS DATE)"), $rangeDate);
+            ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
+            ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
+            ->join('ruangan_m as ru', 'ru.id', '=', 'pd.objectruanganasalfk')
+            ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
+            ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
+            ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
+            ->leftjoin('statuspulang_m as sp', 'sp.id', '=', 'pd.objectstatuspulangfk')
+            ->leftjoin('kondisipasien_m as kd', 'kd.id', '=', 'pd.objectkondisipasienfk')
+            ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
+            ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
+            ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
+            ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
+            ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
+            ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
+            ->leftjoin('diagnosapasien_t as dg', 'dg.noregistrasifk', '=', 'apd.norec')
+            ->leftjoin('detaildiagnosapasien_t as ddg', 'ddg.objectdiagnosapasienfk', '=', 'dg.norec')
+            ->leftjoin('jenisdiagnosa_m as jd', 'jd.id', '=', 'ddg.objectjenisdiagnosafk')
+            ->leftjoin('diagnosa_m as dm', 'dm.id', '=', 'ddg.objectdiagnosafk')
+            ->select(
+                'ps.namapasien',
+                'ps.nocm',
+                'pd.noregistrasi',
+                'jk.jeniskelamin',
+                'dg.ketdiagnosis',
+                'ps.tgllahir',
+                'pd.tglregistrasi as tglmasuk',
+                'sp.statuspulang',
+                'pd.tglpulang',
+                'kd.kondisipasien as kondisipulang',
+                'kp.kelompokpasien as jenis_pasien',
+                'rm.namaruangan as namaruanganrawat',
+                'ru.namaruangan as namaruanganasal',
+                'pg.namalengkap as dokter',
+                'kl.namakelas',
+                DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
+                'kt.namakotakabupaten',
+                'kc.namakecamatan',
+                'ds.namadesakelurahan',
+                'pp.namapropinsi',
+                'jd.jenisdiagnosa',
+                'dm.kddiagnosa as kodediagnosa',
+                'dm.namadiagnosa as namadiagnosa',
+                'pd.statuspasien'
+            )
+            ->where('pd.kdprofile', $this->kdProfile)
+            ->where('pd.statusenabled', true)
+            ->where('apd.statusenabled', true)
+            ->where('pd.tglpulang', '!=', null)
+            ->where('rm.objectdepartemenfk', '=', 16)
+            ->whereBetween(DB::raw("CAST(pd.tglpulang AS DATE)"), $rangeDate);
 
 
         if (isset($request['ruanganId']) && $request['ruanganId'] != "" && $request['ruanganId'] != "undefined") {
@@ -1227,7 +1301,7 @@ class LaporanPengunjungCtrl extends Controller
     }
 
     public function getLaporanInfeksiPPI(Request $request)
-   {
+    {
         DB::statement("SET TIME ZONE 'Asia/Jakarta';");
 
         $data = DB::table('pasiendaftar_t as pd')
@@ -1238,12 +1312,12 @@ class LaporanPengunjungCtrl extends Controller
             ->leftJoin('pasien_m as ps', 'pd.nocmfk', '=', 'ps.id')
             ->Join('transaksiinfeksippi_t as tip', 'tip.noregistrasifk', '=', 'pd.norec')
             ->leftJoin('infeksippi_m as ifp', 'ifp.id', '=', 'tip.objectinfeksippifk')
-            ->leftjoin('diagnosapasien_t as dg' , 'dg.noregistrasifk' , '=' , 'apd.norec')
-            ->leftjoin('detaildiagnosapasien_t as ddg' , 'ddg.objectdiagnosapasienfk' , '=' , 'dg.norec')
-            ->leftjoin('jenisdiagnosa_m as jd' , 'jd.id' , '=' , 'ddg.objectjenisdiagnosafk')
+            ->leftjoin('diagnosapasien_t as dg', 'dg.noregistrasifk', '=', 'apd.norec')
+            ->leftjoin('detaildiagnosapasien_t as ddg', 'ddg.objectdiagnosapasienfk', '=', 'dg.norec')
+            ->leftjoin('jenisdiagnosa_m as jd', 'jd.id', '=', 'ddg.objectjenisdiagnosafk')
             ->leftJoin('diagnosa_m as dm', function ($join) {
                 $join->on('dm.id', '=', 'ddg.objectdiagnosafk')
-                     ->whereNotNull('dm.penularan');
+                    ->whereNotNull('dm.penularan');
             })
             ->select(
                 DB::raw("
@@ -1314,58 +1388,58 @@ class LaporanPengunjungCtrl extends Controller
         $rangeDate = [$request->tglAwal, $request->tglAkhir];
 
         $data = DB::table('pasiendaftar_t as pd')
-        ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
-        ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
-        ->join('ruangan_m as ru', 'ru.id', '=', 'pd.objectruanganasalfk')
-        ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
-        ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
-        ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
-        ->leftjoin('statuspulang_m as sp' , 'sp.id' , '=' , 'pd.objectstatuspulangfk')
-        ->leftjoin('kondisipasien_m as kd' , 'kd.id' , '=' , 'pd.objectkondisipasienfk')
-        ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-        ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
-        ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
-        ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
-        ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
-        ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
-        ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
-        ->leftJoin('detaildiagnosatindakanpasien_t as ddt', 'pd.noregistrasi', 'ddt.noregistrasi')
-        ->leftJoin('diagnosatindakan_m as dt', 'ddt.objectdiagnosatindakanfk', 'dt.id')
-        // ->leftjoin('diagnosapasien_t as dg' , 'dg.noregistrasifk' , '=' , 'apd.norec')
-        // ->leftjoin('detaildiagnosapasien_t as ddg' , 'ddg.objectdiagnosapasienfk' , '=' , 'dg.norec')
-        // ->leftjoin('jenisdiagnosa_m as jd' , 'jd.id' , '=' , 'ddg.objectjenisdiagnosafk')
-        // ->leftjoin('diagnosa_m as dm' , 'dm.id' , '=' , 'ddg.objectdiagnosafk')
-        ->select(
-            'ps.namapasien',
-            'ps.nocm',
-            'pd.noregistrasi',
-            'jk.jeniskelamin',
-            // 'dg.ketdiagnosis',
-            'ps.tgllahir',
-            'pd.tglregistrasi as tglmasuk',
-            'sp.statuspulang',
-            'pd.tglpulang',
-            'kd.kondisipasien as kondisipulang',
-            'kp.kelompokpasien as jenis_pasien',
-            'rm.namaruangan as namaruanganrawat',
-            'ru.namaruangan as namaruanganasal',
-            'pg.namalengkap as dokter',
-            'kl.namakelas',
-            DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
-            'kt.namakotakabupaten',
-            'kc.namakecamatan',
-            'ds.namadesakelurahan',
-            'pp.namapropinsi',
-            'dt.kddiagnosatindakan as kodetindakan',
-            'dt.namadiagnosatindakan as namatindakan',
-            'pd.statuspasien'
-        )
-        ->where('pd.kdprofile', $this->kdProfile)
-        ->where('pd.statusenabled', true)
-        ->where('apd.statusenabled', true)
-        ->where('pd.tglpulang', '!=' , null)
-        ->where('rm.objectdepartemenfk', '=', 16)
-        ->whereBetween(DB::raw("CAST(pd.tglpulang AS DATE)"), $rangeDate);
+            ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
+            ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
+            ->join('ruangan_m as ru', 'ru.id', '=', 'pd.objectruanganasalfk')
+            ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
+            ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
+            ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
+            ->leftjoin('statuspulang_m as sp', 'sp.id', '=', 'pd.objectstatuspulangfk')
+            ->leftjoin('kondisipasien_m as kd', 'kd.id', '=', 'pd.objectkondisipasienfk')
+            ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
+            ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
+            ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
+            ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
+            ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
+            ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
+            ->leftJoin('detaildiagnosatindakanpasien_t as ddt', 'pd.noregistrasi', 'ddt.noregistrasi')
+            ->leftJoin('diagnosatindakan_m as dt', 'ddt.objectdiagnosatindakanfk', 'dt.id')
+            // ->leftjoin('diagnosapasien_t as dg' , 'dg.noregistrasifk' , '=' , 'apd.norec')
+            // ->leftjoin('detaildiagnosapasien_t as ddg' , 'ddg.objectdiagnosapasienfk' , '=' , 'dg.norec')
+            // ->leftjoin('jenisdiagnosa_m as jd' , 'jd.id' , '=' , 'ddg.objectjenisdiagnosafk')
+            // ->leftjoin('diagnosa_m as dm' , 'dm.id' , '=' , 'ddg.objectdiagnosafk')
+            ->select(
+                'ps.namapasien',
+                'ps.nocm',
+                'pd.noregistrasi',
+                'jk.jeniskelamin',
+                // 'dg.ketdiagnosis',
+                'ps.tgllahir',
+                'pd.tglregistrasi as tglmasuk',
+                'sp.statuspulang',
+                'pd.tglpulang',
+                'kd.kondisipasien as kondisipulang',
+                'kp.kelompokpasien as jenis_pasien',
+                'rm.namaruangan as namaruanganrawat',
+                'ru.namaruangan as namaruanganasal',
+                'pg.namalengkap as dokter',
+                'kl.namakelas',
+                DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
+                'kt.namakotakabupaten',
+                'kc.namakecamatan',
+                'ds.namadesakelurahan',
+                'pp.namapropinsi',
+                'dt.kddiagnosatindakan as kodetindakan',
+                'dt.namadiagnosatindakan as namatindakan',
+                'pd.statuspasien'
+            )
+            ->where('pd.kdprofile', $this->kdProfile)
+            ->where('pd.statusenabled', true)
+            ->where('apd.statusenabled', true)
+            ->where('pd.tglpulang', '!=', null)
+            ->where('rm.objectdepartemenfk', '=', 16)
+            ->whereBetween(DB::raw("CAST(pd.tglpulang AS DATE)"), $rangeDate);
 
 
         if (isset($request['ruanganId']) && $request['ruanganId'] != "" && $request['ruanganId'] != "undefined") {
@@ -1405,59 +1479,59 @@ class LaporanPengunjungCtrl extends Controller
         $rangeDate = [$request->tglAwal, $request->tglAkhir];
 
         $data = DB::table('pasiendaftar_t as pd')
-        ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
-        ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
-        ->join('ruangan_m as ru', 'ru.id', '=', 'pd.objectruanganasalfk')
-        ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
-        ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
-        ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
-        ->leftjoin('statuspulang_m as sp' , 'sp.id' , '=' , 'pd.objectstatuspulangfk')
-        ->leftjoin('kondisipasien_m as kd' , 'kd.id' , '=' , 'pd.objectkondisipasienfk')
-        ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-        ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
-        ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
-        ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
-        ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
-        ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
-        ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
-        ->leftjoin('asalrujukan_m as ar', 'ar.id', '=', 'pd.asalrujukanfk')
-        // ->leftjoin('diagnosapasien_t as dg' , 'dg.noregistrasifk' , '=' , 'apd.norec')
-        // ->leftjoin('detaildiagnosapasien_t as ddg' , 'ddg.objectdiagnosapasienfk' , '=' , 'dg.norec')
-        // ->leftjoin('jenisdiagnosa_m as jd' , 'jd.id' , '=' , 'ddg.objectjenisdiagnosafk')
-        // ->leftjoin('diagnosa_m as dm' , 'dm.id' , '=' , 'ddg.objectdiagnosafk')
-        ->select(
-            'ps.namapasien',
-            'ps.nocm',
-            'pd.noregistrasi',
-            'jk.jeniskelamin',
-            // 'dg.ketdiagnosis',
-            'ps.tgllahir',
-            'pd.tglregistrasi as tglmasuk',
-            'sp.statuspulang',
-            'pd.tglpulang',
-            'kd.kondisipasien as kondisipulang',
-            'kp.kelompokpasien as jenis_pasien',
-            'rm.namaruangan as namaruanganrawat',
-            'ru.namaruangan as namaruanganasal',
-            'pg.namalengkap as dokter',
-            'kl.namakelas',
-            DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
-            'kt.namakotakabupaten',
-            'kc.namakecamatan',
-            'ds.namadesakelurahan',
-            'pp.namapropinsi',
-            // 'jd.jenisdiagnosa',
-            // 'dm.kddiagnosa as kodediagnosa',
-            // 'dm.namadiagnosa as namadiagnosa',
-            'pd.statuspasien',
-            'ar.asalrujukan',
-        )
-        ->where('pd.kdprofile', $this->kdProfile)
-        ->where('pd.statusenabled', true)
-        ->where('apd.statusenabled', true)
-        ->where('pd.tglpulang', '!=' , null)
-        ->where('rm.objectdepartemenfk', '=', 16)
-        ->whereBetween(DB::raw("CAST(pd.tglpulang AS DATE)"), $rangeDate);
+            ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
+            ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
+            ->join('ruangan_m as ru', 'ru.id', '=', 'pd.objectruanganasalfk')
+            ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
+            ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
+            ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
+            ->leftjoin('statuspulang_m as sp', 'sp.id', '=', 'pd.objectstatuspulangfk')
+            ->leftjoin('kondisipasien_m as kd', 'kd.id', '=', 'pd.objectkondisipasienfk')
+            ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
+            ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
+            ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
+            ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
+            ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
+            ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
+            ->leftjoin('asalrujukan_m as ar', 'ar.id', '=', 'pd.asalrujukanfk')
+            // ->leftjoin('diagnosapasien_t as dg' , 'dg.noregistrasifk' , '=' , 'apd.norec')
+            // ->leftjoin('detaildiagnosapasien_t as ddg' , 'ddg.objectdiagnosapasienfk' , '=' , 'dg.norec')
+            // ->leftjoin('jenisdiagnosa_m as jd' , 'jd.id' , '=' , 'ddg.objectjenisdiagnosafk')
+            // ->leftjoin('diagnosa_m as dm' , 'dm.id' , '=' , 'ddg.objectdiagnosafk')
+            ->select(
+                'ps.namapasien',
+                'ps.nocm',
+                'pd.noregistrasi',
+                'jk.jeniskelamin',
+                // 'dg.ketdiagnosis',
+                'ps.tgllahir',
+                'pd.tglregistrasi as tglmasuk',
+                'sp.statuspulang',
+                'pd.tglpulang',
+                'kd.kondisipasien as kondisipulang',
+                'kp.kelompokpasien as jenis_pasien',
+                'rm.namaruangan as namaruanganrawat',
+                'ru.namaruangan as namaruanganasal',
+                'pg.namalengkap as dokter',
+                'kl.namakelas',
+                DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
+                'kt.namakotakabupaten',
+                'kc.namakecamatan',
+                'ds.namadesakelurahan',
+                'pp.namapropinsi',
+                // 'jd.jenisdiagnosa',
+                // 'dm.kddiagnosa as kodediagnosa',
+                // 'dm.namadiagnosa as namadiagnosa',
+                'pd.statuspasien',
+                'ar.asalrujukan',
+            )
+            ->where('pd.kdprofile', $this->kdProfile)
+            ->where('pd.statusenabled', true)
+            ->where('apd.statusenabled', true)
+            ->where('pd.tglpulang', '!=', null)
+            ->where('rm.objectdepartemenfk', '=', 16)
+            ->whereBetween(DB::raw("CAST(pd.tglpulang AS DATE)"), $rangeDate);
 
 
         if (isset($request['ruanganId']) && $request['ruanganId'] != "" && $request['ruanganId'] != "undefined") {
@@ -1498,58 +1572,58 @@ class LaporanPengunjungCtrl extends Controller
         $rangeDate = [$request->tglAwal, $request->tglAkhir];
 
         $data = DB::table('pasiendaftar_t as pd')
-        ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
-        ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
-        ->join('ruangan_m as ru', 'ru.id', '=', 'pd.objectruanganasalfk')
-        ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
-        ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
-        ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
-        ->leftjoin('statuspulang_m as sp' , 'sp.id' , '=' , 'pd.objectstatuspulangfk')
-        ->leftjoin('kondisipasien_m as kd' , 'kd.id' , '=' , 'pd.objectkondisipasienfk')
-        ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-        ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
-        ->leftjoin('asalrujukan_m as ar', 'ar.id', '=', 'pd.asalrujukanfk')
-        ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
-        ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
-        ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
-        ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
-        ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
-        ->leftjoin('diagnosapasien_t as dg' , 'dg.noregistrasifk' , '=' , 'apd.norec')
-        ->leftjoin('detaildiagnosapasien_t as ddg' , 'ddg.objectdiagnosapasienfk' , '=' , 'dg.norec')
-        ->leftjoin('jenisdiagnosa_m as jd' , 'jd.id' , '=' , 'ddg.objectjenisdiagnosafk')
-        ->leftjoin('diagnosa_m as dm' , 'dm.id' , '=' , 'ddg.objectdiagnosafk')
-        ->select(
-            'ps.namapasien',
-            'ps.nocm',
-            'pd.noregistrasi',
-            'jk.jeniskelamin',
-            'dg.ketdiagnosis',
-            'ps.tgllahir',
-            'pd.tglregistrasi as tglmasuk',
-            'sp.statuspulang',
-            'pd.tglpulang',
-            'kd.kondisipasien as kondisipulang',
-            'kp.kelompokpasien as jenis_pasien',
-            'rm.namaruangan as namaruanganrawat',
-            'ru.namaruangan as namaruanganasal',
-            'pg.namalengkap as dokter',
-            'kl.namakelas',
-            'ar.asalrujukan',
-            'kt.namakotakabupaten',
-            'kc.namakecamatan',
-            'ds.namadesakelurahan',
-            'pp.namapropinsi',
-            'jd.jenisdiagnosa',
-            'dm.kddiagnosa as kodediagnosa',
-            'dm.namadiagnosa as namadiagnosa',
-            'pd.statuspasien'
-        )
-        ->where('pd.kdprofile', $this->kdProfile)
-        ->where('pd.statusenabled', true)
-        ->where('apd.statusenabled', true)
-        ->where('pd.tglpulang', '!=' , null)
-        ->where('rm.objectdepartemenfk', '=', 9)
-        ->whereBetween(DB::raw("CAST(pd.tglpulang AS DATE)"), $rangeDate);
+            ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
+            ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
+            ->join('ruangan_m as ru', 'ru.id', '=', 'pd.objectruanganasalfk')
+            ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
+            ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
+            ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
+            ->leftjoin('statuspulang_m as sp', 'sp.id', '=', 'pd.objectstatuspulangfk')
+            ->leftjoin('kondisipasien_m as kd', 'kd.id', '=', 'pd.objectkondisipasienfk')
+            ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
+            ->leftjoin('asalrujukan_m as ar', 'ar.id', '=', 'pd.asalrujukanfk')
+            ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
+            ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
+            ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
+            ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
+            ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
+            ->leftjoin('diagnosapasien_t as dg', 'dg.noregistrasifk', '=', 'apd.norec')
+            ->leftjoin('detaildiagnosapasien_t as ddg', 'ddg.objectdiagnosapasienfk', '=', 'dg.norec')
+            ->leftjoin('jenisdiagnosa_m as jd', 'jd.id', '=', 'ddg.objectjenisdiagnosafk')
+            ->leftjoin('diagnosa_m as dm', 'dm.id', '=', 'ddg.objectdiagnosafk')
+            ->select(
+                'ps.namapasien',
+                'ps.nocm',
+                'pd.noregistrasi',
+                'jk.jeniskelamin',
+                'dg.ketdiagnosis',
+                'ps.tgllahir',
+                'pd.tglregistrasi as tglmasuk',
+                'sp.statuspulang',
+                'pd.tglpulang',
+                'kd.kondisipasien as kondisipulang',
+                'kp.kelompokpasien as jenis_pasien',
+                'rm.namaruangan as namaruanganrawat',
+                'ru.namaruangan as namaruanganasal',
+                'pg.namalengkap as dokter',
+                'kl.namakelas',
+                'ar.asalrujukan',
+                'kt.namakotakabupaten',
+                'kc.namakecamatan',
+                'ds.namadesakelurahan',
+                'pp.namapropinsi',
+                'jd.jenisdiagnosa',
+                'dm.kddiagnosa as kodediagnosa',
+                'dm.namadiagnosa as namadiagnosa',
+                'pd.statuspasien'
+            )
+            ->where('pd.kdprofile', $this->kdProfile)
+            ->where('pd.statusenabled', true)
+            ->where('apd.statusenabled', true)
+            ->where('pd.tglpulang', '!=', null)
+            ->where('rm.objectdepartemenfk', '=', 9)
+            ->whereBetween(DB::raw("CAST(pd.tglpulang AS DATE)"), $rangeDate);
 
 
         if (isset($request['ruanganId']) && $request['ruanganId'] != "" && $request['ruanganId'] != "undefined") {
@@ -1590,30 +1664,30 @@ class LaporanPengunjungCtrl extends Controller
         $rangeDate = [$request->tglAwal, $request->tglAkhir];
 
         $data = DB::table('pasiendaftar_t as pd')
-        ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
-        ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
-        ->join('ruangan_m as ru', 'ru.id', '=', 'apd.objectruanganfk')
-        ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
-        ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-        ->leftjoin('penandapasien_t as pp', 'pp.noregistrasi', 'pd.noregistrasi')
-        ->select(
-            'ps.namapasien',
-            'ps.nocm',
-            'ps.tgllahir',
-            'pd.noregistrasi',
-            'pd.tglregistrasi',
-            'pd.tglpulang',
-            'jk.jeniskelamin',
-            'rm.namaruangan as namaruanganrawat',
-            'ru.namaruangan as namaruanganasal',
-            'pp.penanda',
-            'pp.kategori_usia as kategoriUsia',
-        )
-        ->where('pd.kdprofile', $this->kdProfile)
-        ->where('pd.statusenabled', true)
-        ->where('apd.statusenabled', true)
-        ->where('ru.objectdepartemenfk', '=', 9)
-        ->whereBetween(DB::raw("CAST(pd.tglregistrasi AS DATE)"), $rangeDate);
+            ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
+            ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
+            ->join('ruangan_m as ru', 'ru.id', '=', 'apd.objectruanganfk')
+            ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
+            ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
+            ->leftjoin('penandapasien_t as pp', 'pp.noregistrasi', 'pd.noregistrasi')
+            ->select(
+                'ps.namapasien',
+                'ps.nocm',
+                'ps.tgllahir',
+                'pd.noregistrasi',
+                'pd.tglregistrasi',
+                'pd.tglpulang',
+                'jk.jeniskelamin',
+                'rm.namaruangan as namaruanganrawat',
+                'ru.namaruangan as namaruanganasal',
+                'pp.penanda',
+                'pp.kategori_usia as kategoriUsia',
+            )
+            ->where('pd.kdprofile', $this->kdProfile)
+            ->where('pd.statusenabled', true)
+            ->where('apd.statusenabled', true)
+            ->where('ru.objectdepartemenfk', '=', 9)
+            ->whereBetween(DB::raw("CAST(pd.tglregistrasi AS DATE)"), $rangeDate);
 
 
         if (isset($request['ruanganId']) && $request['ruanganId'] != "" && $request['ruanganId'] != "undefined") {
@@ -1658,49 +1732,49 @@ class LaporanPengunjungCtrl extends Controller
         $rangeDate = [$request->tglAwal, $request->tglAkhir];
 
         $data = DB::table('pasiendaftar_t as pd')
-        ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
-        ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
-        ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
-        ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
-        ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
-        ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-        ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
-        ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
-        ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
-        ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
-        ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
-        ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
-        ->leftjoin('diagnosapasien_t as dg' , 'dg.noregistrasifk' , '=' , 'apd.norec')
-        ->leftjoin('detaildiagnosapasien_t as ddg' , 'ddg.objectdiagnosapasienfk' , '=' , 'dg.norec')
-        ->leftjoin('jenisdiagnosa_m as jd' , 'jd.id' , '=' , 'ddg.objectjenisdiagnosafk')
-        ->leftjoin('diagnosa_m as dm' , 'dm.id' , '=' , 'ddg.objectdiagnosafk')
-        ->select(
-            'ps.namapasien',
-            'ps.nocm',
-            'pd.noregistrasi',
-            'jk.jeniskelamin',
-            'dg.ketdiagnosis',
-            'ps.tgllahir',
-            'pd.tglregistrasi',
-            'kp.kelompokpasien as jenis_pasien',
-            'pg.namalengkap as dokter',
-            'kl.namakelas',
-            'rm.namaruangan',
-            DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
-            'kt.namakotakabupaten',
-            'kc.namakecamatan',
-            'ds.namadesakelurahan',
-            'pp.namapropinsi',
-            'jd.jenisdiagnosa',
-            'dm.kddiagnosa as kodediagnosa',
-            'dm.namadiagnosa as namadiagnosa',
-            'pd.statuspasien'
-        )
-        ->where('pd.kdprofile', $this->kdProfile)
-        ->where('pd.statusenabled', true)
-        ->where('apd.statusenabled', true)
-        ->where('rm.objectdepartemenfk', '=', 18)
-        ->whereBetween(DB::raw("CAST(pd.tglregistrasi AS DATE)"), $rangeDate);
+            ->join('antrianpasiendiperiksa_t as apd', 'apd.noregistrasifk', '=', 'pd.norec')
+            ->join('ruangan_m as rm', 'rm.id', '=', 'pd.objectruanganlastfk')
+            ->join('pasien_m as ps', 'ps.id', '=', 'pd.nocmfk')
+            ->join('kelas_m as kl', 'kl.id', '=', 'pd.objectkelasfk')
+            ->join('kelompokpasien_m as kp', 'kp.id', '=', 'pd.objectkelompokpasienlastfk')
+            ->leftjoin('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
+            ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'pd.objectpegawaifk')
+            ->leftjoin('alamat_m as al', 'al.nocmfk', '=', 'ps.id')
+            ->leftjoin('desakelurahan_m as ds', 'ds.id', '=', 'al.objectdesakelurahanfk')
+            ->leftjoin('kecamatan_m as kc', 'kc.id', '=', 'al.objectkecamatanfk')
+            ->leftjoin('kotakabupaten_m as kt', 'kt.id', '=', 'al.objectkotakabupatenfk')
+            ->leftjoin('propinsi_m as pp', 'pp.id', '=', 'al.objectpropinsifk')
+            ->leftjoin('diagnosapasien_t as dg', 'dg.noregistrasifk', '=', 'apd.norec')
+            ->leftjoin('detaildiagnosapasien_t as ddg', 'ddg.objectdiagnosapasienfk', '=', 'dg.norec')
+            ->leftjoin('jenisdiagnosa_m as jd', 'jd.id', '=', 'ddg.objectjenisdiagnosafk')
+            ->leftjoin('diagnosa_m as dm', 'dm.id', '=', 'ddg.objectdiagnosafk')
+            ->select(
+                'ps.namapasien',
+                'ps.nocm',
+                'pd.noregistrasi',
+                'jk.jeniskelamin',
+                'dg.ketdiagnosis',
+                'ps.tgllahir',
+                'pd.tglregistrasi',
+                'kp.kelompokpasien as jenis_pasien',
+                'pg.namalengkap as dokter',
+                'kl.namakelas',
+                'rm.namaruangan',
+                DB::raw("EXTRACT(DAY FROM ((CASE WHEN pd.tglpulang IS NULL THEN CURRENT_TIMESTAMP ELSE pd.tglpulang END) - pd.tglregistrasi)) || ' Hari' AS lamarawat"),
+                'kt.namakotakabupaten',
+                'kc.namakecamatan',
+                'ds.namadesakelurahan',
+                'pp.namapropinsi',
+                'jd.jenisdiagnosa',
+                'dm.kddiagnosa as kodediagnosa',
+                'dm.namadiagnosa as namadiagnosa',
+                'pd.statuspasien'
+            )
+            ->where('pd.kdprofile', $this->kdProfile)
+            ->where('pd.statusenabled', true)
+            ->where('apd.statusenabled', true)
+            ->where('rm.objectdepartemenfk', '=', 18)
+            ->whereBetween(DB::raw("CAST(pd.tglregistrasi AS DATE)"), $rangeDate);
 
 
         if (isset($request['ruanganId']) && $request['ruanganId'] != "" && $request['ruanganId'] != "undefined") {
@@ -1736,7 +1810,8 @@ class LaporanPengunjungCtrl extends Controller
         return $this->respond($result);
     }
 
-    public function getlaporanAntol(Request $request){
+    public function getlaporanAntol(Request $request)
+    {
         $kdProfile = $this->kdProfile;
         $deptJalan = $this->settingFix('kdDepartemenPoli');
         $idKelBPJS = (int) $this->settingFix('idKelompokPasienBPJS');
@@ -1744,20 +1819,20 @@ class LaporanPengunjungCtrl extends Controller
         $tglakhir = $request->tglAkhir;
 
         $nocm = "";
-        if(isset($request->norm) && $request->norm != '' && $request->norm != null) {
-            $nocm = " and ps.nocm = '". $request->norm ."'";
+        if (isset($request->norm) && $request->norm != '' && $request->norm != null) {
+            $nocm = " and ps.nocm = '" . $request->norm . "'";
         }
         $nama = "";
-        if(isset($request->nama) && $request->nama != '' && $request->nama != null) {
-            $nama = " and ps.namapasien ilike '%". $request->nama ."%'";
+        if (isset($request->nama) && $request->nama != '' && $request->nama != null) {
+            $nama = " and ps.namapasien ilike '%" . $request->nama . "%'";
         }
         $ruangId = "";
-        if(isset($request->ruangId) && $request->ruangId != '' && $request->ruangId != null) {
-            $ruangId = " and rm.id = '". $request->ruangId ."'";
+        if (isset($request->ruangId) && $request->ruangId != '' && $request->ruangId != null) {
+            $ruangId = " and rm.id = '" . $request->ruangId . "'";
         }
         $kdBooking = "";
-        if(isset($request->kdBooking) && $request->kdBooking != '' && $request->kdBooking != null) {
-            $kdBooking = " and sx.noregistrasi = '". $request->kdBooking ."'";
+        if (isset($request->kdBooking) && $request->kdBooking != '' && $request->kdBooking != null) {
+            $kdBooking = " and sx.noregistrasi = '" . $request->kdBooking . "'";
         }
 
         $data = DB::select(DB::raw("
@@ -1820,7 +1895,7 @@ class LaporanPengunjungCtrl extends Controller
             $sama = false;
             $i = 0;
             foreach ($dataGROUP as $item2) {
-                if ($item->noregistrasi == $dataGROUP[$i]['noregistrasi'] ) {
+                if ($item->noregistrasi == $dataGROUP[$i]['noregistrasi']) {
                     $sama = true;
                     if ($item->taskid == 1) {
                         $dataGROUP[$i]['status_1'] = $item->statuskirim;
@@ -1850,7 +1925,7 @@ class LaporanPengunjungCtrl extends Controller
                         $dataGROUP[$i]['status_7'] = $item->statuskirim;
                         $dataGROUP[$i]['taksid_7'] = $item->waktu;
                     }
-                    if($item->dataantrean != null)
+                    if ($item->dataantrean != null)
                         $dataGROUP[$i]['dataantrean'] = json_decode($item->dataantrean);
                 }
                 $i = $i + 1;
@@ -1913,27 +1988,27 @@ class LaporanPengunjungCtrl extends Controller
         }
 
         $dataGROUP = json_decode(json_encode($dataGROUP));
-        foreach($dataGROUP as $item) {
+        foreach ($dataGROUP as $item) {
             $message = '';
-            if($item->log!=null){
-                $log = explode("|",$item->log);
+            if ($item->log != null) {
+                $log = explode("|", $item->log);
 
                 $logmes = '';
-                if(count($log) > 0){
-                    foreach($log as $l => $vv){
-                        $logs =json_decode($vv);
-                        if(isset($logs->metaData) && isset($logs->metaData->message)){
-                             $message = $message .','. $logs->metaData->message;
+                if (count($log) > 0) {
+                    foreach ($log as $l => $vv) {
+                        $logs = json_decode($vv);
+                        if (isset($logs->metaData) && isset($logs->metaData->message)) {
+                            $message = $message . ',' . $logs->metaData->message;
                         }
                     }
                 }
             }
 
-            $item->log =  substr($message, 1, strlen($message)-1);
-            if( $item->log == false){
+            $item->log =  substr($message, 1, strlen($message) - 1);
+            if ($item->log == false) {
                 $item->log = '';
             }
-            $item->interval = ceil(($item->taksid_4-$item->taksid_3)/60000);
+            $item->interval = ceil(($item->taksid_4 - $item->taksid_3) / 60000);
             $item->taksid_1 = $item->taksid_1 == null ? "-" : date('Y-m-d H:i', $item->taksid_1 / 1000);
             $item->taksid_2 = $item->taksid_2 == null ? "-" : date('Y-m-d H:i', $item->taksid_2 / 1000);
             $item->taksid_3 = $item->taksid_3 == null ? "-" : date('Y-m-d H:i', $item->taksid_3 / 1000);
@@ -1941,7 +2016,7 @@ class LaporanPengunjungCtrl extends Controller
             $item->taksid_5 = $item->taksid_5 == null ? "-" : date('Y-m-d H:i', $item->taksid_5 / 1000);
             $item->taksid_6 = $item->taksid_6 == null ? "-" : date('Y-m-d H:i', $item->taksid_6 / 1000);
             $item->taksid_7 = $item->taksid_7 == null ? "-" : date('Y-m-d H:i', $item->taksid_7 / 1000);
-            $item->total = floor($item->interval/60)." jam ".($item->interval%60)." menit";
+            $item->total = floor($item->interval / 60) . " jam " . ($item->interval % 60) . " menit";
         }
 
         $result = array(
