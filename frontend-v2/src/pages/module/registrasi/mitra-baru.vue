@@ -195,34 +195,22 @@ useHead({
     title: 'Mitra - ' + import.meta.env.VITE_PROJECT,
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
-let ID_PASIEN = useRoute().query.id as string
-let ID_PASIEN_SET = ref()
+let ID_MITRA = useRoute().query.id as string
+let ID_MITRA_SET = ref()
 const date = ref(new Date())
 const item: any = reactive({})
-let d_JK: any = ref([])
 let d_Agama: any = ref([])
-let d_GolonganDarah: any = ref([])
 let d_StatusPerkawinan: any = ref([])
 let d_Pendidikan: any = ref([])
 let d_Pekerjaan: any = ref([])
-let d_Etnis: any = ref([])
-let d_HubunganPasien: any = ref([])
-let d_Kebangsaan: any = ref([])
 let d_Negara: any = ref([])
 let d_Kelurahan: any = ref([])
 let d_Kecamatan: any = ref([])
 let d_KotaKabupaten: any = ref([])
 let d_Provinsi: any = ref([])
 let isLoading = ref(false)
-let isInfoTambahan = ref(false)
 let isLoadingKodePos = ref(false)
-let isLoadingNIK = ref(false)
-let isDisabled = ref(false)
-let isLoadingBPJS = ref(false)
-let isPenanggungJawab = ref(false)
 let isRegistrasi = ref(false)
-let isPenunjang = ref(false)
-let isKanker = ref(false)
 const files = ref([])
 const fileFoto: any = ref(null)
 const { y } = useWindowScroll()
@@ -233,35 +221,30 @@ const isStuck = computed(() => {
 })
 const kelompokUser = useUserSession().getUser().kelompokUser.kelompokUser
 
+
+async function fetchMitra() {
+    const response = await useApi().get(`/registrasi/mitra?&id=${ID_MITRA}`)
+
+    item.namaperusahaan = response.data.namaperusahaan
+    item.nohp = response.data.nohp
+    item.alamat = response.data.alamatktr
+    item.rtrw = response.data.rtrw
+
+    item.provinsi = d_Provinsi.value.find(p => p.value === response.data.objectpropinsifk) || null
+    item.kotaKabupaten = d_KotaKabupaten.value.find(k => k.value === response.data.objectkotakabupatenfk) || null
+}
+
+
 async function listDropdown() {
 
-    const response = await useApi().get(
-        `/registrasi/list-mitra-dropdown`)
-    d_JK.value = []
-    for (let x = 0; x < response.jk.length; x++) {
-        const element = response.jk[x];
-        if (element.jeniskelamin != '-') {
-            d_JK.value.push(element)
-        }
-    }
+    const response = await useApi().get(`/registrasi/list-mitra-dropdown`)
+
     d_Agama.value = response.agama.map((e: any) => { return { label: e.agama, value: e.id, default: e } })
-    // d_HubunganPasien.value = response.hubunganpasien.map((e: any) => { return { label: e.hubungankeluarga, value: e.id } })
     d_StatusPerkawinan.value = response.statusperkawinan.map((e: any) => { return { label: e.statusperkawinan, value: e.id, default: e } })
     d_Pendidikan.value = response.pendidikan.map((e: any) => { return { label: e.pendidikan, value: e.id, default: e } })
     d_Pekerjaan.value = response.pekerjaan.map((e: any) => { return { label: e.pekerjaan, value: e.id, default: e } })
-    // d_Etnis.value = response.etnis.map((e: any) => { return { label: e.suku, value: e.id , default: e} })
-    // d_Kebangsaan.value = response.kebangsaan.map((e: any) => { return { label: e.name, value: e.id, default: e } })
     d_Negara.value = response.negara.map((e: any) => { return { label: e.namanegara, value: e.id, default: e } })
-    // d_KotaKabupaten.value = response.kotakabupaten.map((e: any) => { return { label: e.namakotakabupaten, value: e } })
     d_Provinsi.value = response.provinsi.map((e: any) => { return { label: e.namapropinsi, value: e.id, default: e } })
-
-    for (let x = 0; x < response.negara.length; x++) {
-        const element = response.negara[x];
-        if (element.namanegara.toLowerCase() == 'indonesia') {
-            item.negara = element.id
-            break
-        }
-    }
 
 }
 
@@ -273,22 +256,14 @@ const blobToBase64 = (blob: any) => {
     });
 }
 async function savePasien() {
-    // if (!item.nik) { H.alert('warning', 'NIK harus di isi'); return }
-    // if (!item.namapasien) { H.alert('warning', 'Nama harus di isi'); return }
-    // if (!item.tempatlahir) { H.alert('warning', 'Tempat Lahir harus di isi'); return }
-    // if (!item.nohp) { H.alert('warning', 'Nomor HP harus diisi'); return }
-    // if (item.nohp.length < 10) { H.alert('warning', 'No Handphone tidak sesuai'); return }
-    // if (!item.tgllahir) { H.alert('warning', 'Tgl Lahir harus di isi'); return }
-    // if (!item.jenisKelamin) { H.alert('warning', 'Jenis Kelamin harus di isi'); return }
-    // if (!item.agama) { H.alert('warning', 'Agama harus di isi'); return }
-    // // if (!item.nohp) { H.alert('warning', 'No HP harus di isi'); return }
-    // if (!item.alamat) { H.alert('warning', 'Alamat Lenglap harus di isi'); return }
-    // if (!item.rtrw) { H.alert('warning', 'RT / RW harus di isi'); return }
+    if (!item.namaperusahaan) { H.alert('warning', 'Nama Perusahaan harus di isi'); return }
+    if (!item.nohp) { H.alert('warning', 'No.Hp harus di isi'); return }
+    if (!item.alamat) { H.alert('warning', 'Alamat harus di isi'); return }
 
     item.progress = cekProggress()
     let json = {
         'pasien': {
-            'id': ID_PASIEN ? ID_PASIEN : '',
+            'id': ID_MITRA ? ID_MITRA : '',
             'namaperusahaan': item.namaperusahaan,
             'nohp': item.nohp,
             'email': item.email != undefined ? item.email : null,
@@ -311,17 +286,17 @@ async function savePasien() {
     await useApi().post(
         `/registrasi/save-mitra`, json).then(async (response: any) => {
 
-            if (fileFoto.value != null) {
-                const formData = new FormData()
-                formData.append('id', response.data.id)
-                formData.append('file', fileFoto.value)
-                useApi().postNoMessage('/registrasi/save-pasien-foto', formData)
-            }
+            // if (fileFoto.value != null) {
+            //     const formData = new FormData()
+            //     formData.append('id', response.data.id)
+            //     formData.append('file', fileFoto.value)
+            //     useApi().postNoMessage('/registrasi/save-pasien-foto', formData)
+            // }
             isLoading.value = false
-            ID_PASIEN = response.data.id
-            ID_PASIEN_SET.value = response.data.id
+            ID_MITRA = response.data.id
+            ID_MITRA_SET.value = response.data.id
             isRegistrasi.value = true
-            if (!ID_PASIEN) {
+            if (!ID_MITRA) {
                 registrasiPasien()
             }
 
@@ -405,7 +380,7 @@ function registrasiPasien() {
         router.push({
             name: 'module-registrasi-registrasi-ruangan',
             query: {
-                nocmfk: ID_PASIEN_SET.value,
+                nocmfk: ID_MITRA_SET.value,
                 noreservasi: route.query.noreservasi,
                 norec_online: route.query.norec_online,
                 tanggalreservasi: route.query.tanggalreservasi,
@@ -420,7 +395,7 @@ function registrasiPasien() {
         router.push({
             name: 'module-registrasi-registrasi-ruangan',
             query: {
-                nocmfk: ID_PASIEN_SET.value,
+                nocmfk: ID_MITRA_SET.value,
                 statuspasien: "BARU",
             },
         })
@@ -433,7 +408,7 @@ function registrasiLab() {
     router.push({
         name: 'module-registrasi-registrasi-ruangan-lab',
         query: {
-            nocmfk: ID_PASIEN_SET.value,
+            nocmfk: ID_MITRA_SET.value,
         },
     })
 }
@@ -461,14 +436,7 @@ const onRemoveFile = (error: any, fileInfo: any) => {
     fileFoto.value = null
 }
 listDropdown()
-
-// watch(
-//   () => item.nik,
-//   () => {
-//     if(item.nik.toString().length > 16){
-//        H.alert('')
-//     }
-// })
+fetchMitra()
 
 </script>
 <style lang="scss">

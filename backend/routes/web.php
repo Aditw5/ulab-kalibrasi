@@ -194,7 +194,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('registrasi/kecamatan', 'listKecamatan');
         Route::get('registrasi/desakelurahan', 'listDesa');
         Route::get('registrasi/list-mitra-dropdown', 'listDropdown');
-        Route::get('registrasi/pasien', 'pasienByID');
+        Route::get('registrasi/mitra', 'mitraByID');
         Route::get('registrasi/riwayat-registrasi', 'riwayatRegistrasi');
 
         Route::post('registrasi/save-mitra', 'saveMitra');

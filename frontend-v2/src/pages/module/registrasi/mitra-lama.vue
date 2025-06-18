@@ -1,4 +1,3 @@
-
 <template>
   <ConfirmDialog />
   <VCard radius="rounded">
@@ -81,7 +80,7 @@
                     <template #content>
 
                       <!-- <a role="menuitem" href="#" class="dropdown-item is-media"> -->
-                      <a role="menuitem" href="#" class="dropdown-item is-media" @click="editPasien(items)">
+                      <a role="menuitem" href="#" class="dropdown-item is-media" @click="editMitra(items)">
                         <div class="icon">
                           <i aria-hidden="true" class="lnil lnil-pencil"></i>
                         </div>
@@ -146,13 +145,13 @@
                       @click="detailPasien(items)">
                       Details </VButton> -->
                     <VButton type="button" icon="feather:edit" class="is-fullwidth mr-3" color="info" outlined raised
-                      @click="editPasien(items)">
+                      @click="editMitra(items)">
                       Edit </VButton>
                     <VButton type="button" icon="feather:trash" class="is-fullwidth mr-3" color="danger" outlined raised
                       @click="dialogConfirm(items)">
                       Delete </VButton>
-                    <VButton type="button" icon="fa fa-history" class="is-fullwidth mr-3" color="warning" outlined raised
-                      @click="riwayatPasien(items)">
+                    <VButton type="button" icon="fa fa-history" class="is-fullwidth mr-3" color="warning" outlined
+                      raised @click="riwayatPasien(items)">
                       Riwayat </VButton>
 
                     <VButton type="button" icon="feather:arrow-right-circle" class="is-fullwidth mr-3" color="primary"
@@ -161,7 +160,8 @@
                       Registrasi </VButton>
 
                     <VButton type="button" icon="feather:arrow-right-circle" class="is-fullwidth mr-3" color="purple"
-                      outlined raised @click="registrasi(items)" :loading="items.isLoading" :disabled="items.status == 'Meninggal'"
+                      outlined raised @click="registrasi(items)" :loading="items.isLoading"
+                      :disabled="items.status == 'Meninggal'"
                       v-else="items.tglmeninggal == null && (kelompokUser != 'laboratorium' || kelompokUser != 'radiologi')">
                       Registrasi </VButton>
 
@@ -178,33 +178,33 @@
             </div>
           </div>
           <div class="is-pulled-bottoms">
-          <VFlexPagination v-model:current-page="currentPage.page" :item-per-page="currentPage.limit"
-            :total-items="totalData" :max-links-displayed="5">
-            <template #before-pagination>
-            </template>
-            <template #before-navigation>
-              <VFlex class="mr-4 mt-1" column-gap="1rem">
-                <VField>
+            <VFlexPagination v-model:current-page="currentPage.page" :item-per-page="currentPage.limit"
+              :total-items="totalData" :max-links-displayed="5">
+              <template #before-pagination>
+              </template>
+              <template #before-navigation>
+                <VFlex class="mr-4 mt-1" column-gap="1rem">
+                  <VField>
 
-                </VField>
-                <VField>
-                  <VControl>
-                    <div class="select is-rounded">
-                      <select v-model="currentPage.limit">
-                        <option :value="1">1 results per page</option>
-                        <option :value="5">5 results per page</option>
-                        <option :value="10">10 results per page</option>
-                        <option :value="15">15 results per page</option>
-                        <option :value="25">25 results per page</option>
-                        <option :value="50">50 results per page</option>
-                      </select>
-                    </div>
-                  </VControl>
-                </VField>
-              </VFlex>
-            </template>
-          </VFlexPagination>
-        </div>
+                  </VField>
+                  <VField>
+                    <VControl>
+                      <div class="select is-rounded">
+                        <select v-model="currentPage.limit">
+                          <option :value="1">1 results per page</option>
+                          <option :value="5">5 results per page</option>
+                          <option :value="10">10 results per page</option>
+                          <option :value="15">15 results per page</option>
+                          <option :value="25">25 results per page</option>
+                          <option :value="50">50 results per page</option>
+                        </select>
+                      </div>
+                    </VControl>
+                  </VField>
+                </VFlex>
+              </template>
+            </VFlexPagination>
+          </div>
           <!-- <VFlexPagination v-model:current-page="currentPage.page" class="mt-6" :item-per-page="currentPage.limit"
             :total-items="currentPage.rows" :max-links-displayed="10" /> -->
 
@@ -335,7 +335,8 @@
               class="p-datatable-customers" filterDisplay="menu"
               paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
               responsiveLayout="stack" breakpoint="960px" sortMode="multiple"
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="dataSourceRiwayat.loading"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+              :loading="dataSourceRiwayat.loading"
               :globalFilterFields="['namaruangan', 'namadokter', 'kelompokpasien']">
               <!-- <Column :exportable="false" header="#" style="width:8rem">
             <template #body="slotProps">
@@ -343,7 +344,7 @@
                 v-tooltip.top="'Input Resep'" @click="gotoResep(slotProps.data)">
               </VIconButton>
             </template>
-          </Column> -->
+  </Column> -->
               <template #header>
                 <div class="flex justify-content-between  align-items-center">
                   <VField>
@@ -404,7 +405,7 @@ const confirm = useConfirm();
 const total = ref(0)
 const date = ref(new Date())
 const item: any = reactive({})
-const totalData:any = ref(0)
+const totalData: any = ref(0)
 let listJK: any = ref([])
 let listAgama: any = ref([])
 let listGolonganDarah: any = ref([])
@@ -449,20 +450,20 @@ currentPage.value.page = computed(() => {
   return 1
 })
 watch(
-    () =>currentPage.value.page,
-    (newValue, oldValue) => {
-        if(newValue!=oldValue){
-          fetchMitra()
-        }
+  () => currentPage.value.page,
+  (newValue, oldValue) => {
+    if (newValue != oldValue) {
+      fetchMitra()
     }
+  }
 )
 watch(
-    () =>currentPage.value.limit,
-    (newValue, oldValue) => {
-        if(newValue!=oldValue){
-          fetchMitra()
-        }
+  () => currentPage.value.limit,
+  (newValue, oldValue) => {
+    if (newValue != oldValue) {
+      fetchMitra()
     }
+  }
 )
 
 
@@ -481,7 +482,7 @@ async function fetchMitra() {
   if (item.tgldaftar) tgldaftar = `&tgldaftar=${H.formatDate(item.tgldaftar, 'YYYY-MM-DD')}`
   totalData.value = 0
   const response = await useApi().get(`/registrasi/mitra-lama?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPage.value.rows}${namaperusahaan}${tgldaftar}`)
- let pasien = response.data
+  let pasien = response.data
   totalData.value = response.total
   for (let x = 0; x < pasien.length; x++) {
     const element = pasien[x];
@@ -535,9 +536,9 @@ function savePasien() {
 function resetForm() {
 
 }
-function editPasien(e: any) {
+function editMitra(e: any) {
   router.push({
-    name: 'module-registrasi-pasien-baru',
+    name: 'module-registrasi-mitra-baru',
     query: {
       id: e.id,
     },
@@ -590,7 +591,7 @@ function riwayatPasien(e: any) {
 function detailPasien(e: any) {
 
 }
-const registrasi = async(e: any) => {
+const registrasi = async (e: any) => {
   router.push({
     name: 'module-registrasi-registrasi-mitra',
     query: {
@@ -637,19 +638,23 @@ fetchMitra()
 @import '/@src/scss/components/forms-outer';
 @import '/@src/scss/custom/config';
 @import '/@src/scss/custom/listview';
+
 @keyframes blink {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }
 }
 
 .blink {
-  animation: blink 2s infinite; /* Animasi berkedip setiap 1 detik */
+  animation: blink 2s infinite;
+  /* Animasi berkedip setiap 1 detik */
 }
 </style>

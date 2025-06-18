@@ -246,107 +246,38 @@ class MitraBaruCtrl extends Controller
         }
         return $this->respond($result['result'], $result['status'], $transMessage);
     }
-    public function pasienByID(Request $r)
+    public function mitraByID(Request $r)
     {
-        $data = DB::table('pasien_m as ps')
-            ->JOIN('alamat_m as alm', 'alm.nocmfk', '=', 'ps.id')
-            ->JOIN('jeniskelamin_m as jk', 'jk.id', '=', 'ps.objectjeniskelaminfk')
-            ->leftjoin('pendidikan_m as pdd', 'ps.objectpendidikanfk', '=', 'pdd.id')
-            ->leftjoin('pekerjaan_m as pk', 'ps.objectpekerjaanfk', '=', 'pk.id')
-            ->leftjoin('agama_m as agm', 'agm.id', '=', 'ps.objectagamafk')
-            ->leftjoin('statusperkawinan_m as sp', 'sp.id', '=', 'ps.objectstatusperkawinanfk')
-            ->leftjoin('kebangsaan_m as kb', 'kb.id', '=', 'ps.objectkebangsaanfk')
-            ->leftjoin('negara_m as ng', 'ng.id', '=', 'alm.objectnegarafk')
-            ->leftjoin('desakelurahan_m as dsk', 'dsk.id', '=', 'alm.objectdesakelurahanfk')
-            ->leftjoin('kecamatan_m as kcm', 'kcm.id', '=', 'alm.objectkecamatanfk')
-            ->leftjoin('kotakabupaten_m as kkb', 'kkb.id', '=', 'alm.objectkotakabupatenfk')
-            ->leftjoin('propinsi_m as prp', 'prp.id', '=', 'alm.objectpropinsifk')
-            ->leftjoin('pekerjaan_m as pk1', 'ps.pekerjaanpenangggungjawab', '=', 'pk1.pekerjaan')
-            ->leftjoin('suku_m as sk', 'sk.id', '=', 'ps.objectsukufk')
-            ->leftjoin('golongandarah_m as gol', 'gol.id', '=', 'ps.objectgolongandarahfk')
-            ->leftjoin('jeniskelamin_m as jk1', 'jk1.jeniskelamin', '=', 'ps.jeniskelaminpenanggungjawab')
+        $data = DB::table('mitra_m as mt')
+            ->leftjoin('desakelurahan_m as dsk', 'dsk.id', '=', 'mt.objectdesakelurahanfk')
+            ->leftjoin('kecamatan_m as kcm', 'kcm.id', '=', 'mt.objectkecamatanfk')
+            ->leftjoin('kotakabupaten_m as kkb', 'kkb.id', '=', 'mt.objectkotakabupatenfk')
+            ->leftjoin('propinsi_m as prp', 'prp.id', '=', 'mt.objectpropinsifk')
             ->select(
-                'ps.nocm',
-                'ps.id as nocmfk',
-                'ps.namapasien',
-                'ps.tgllahir',
-                'ps.tempatlahir',
-                'ps.objectjeniskelaminfk',
-                'jk.jeniskelamin',
-                'ps.objectagamafk',
-                'agm.agama',
-                'ps.objectstatusperkawinanfk',
-                'sp.statusperkawinan',
-                'ps.objectpendidikanfk',
-                'pdd.pendidikan',
-                'ps.objectpekerjaanfk',
-                'pk.pekerjaan',
-                'ps.objectkebangsaanfk',
-                'kb.name as kebangsaan',
-                'alm.objectnegarafk',
-                'ng.namanegara',
-                'ps.noidentitas',
-                'ps.nobpjs',
-                'ps.noasuransilain',
-                'alm.alamatlengkap',
-                'ps.telponpenanggungjawab',
-                'alm.rtrw',
-                'alm.kodepos',
-                'alm.objectdesakelurahanfk',
+                'mt.id as mitrafk',
+                'mt.namaperusahaan',
+                'mt.alamatktr',
+                'mt.nohp',
+                'mt.email',
+                'mt.rtrw',
                 'dsk.namadesakelurahan',
-                'alm.objectkecamatanfk',
+                'mt.objectkecamatanfk',
                 'kcm.namakecamatan',
-                'alm.objectkotakabupatenfk',
+                'mt.objectkotakabupatenfk',
                 'kkb.namakotakabupaten',
-                'alm.objectpropinsifk',
+                'mt.objectpropinsifk',
                 'prp.namapropinsi',
-                'ps.notelepon',
-                'ps.nohp',
-                'ps.namaayah',
-                'ps.namaibu',
-                'ps.namakeluarga',
-                'ps.namasuamiistri',
-                'ps.penanggungjawab',
-                'ps.hubungankeluargapj',
-                'ps.pekerjaanpenangggungjawab',
-                'ps.ktppenanggungjawab',
-                'ps.alamatrmh',
-                'ps.alamatktr',
-                'pk1.id as idpek',
-                'ps.photo',
-                'ps.foto',
-                'ps.objectgolongandarahfk',
-                'gol.golongandarah',
-                'ps.objectsukufk',
-                'sk.suku',
-                'ps.bahasa',
-                'ps.dokterpengirim',
-                'ps.alamatdokterpengirim',
-                'jk1.id as jkidpenanggungjawab',
-                'ps.jeniskelaminpenanggungjawab',
-                'ps.umurpenanggungjawab',
-                'ps.paspor',
-                'ps.email',
-                'ps.isfoto',
-                'ps.filename'
             )
-            ->where('ps.kdprofile', (int)$this->kdProfile)
-            ->where('ps.statusenabled', true);
+            ->where('mt.statusenabled', true);
 
-        if (isset($r['noCm']) && $r['noCm'] != '' && $r['noCm'] != 'undefined') {
-            $data = $data->where('ps.nocm', $r['noCm']);
-        }
         if (isset($r['id']) && $r['id'] != '' && $r['id'] != 'undefined') {
-            $data = $data->where('ps.id', $r['id']);
+            $data = $data->where('mt.id', $r['id']);
         }
-
         $data = $data->first();
-        if(!empty($data)){
-            $data->umur =  $this->getAge($data->tgllahir, date('Y-m-d H:i:s'));
-        }
+
         $result = array(
-            'pasien' => $data,
-            'as' => '@epic',
+            'data' => $data,
+            'as' => '@adit',
         );
         return $this->respond($result);
     }
