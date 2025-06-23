@@ -666,53 +666,28 @@ export function apiBackend(): any {
   return import.meta.env.VITE_API_BASE_URL
 }
 // export function printBlade(url: any): any {
-//   fetch(import.meta.env.VITE_API_BASE_URL + url, { /*method: 'POST'*/method: 'GET', headers: { 'token': useUserSession().token } })
-//     .then((response) => response.blob())
-//     .then((blob) => {
-//       const _url = window.URL.createObjectURL(blob);
-//       window.open(_url, '_blank').focus();
-//     }).catch((err) => {
-//       console.log(err);
-//     });
-//   // window.open(import.meta.env.VITE_API_BASE_URL + url
-//   //   + "&user=" + useUserSession().getUser().pegawai.namaLengkap
-//   //   + '&kdprofile=' + useUserSession().getProfile().id
-//   //   + "&token=" + useUserSession().token, "_blank");
+//   // fetch(import.meta.env.VITE_API_BASE_URL + url, { /*method: 'POST'*/method: 'GET', headers: { 'token': useUserSession().token } })
+//   //   .then((response) => response.blob())
+//   //   .then((blob) => {
+//   //     const _url = window.URL.createObjectURL(blob);
+//   //     window.open(_url, '_blank').focus();
+//   //   }).catch((err) => {
+//   //     console.log(err);
+//   //   });
+//   window.open(import.meta.env.VITE_API_BASE_URL + url
+//     + "&user=" + useUserSession().getUser().pegawai.namaLengkap
+//     + '&kdprofile=' + useUserSession().getProfile().id
+//     + "&token=" + useUserSession().token, "_blank");
 // }
 
-export function printBlade(url: string): void {
-  if (!url) {
-    console.error("URL tidak boleh kosong.");
-    return;
-  }
-
-  const token = useUserSession().token;
-  const fullUrl = `${import.meta.env.VITE_API_BASE_URL}${url}`;
-
-  fetch(fullUrl, {
-    method: 'GET',
-    headers: {
-      'token': token
-    }
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.blob();
-    })
-    .then((blob) => {
-      const _url = window.URL.createObjectURL(blob);
-      const newWindow = window.open(_url, '_blank');
-      if (newWindow) {
-        newWindow.focus();
-      } else {
-        console.warn("Popup diblokir oleh browser.");
-      }
-    })
-    .catch((err) => {
-      console.error("Gagal memuat dokumen:", err);
-    });
+export function printBlade(url) {
+  window.open(
+    "http://ulabumro.id:8000/service/" + url
+    + "&user=" + useUserSession().getUser().pegawai.namaLengkap
+    + '&kdprofile=' + useUserSession().getProfile().id
+    + "&token=" + useUserSession().token,
+    "_blank"
+  );
 }
 
 
