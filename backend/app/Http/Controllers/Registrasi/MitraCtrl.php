@@ -300,6 +300,7 @@ class MitraCtrl extends Controller
                 'mtrd.iskaji',
                 'mtrd.namafile',
                 'mtrd.keterangan',
+                'mtrd.tanggalpenolakanregis',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -321,7 +322,7 @@ class MitraCtrl extends Controller
                 'lp.lingkupkalibrasi',
             )
             ->where('mtr.statusenabled', true)
-            ->where('mtrd.statusenabled', true)
+            // ->where('mtrd.statusenabled', true)
             ->where('mtr.norec', $r['norec_pd']);
 
         // if (isset($r['tglregistrasi']) && $r['tglregistrasi'] != '' && $r['tglregistrasi'] != 'undefined') {
@@ -483,6 +484,46 @@ class MitraCtrl extends Controller
         return $this->respond($result['result'], $result['status'], $result['message']);
     }
 
+    public function savePenolakanALat(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $r_NewMitra = $request['mitraregis'];
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $r_NewMitra['norecregis'])
+                ->update([
+                    'statusenabled' => false,
+                    'iskaji' => true,
+                    'updated_at' => now(),
+                    'statusorderpelaksana' => 0,
+                    'statusorderpenyelia' => 0,
+                    'tanggalpenolakanregis' => $r_NewMitra['tanggalpenolakanregis'] ?? null,
+                    'alasanpenolakanregis' => $r_NewMitra['alasanpenolakanregis'] ?? null
+                ]);
+
+            $message = 'Berhasil Batal Penolakan';
+
+            DB::commit();
+
+            $result = array(
+                "status" => 200,
+                "message" => $message,
+                "result" => array(
+                    "as" => '@adit',
+                )
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $result = array(
+                "status" => 400,
+                "message" => "Something Went Wrong",
+                "result"  => $e->getMessage() . ' | Line: ' . $e->getLine()
+            );
+        }
+
+        return $this->respond($result['result'], $result['status'], $result['message']);
+    }
+
     public function saveKonfirmasiPendaftaran(Request $request)
     {
         DB::beginTransaction();
@@ -563,6 +604,8 @@ class MitraCtrl extends Controller
                 'mtrd.norec as norec_detail',
                 'mtrd.iskaji',
                 'mtrd.keterangan',
+                'mtrd.tanggalpenolakanregis',
+                'mtrd.alasanpenolakanregis',
                 'mtrd.namafile',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
@@ -581,7 +624,7 @@ class MitraCtrl extends Controller
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
-            ->where('mtrd.statusenabled', true)
+            // ->where('mtrd.statusenabled', true)
             ->where('mtr.norec', $r['norec'])
             ->orderByDesc('prd.namaproduk')
             ->get();

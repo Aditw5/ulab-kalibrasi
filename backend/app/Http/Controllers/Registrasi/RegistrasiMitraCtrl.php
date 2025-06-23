@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class RegistrasiMitraCtrl extends Controller
 {
@@ -46,7 +47,7 @@ class RegistrasiMitraCtrl extends Controller
         }
 
         $data = $data->first();
-        
+
         $result['mitra'] = $data;
         $result['as'] = '@epic';
 
@@ -105,11 +106,11 @@ class RegistrasiMitraCtrl extends Controller
             ->select('id', 'reportdisplay', 'nomorbed', 'objectkamarfk')
             ->where('kdprofile', $this->kdProfile)
             ->where('statusenabled', true);
-            // if($r['isEdit'] == 'false'){
-            // }
-                $tt = $tt->where('objectstatusbedfk', $result['idStatusBedKosong']);
-            $tt = $tt->orderBy('reportdisplay');
-            $tt = $tt->get();
+        // if($r['isEdit'] == 'false'){
+        // }
+        $tt = $tt->where('objectstatusbedfk', $result['idStatusBedKosong']);
+        $tt = $tt->orderBy('reportdisplay');
+        $tt = $tt->get();
 
         $kamar = [];
         if (isset($r['isRG']) && $r['isRG'] != 'undefined' && $r['isRG'] == 'false') {
@@ -162,12 +163,15 @@ class RegistrasiMitraCtrl extends Controller
         DB::beginTransaction();
         try {
             $PD = $r['mitraregistrasi'];
-            $APD = $r['mitraregistrasidetail']; 
+            $APD = $r['mitraregistrasidetail'];
             if ($PD['norec'] == '') {
                 $lokasi = $PD['lokasikalibrasi'];
                 switch ($lokasi) {
-                    case 1: $lokasiPrefix = 'J'; break;
-                    default: $lokasiPrefix = 'G';
+                    case 1:
+                        $lokasiPrefix = 'J';
+                        break;
+                    default:
+                        $lokasiPrefix = 'G';
                 }
                 $tahun = date('y');
                 $lastPendaftaran = MitraRegistrasi::where('lokasikalibrasi', $lokasi)
@@ -213,7 +217,7 @@ class RegistrasiMitraCtrl extends Controller
                     $model_APD->norec = $model_APD->generateNewId();
                     $model_APD->statusenabled = true;
                 }
-                $model_APD->namaalatfk = $alat['namaalatfk'] ?? null; 
+                $model_APD->namaalatfk = $alat['namaalatfk'] ?? null;
                 $model_APD->namamerkfk = $alat['namamerkfk'] ?? null;
                 $model_APD->namatipefk = $alat['namatipefk'] ?? null;
                 $model_APD->serialnumberfk = $alat['serialnumberfk'] ?? null;
@@ -223,7 +227,11 @@ class RegistrasiMitraCtrl extends Controller
                 $dataAPD[] = $model_APD;
             }
 
-           $transMessage = "Simpan Registrasi Mitra Sukses";
+            $this->kirimWhatsappNotifikasi($PD['nohppenanggungjawab'], $model_PD->namapenanggungjawab, $nopendaftaran);
+            // $this->kirimWhatsappNotifikasi('6289654715638', $model_PD->namapenanggungjawab, $nopendaftaran);
+
+
+            $transMessage = "Simpan Registrasi Mitra Sukses";
             DB::commit();
             $result = array(
                 "status" => 200,
@@ -242,6 +250,27 @@ class RegistrasiMitraCtrl extends Controller
 
         return $this->respond($result['result'], $result['status'], $transMessage);
     }
+
+    public function kirimWhatsappNotifikasi($nohp, $nama, $nopendaftaran)
+    {
+        $nomor = preg_replace('/^0/', '62', $nohp);
+        $pesan = "Halo $nama,\nPendaftaran dengan No: *$nopendaftaran* telah berhasil kami terima. Terima kasih telah melakukan registrasi kalibrasi.";
+        $pesanEncoded = urlencode($pesan);
+
+        $token = 'HsNWktIak6EAE989kCXKwQXvGMhCgHVBbUaaiEFRgP4AW3ttVCDeaFY';
+        $url = "https://sby.wablas.com/api/send-message?token=$token&phone=$nomor&message=$pesanEncoded";
+
+        $response = Http::get($url);
+
+        $result = $response->json();
+
+        if (!$result['status']) {
+            throw new \Exception("Gagal kirim WhatsApp: " . ($result['message'] ?? 'Tidak diketahui'));
+        }
+
+        return $result;
+    }
+
 
     public function listRuanganByLoginUser(Request $r)
     {
@@ -262,7 +291,7 @@ class RegistrasiMitraCtrl extends Controller
     public function checkIsExsist(Request $request)
     {
         $data = DB::table('pasiendaftar_t as pd')
-            ->join('ruangan_m as ru','pd.objectruanganlastfk','ru.id')
+            ->join('ruangan_m as ru', 'pd.objectruanganlastfk', 'ru.id')
             ->select('ru.namaruangan')
             ->where('pd.statusenabled', true)
             ->where('pd.kdprofile', $this->kdProfile)
@@ -278,7 +307,7 @@ class RegistrasiMitraCtrl extends Controller
     public function checkIsLessOneMonth(Request $request)
     {
         $data = DB::table('pasiendaftar_t as pd')
-            ->join('ruangan_m as ru','pd.objectruanganlastfk','ru.id')
+            ->join('ruangan_m as ru', 'pd.objectruanganlastfk', 'ru.id')
             // ->select('ru.namaruangan')
             ->where('pd.statusenabled', true)
             ->where('pd.kdprofile', $this->kdProfile)
@@ -289,20 +318,20 @@ class RegistrasiMitraCtrl extends Controller
             // ->latest();
             ->first();
 
-            if ($data) {
-                $tglRegistrasi = Carbon::parse($data->tglregistrasi);
-                $now = Carbon::now();
+        if ($data) {
+            $tglRegistrasi = Carbon::parse($data->tglregistrasi);
+            $now = Carbon::now();
 
-                // Cek apakah sudah 1 bulan atau lebih
-                if ($tglRegistrasi->diffInDays($now) >= 30) {
-                    // Sudah lebih dari atau sama dengan 1 bulan
-                    $data->isBelumSatuBulan = false;
-                } else {
-                    // Belum lebih dari 1 bulan
-                    $data->isBelumSatuBulan = true;
-                }
+            // Cek apakah sudah 1 bulan atau lebih
+            if ($tglRegistrasi->diffInDays($now) >= 30) {
+                // Sudah lebih dari atau sama dengan 1 bulan
+                $data->isBelumSatuBulan = false;
             } else {
+                // Belum lebih dari 1 bulan
+                $data->isBelumSatuBulan = true;
             }
+        } else {
+        }
 
         return $this->respond($data);
     }
@@ -311,7 +340,7 @@ class RegistrasiMitraCtrl extends Controller
     {
         $dataPD = DB::table('pasiendaftar_t')->select('*')->where('norec', $request->norec)->first();
         AntrianPasienRegistrasi::where('norec', $dataPD->antrianpasienregistrasifk)
-                    ->update(['isconfirm' => true, 'pasiendaftarfk' => $dataPD->norec]);
+            ->update(['isconfirm' => true, 'pasiendaftarfk' => $dataPD->norec]);
         $result = array(
             "status" => 200,
             "result" => array(
@@ -322,22 +351,23 @@ class RegistrasiMitraCtrl extends Controller
     }
 
 
-    public function saveAdministrasi(Request $request){
+    public function saveAdministrasi(Request $request)
+    {
 
         DB::beginTransaction();
         try {
             $kdProfile = $this->kdProfile;
 
-             AntrianPasienDiperiksa::where('norec',$request['norec_apd'])
+            AntrianPasienDiperiksa::where('norec', $request['norec_apd'])
                 ->update([
                     'ispelayananpasien' => true
                 ]);
-                $pasiendaftar = PasienDaftar::where('norec',$request['norec'])->first();
-                $pasiendaftar->ispelayananpasien = true;
-                $pasiendaftar->save();
+            $pasiendaftar = PasienDaftar::where('norec', $request['norec'])->first();
+            $pasiendaftar->ispelayananpasien = true;
+            $pasiendaftar->save();
 
-                $pasien = Pasien::where('id',$pasiendaftar->nocmfk)->first();
-                $data = DB::select(DB::raw("select pp.tglpelayanan,pd.objectkelasfk,
+            $pasien = Pasien::where('id', $pasiendaftar->nocmfk)->first();
+            $data = DB::select(DB::raw("select pp.tglpelayanan,pd.objectkelasfk,
                     pd.objectruanganlastfk
                     from pasiendaftar_t as pd
                     INNER JOIN antrianpasiendiperiksa_t as apd on apd.noregistrasifk=pd.norec
@@ -355,11 +385,12 @@ class RegistrasiMitraCtrl extends Controller
                     )
                 "));
 
-                if (count($data) == 0) {
-                    $sirahMacan = [];
-                    $idpenjamin = "-1";//$pasiendaftar->objectrekananfk == null ? '-1' : $pasiendaftar->objectrekananfk;
-                    if ($idpenjamin != "-1") {
-                            $sirahMacan = DB::select(DB::raw("
+            if (count($data) == 0) {
+                $sirahMacan = [];
+                $idpenjamin = "-1"; //$pasiendaftar->objectrekananfk == null ? '-1' : $pasiendaftar->objectrekananfk;
+                if ($idpenjamin != "-1") {
+                    $sirahMacan = DB::select(
+                        DB::raw("
                                     select hett.* from mapruangantoadministrasi_t as map
                                     INNER JOIN harganettoprodukbykelas_m as hett on hett.objectprodukfk=map.objectprodukfk
                                     and hett.objectjenispelayananfk =map.jenispelayananfk
@@ -369,20 +400,22 @@ class RegistrasiMitraCtrl extends Controller
                                     and map.statusenabled=true
                                     and hett.statusenabled=true
                                     and hett.objectpenjaminfk = $idpenjamin
-                            "),array(
-                                'ruanganid' => $pasiendaftar->objectruanganlastfk,
-                                'kelasid' => $pasiendaftar->objectkelasfk,
-                                'jenispelayanan' => $pasiendaftar->jenispelayanan,
-                                'kdprofile' =>$kdProfile
+                            "),
+                        array(
+                            'ruanganid' => $pasiendaftar->objectruanganlastfk,
+                            'kelasid' => $pasiendaftar->objectkelasfk,
+                            'jenispelayanan' => $pasiendaftar->jenispelayanan,
+                            'kdprofile' => $kdProfile
 
-                            )
-                        );
-                    }else{
-                        $sirahMacan = [];
-                    }
+                        )
+                    );
+                } else {
+                    $sirahMacan = [];
+                }
 
-                    if(count($sirahMacan) == 0){
-                        $sirahMacan = DB::select(DB::raw("
+                if (count($sirahMacan) == 0) {
+                    $sirahMacan = DB::select(
+                        DB::raw("
                                     select hett.* from mapruangantoadministrasi_t as map
                                     INNER JOIN harganettoprodukbykelas_m as hett on hett.objectprodukfk=map.objectprodukfk
                                     and hett.objectjenispelayananfk =map.jenispelayananfk
@@ -392,19 +425,21 @@ class RegistrasiMitraCtrl extends Controller
                                     and map.statusenabled=true
                                     and hett.statusenabled=true
                                     and hett.objectpenjaminfk IS NULL
-                            "),array(
-                                'ruanganid' => $pasiendaftar->objectruanganlastfk,
-                                'kelasid' => $pasiendaftar->objectkelasfk,
-                                'jenispelayanan' => $pasiendaftar->jenispelayanan,
-                                'kdprofile' =>$kdProfile
+                            "),
+                        array(
+                            'ruanganid' => $pasiendaftar->objectruanganlastfk,
+                            'kelasid' => $pasiendaftar->objectkelasfk,
+                            'jenispelayanan' => $pasiendaftar->jenispelayanan,
+                            'kdprofile' => $kdProfile
 
-                            )
-                        );
-                    }
+                        )
+                    );
+                }
 
-                    $buntutMacan = [];
-                    if ($idpenjamin != "-1") {
-                        $buntutMacan = DB::select(DB::raw("
+                $buntutMacan = [];
+                if ($idpenjamin != "-1") {
+                    $buntutMacan = DB::select(
+                        DB::raw("
                                 select hett.* from mapruangantoadministrasi_t as map
                                 INNER JOIN harganettoprodukbykelasd_m as hett on hett.objectprodukfk=map.objectprodukfk
                                 and hett.objectjenispelayananfk =map.jenispelayananfk
@@ -415,19 +450,20 @@ class RegistrasiMitraCtrl extends Controller
                                 and hett.statusenabled=true
                                 and hett.objectpenjaminfk = $idpenjamin
                                 "),
-                            array(
-                                'ruanganid' => $pasiendaftar->objectruanganlastfk,
-                                'kelasid' => $pasiendaftar->objectkelasfk,
-                                'jenispelayanan' => $pasiendaftar->jenispelayanan,
-                                'kdprofile' =>$kdProfile
-                            )
-                        );
-                    }else{
-                        $buntutMacan = [];
-                    }
+                        array(
+                            'ruanganid' => $pasiendaftar->objectruanganlastfk,
+                            'kelasid' => $pasiendaftar->objectkelasfk,
+                            'jenispelayanan' => $pasiendaftar->jenispelayanan,
+                            'kdprofile' => $kdProfile
+                        )
+                    );
+                } else {
+                    $buntutMacan = [];
+                }
 
-                    if(count($buntutMacan) == 0){
-                        $buntutMacan = DB::select(DB::raw("
+                if (count($buntutMacan) == 0) {
+                    $buntutMacan = DB::select(
+                        DB::raw("
                                 select hett.* from mapruangantoadministrasi_t as map
                                 INNER JOIN harganettoprodukbykelasd_m as hett on hett.objectprodukfk=map.objectprodukfk
                                 and hett.objectjenispelayananfk =map.jenispelayananfk
@@ -438,75 +474,73 @@ class RegistrasiMitraCtrl extends Controller
                                 and hett.statusenabled = true
                                 and hett.objectpenjaminfk IS NULL
                                 "),
-                            array(
-                                'ruanganid' => $pasiendaftar->objectruanganlastfk,
-                                'kelasid' => $pasiendaftar->objectkelasfk,
-                                'jenispelayanan' => $pasiendaftar->jenispelayanan,
-                                'kdprofile' =>$kdProfile
-                            )
-                        );
-                    }
-                    foreach ($sirahMacan as $k) {
-                        $PelPasien = new PelayananPasien();
-                        $PelPasien->norec = $PelPasien->generateNewId();
-                        $PelPasien->kdprofile = $kdProfile;
-                        $PelPasien->statusenabled = true;
-                        $PelPasien->noregistrasifk = $request['norec_apd'];//$dataDong[0]->norec_apd;
-                        $PelPasien->tglregistrasi = $pasiendaftar->tglregistrasi;
-                        $PelPasien->hargadiscount = 0;//0;
-                        $PelPasien->hargajual = $k->hargasatuan;
-                        $PelPasien->hargasatuan = $k->hargasatuan;
-                        $PelPasien->jumlah = 1;
-                        $PelPasien->kelasfk = $pasiendaftar->objectkelasfk;
-                        $PelPasien->kdkelompoktransaksi = 1;
-                        $PelPasien->piutangpenjamin = 0;
-                        $PelPasien->piutangrumahsakit = 0;
-                        $PelPasien->produkfk = $k->objectprodukfk;
-                        $PelPasien->stock = 1;
-                        $PelPasien->tglpelayanan = date('Y-m-d H:i:s');
-                        $PelPasien->harganetto = $k->harganetto1;
-                        $PelPasien->isadministrasi = true;
-                        $PelPasien->keteranganlain = 'administrasi otomatis';
-                        $PelPasien->noregistrasi = $pasiendaftar->noregistrasi;
-                        $PelPasien->save();
-                        $PPnorec = $PelPasien->norec;
-                        foreach ($buntutMacan as $itemKomponen) {
-                            if($itemKomponen->objectprodukfk == $k->objectprodukfk) {
-                                $PelPasienDetail = new PelayananPasienDetail();
-                                $PelPasienDetail->norec = $PelPasienDetail->generateNewId();
-                                $PelPasienDetail->kdprofile = $kdProfile;
-                                $PelPasienDetail->statusenabled = true;
-                                $PelPasienDetail->noregistrasifk = $request['norec_apd'];
-                                $PelPasienDetail->aturanpakai = '-';
-                                $PelPasienDetail->hargadiscount = 0;
-                                $PelPasienDetail->hargajual = $itemKomponen->hargasatuan;
-                                $PelPasienDetail->hargasatuan = $itemKomponen->hargasatuan;
-                                $PelPasienDetail->jumlah = 1;
-                                $PelPasienDetail->keteranganlain = 'admin otomatis';
-                                $PelPasienDetail->keteranganpakai2 = '-';
-                                $PelPasienDetail->komponenhargafk = $itemKomponen->objectkomponenhargafk;
-                                $PelPasienDetail->pelayananpasien = $PPnorec;
-                                $PelPasienDetail->piutangpenjamin = 0;
-                                $PelPasienDetail->piutangrumahsakit = 0;
-                                $PelPasienDetail->produkfk = $itemKomponen->objectprodukfk;
-                                $PelPasienDetail->stock = 1;
-                                $PelPasienDetail->tglpelayanan = date('Y-m-d H:i:s');
-                                $PelPasienDetail->harganetto = $itemKomponen->harganetto1;
-                                $PelPasienDetail->noregistrasi = $pasiendaftar->noregistrasi;
-                                $PelPasienDetail->save();
-                            }
-
+                        array(
+                            'ruanganid' => $pasiendaftar->objectruanganlastfk,
+                            'kelasid' => $pasiendaftar->objectkelasfk,
+                            'jenispelayanan' => $pasiendaftar->jenispelayanan,
+                            'kdprofile' => $kdProfile
+                        )
+                    );
+                }
+                foreach ($sirahMacan as $k) {
+                    $PelPasien = new PelayananPasien();
+                    $PelPasien->norec = $PelPasien->generateNewId();
+                    $PelPasien->kdprofile = $kdProfile;
+                    $PelPasien->statusenabled = true;
+                    $PelPasien->noregistrasifk = $request['norec_apd']; //$dataDong[0]->norec_apd;
+                    $PelPasien->tglregistrasi = $pasiendaftar->tglregistrasi;
+                    $PelPasien->hargadiscount = 0; //0;
+                    $PelPasien->hargajual = $k->hargasatuan;
+                    $PelPasien->hargasatuan = $k->hargasatuan;
+                    $PelPasien->jumlah = 1;
+                    $PelPasien->kelasfk = $pasiendaftar->objectkelasfk;
+                    $PelPasien->kdkelompoktransaksi = 1;
+                    $PelPasien->piutangpenjamin = 0;
+                    $PelPasien->piutangrumahsakit = 0;
+                    $PelPasien->produkfk = $k->objectprodukfk;
+                    $PelPasien->stock = 1;
+                    $PelPasien->tglpelayanan = date('Y-m-d H:i:s');
+                    $PelPasien->harganetto = $k->harganetto1;
+                    $PelPasien->isadministrasi = true;
+                    $PelPasien->keteranganlain = 'administrasi otomatis';
+                    $PelPasien->noregistrasi = $pasiendaftar->noregistrasi;
+                    $PelPasien->save();
+                    $PPnorec = $PelPasien->norec;
+                    foreach ($buntutMacan as $itemKomponen) {
+                        if ($itemKomponen->objectprodukfk == $k->objectprodukfk) {
+                            $PelPasienDetail = new PelayananPasienDetail();
+                            $PelPasienDetail->norec = $PelPasienDetail->generateNewId();
+                            $PelPasienDetail->kdprofile = $kdProfile;
+                            $PelPasienDetail->statusenabled = true;
+                            $PelPasienDetail->noregistrasifk = $request['norec_apd'];
+                            $PelPasienDetail->aturanpakai = '-';
+                            $PelPasienDetail->hargadiscount = 0;
+                            $PelPasienDetail->hargajual = $itemKomponen->hargasatuan;
+                            $PelPasienDetail->hargasatuan = $itemKomponen->hargasatuan;
+                            $PelPasienDetail->jumlah = 1;
+                            $PelPasienDetail->keteranganlain = 'admin otomatis';
+                            $PelPasienDetail->keteranganpakai2 = '-';
+                            $PelPasienDetail->komponenhargafk = $itemKomponen->objectkomponenhargafk;
+                            $PelPasienDetail->pelayananpasien = $PPnorec;
+                            $PelPasienDetail->piutangpenjamin = 0;
+                            $PelPasienDetail->piutangrumahsakit = 0;
+                            $PelPasienDetail->produkfk = $itemKomponen->objectprodukfk;
+                            $PelPasienDetail->stock = 1;
+                            $PelPasienDetail->tglpelayanan = date('Y-m-d H:i:s');
+                            $PelPasienDetail->harganetto = $itemKomponen->harganetto1;
+                            $PelPasienDetail->noregistrasi = $pasiendaftar->noregistrasi;
+                            $PelPasienDetail->save();
                         }
                     }
-
                 }
+            }
 
-                $this->LOGGING(
-                    'Administrasi Otomatis',
-                    $pasiendaftar->norec,
-                    'pasiendaftar_t',
-                    'Administrasi Otomatis pada Pasien ' .  $pasien->namapasien . ' (' . $pasien->nocm . ') - ' . $pasiendaftar->noregistrasi
-                );
+            $this->LOGGING(
+                'Administrasi Otomatis',
+                $pasiendaftar->norec,
+                'pasiendaftar_t',
+                'Administrasi Otomatis pada Pasien ' .  $pasien->namapasien . ' (' . $pasien->nocm . ') - ' . $pasiendaftar->noregistrasi
+            );
 
             $transMessage = "Administrasi Otomatis";
             DB::commit();

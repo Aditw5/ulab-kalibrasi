@@ -103,7 +103,9 @@
                                 <td width="30%">
                                   <div class="columns is-multiline">
                                     <div class="column is-12">
-                                      <div class="title-ruangan">{{ itemsDet.nopendaftaran }}</div>
+                                      <div class="title-ruangan">{{ itemsDet.nopendaftaran }}
+                                        <VTag v-if="itemsDet.tanggalpenolakanregis != null" color="danger" label="Alat Ditolak" />
+                                      </div> 
                                       <div class="title-layan">{{ itemsDet.namaproduk }} </div>
                                       <div>
                                         <VTag color="info" :label="itemsDet.namaperusahaan" class="mr-2" />
@@ -145,7 +147,7 @@
                                   <VIconButton color="info" light raised circle icon="feather:edit" class="mr-1"
                                     v-tooltip.bubble="'Kaji ulang'" @click="KajiUlang(itemsDet)" />
                                   <VIconButton color="danger" light raised circle icon="feather:trash" class="mr-1"
-                                    v-tooltip.bubble="'Tolak'" @click="KajiUlang(itemsDet)" />
+                                    v-tooltip.bubble="'Tolak'" @click="batalRegis(itemsDet)" />
                                 </td>
                               </tr>
                             </tbody>
@@ -179,6 +181,55 @@
       </div>
     </div>
   </div>
+
+  <VModal :open="modalBatalRegis" title="Tolak Alat" size="medium" actions="right"
+    @close="modalBatalRegis = false" cancelLabel="Tutup">
+    <template #content>
+      <div class="columns is-multiline">
+        <div class="column is-12">
+          <VField>
+            <VLabel class="required-field">Tanggal Penolakan</VLabel>
+            <VDatePicker v-model="item.tanggalpenolakan" mode="dateTime" style="width: 100%" trim-weeks
+              :max-date="new Date()">
+              <template #default="{ inputValue, inputEvents }">
+                <VField>
+                  <VControl icon="feather:calendar" fullwidth>
+                    <VInput :value="inputValue" placeholder="Tanggal" v-on="inputEvents" disabled />
+                  </VControl>
+                </VField>
+              </template>
+            </VDatePicker>
+          </VField>
+        </div>
+        <div class="column is-12">
+          <VField>
+            <VLabel class="required-field">Nama Alat</VLabel>
+            <VControl icon="feather:tool">
+              <VInput type="text" v-model="item.namaproduk" class="is-rounded_Z" disabled />
+            </VControl>
+          </VField>
+        </div>
+        <div class="column is-12">
+          <span style="margin-bottom:1rem;font-weight: bold; font-size: 12px; font-family: var(--font-alt);">Alasan
+            Penolakan
+          </span>
+
+          <VField>
+            <VControl>
+              <VTextarea class="textarea is-rounded" v-model="item.alasanpenolakan" rows="4"
+                placeholder="Alasan Pembatalan" autocomplete="off" autocapitalize="off" spellcheck="true" />
+            </VControl>
+          </VField>
+        </div>
+
+      </div>
+    </template>
+    <template #action>
+      <VButton icon="feather:plus" color="primary" @click="saveBatalRegis" :loading="isLoadingBill" raised>Simpan
+      </VButton>
+    </template>
+  </VModal>
+
   <VModal :open="modalKajiUlang" title="Masukan Pengkajian Ulang" :noclose="false" size="big" actions="right"
     @close="modalKajiUlang = false, clear()">
     <template #content>
@@ -354,6 +405,7 @@ const loadPasienPenunjang = ref(false)
 const isLoadHeader = ref(true)
 const modalKajiUlang: any = ref(false)
 const modalKirimRIS: any = ref(false)
+const modalBatalRegis: any = ref(false)
 const modalCatatan: any = ref(false)
 const dataSelect: any = ref({})
 const d_JenisPelaksana: any = ref([])
@@ -374,6 +426,7 @@ const item: any = reactive({
   TGLREGISTRASI: TGLREGISTRASI != undefined ? TGLREGISTRASI : '',
   registrasi: {},
   tglorder: new Date(),
+  tanggalpenolakan: new Date(),
   tanggal: new Date(),
   produkCeklis: [],
   pegawaiOrder: useUserSession().getUser().id,
@@ -565,6 +618,37 @@ const simpan = async () => {
     }
   })
 
+}
+
+const batalRegis = async (e: any) => {
+  console.log(e)
+  item.namaproduk = e.namaproduk
+  item.norecregis = e.norec_detail
+
+  modalBatalRegis.value = true
+}
+
+const saveBatalRegis = async () => {
+  if (!item.alasanpenolakan) { H.alert('warning', 'Alasan Penolakan harus di isi'); return }
+  let json = {
+    mitraregis: {
+      'norecregis': item.norecregis,
+      'tanggalpenolakanregis': item.tanggalpenolakan,
+      'alasanpenolakanregis': item.alasanpenolakan,
+    }
+  }
+  isLoadingBill.value = true
+  await useApi()
+    .post(`/registrasi/save-penolakan-alat`, json)
+    .then((response: any) => {
+      isLoadingBill.value = false
+      // clear()
+      modalBatalRegis.value = false
+      fetchLayanan()
+    })
+    .catch((e: any) => {
+      isLoadingBill.value = false
+    })
 }
 
 

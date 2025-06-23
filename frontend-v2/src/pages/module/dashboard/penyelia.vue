@@ -27,7 +27,6 @@
                   <Badge :value="dataAlatKalibrasi.length" v-if="dataAlatKalibrasi.length > 0" severity="danger"
                     class="ml-2" />
                 </template>
-
                 <div v-if="activeTab == 0">
                   <div class="column is-6"
                     style="margin-left: 23rem;margin-bottom: 20px;padding: 0px;margin-top: -4.25rem;">
@@ -46,15 +45,13 @@
                         </VField>
                       </template>
                     </VDatePicker>
-
                   </div>
-
                   <div class="list-view list-view-v3">
                     <div class="search-menu-igd mb-2">
                       <div class="search-location-igd" style="width: 100%">
                         <i class="iconify" data-icon="feather:search"></i>
-                        <input type="text" placeholder="Cari Nama Alat" v-model="item.qsearch"
-                          v-on:keyup.enter="fetchAlatKalibrasi(order)" />
+                        <input type="text" placeholder="Cari Nama Alat, No Order Alat, No Pedaftaran"
+                          v-model="item.qsearch" v-on:keyup.enter="fetchAlatKalibrasi(order)" />
                       </div>
                       <VButton raised class="search-button-igd" @click="fetchAlatKalibrasi(order)" :loading="isLoading">
                         Cari Data
@@ -63,7 +60,8 @@
                     <VCard class="text-center pt-0 pb-0 mt-0">
                       <VRadio v-model="order" value="0" label="Belum Verif" name="outlined_radio" color="success" />
                       <VRadio v-model="order" value="1" label="Sudah Verif" name="outlined_radio" color="info" />
-                      <VRadio v-model="order" value="2" label="Sertifikat Disetujui Penyelia" name="outlined_radio" color="info" />
+                      <VRadio v-model="order" value="2" label="Sertifikat Disetujui Penyelia" name="outlined_radio"
+                        color="info" />
                     </VCard>
                     <VPlaceholderPage :class="[dataAlatKalibrasi.length !== 0 && 'is-hidden']"
                       title="Tidak Ada Alat Hari Ini." subtitle="Silakan Pilih Tanggal" larger>
@@ -98,28 +96,23 @@
                                   <span>{{ item.nopendaftaran }}</span>
                                   <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
                                   <i aria-hidden="true" class="iconify" data-icon="teenyicons:id-outline"></i>
-                                  <span>{{ item.noidentitas }}</span>
-
+                                  <span>{{ item.noorderalat }}</span>
                                 </span>
                                 <div>
-                                  <!-- <VTag
-                                    :label="item.norec_perjanjian != null ? 'Sudah dibuat SKDP' : 'Belum dibuat SKDP'"
-                                    :color="item.norec_perjanjian !== null ? 'info' : 'danger'" class="ml-2" /> -->
-                                  <!-- <VTag :label="item.penanda.charAt(0).toUpperCase() + item.penanda.slice(1)"
-                                    v-if="item.penanda != null" :color="'info'" class="ml-2" /> -->
-                                  <VTag v-if="item.statusPengerjaan == null" :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
+                                  <VTag v-if="item.statusPengerjaan == null"
+                                    :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                     class="ml-2" />
-                                  <VTag v-if="item.statusPengerjaan != null" :label="item.statusPengerjaan"  :color="item.statusColor"
-                                    class="ml-2" />
-                                  <VTag v-if="item.pelaksanaisilembarkerjafk != null && (item.setujuilembarkerjapenyelia == null || item.setujuilembarkerjapenyelia == false)" :label="'Sudah Isi Lembar Kerja'"
-                                    :color="'info'" class="ml-2" />
-                                  <VTag v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true" :label="'Sertifikat Disetujui Penyelia'"
-                                    :color="'primary'" class="ml-2" />
-                                  <VTag v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true" :label="'Sertifikat Disetujui Asaman'"
-                                    :color="'primary'" class="ml-2" />
-                                  <!-- <VTag
-                                    :label="item.kategoriInsiden.charAt(0).toUpperCase() + item.kategoriInsiden.slice(1)"
-                                    v-if="item.kategoriInsiden != null" :color="'purple'" class="ml-2" /> -->
+                                  <VTag v-if="item.statusPengerjaan != null" :label="item.statusPengerjaan"
+                                    :color="item.statusColor" class="ml-2" />
+                                  <VTag
+                                    v-if="item.pelaksanaisilembarkerjafk != null && (item.setujuilembarkerjapenyelia == null || item.setujuilembarkerjapenyelia == false)"
+                                    :label="'Sudah Isi Lembar Kerja'" :color="'info'" class="ml-2" />
+                                  <VTag
+                                    v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true"
+                                    :label="'Sertifikat Disetujui Penyelia'" :color="'primary'" class="ml-2" />
+                                  <VTag
+                                    v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
+                                    :label="'Sertifikat Disetujui Asaman'" :color="'primary'" class="ml-2" />
                                 </div>
                                 <div>
                                   <span style="font-weight: bold;">Penyelia Teknik :
@@ -137,7 +130,9 @@
                                   <VIconButton v-tooltip.bottom.left="'SPK'" icon="feather:printer"
                                     @click="cetakSpk(item)" color="warning" raised circle class="mr-2">
                                   </VIconButton>
-                                   <VIconButton v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true" v-tooltip.bottom.left="'Cetak Sertifikat'" icon="feather:printer"
+                                  <VIconButton
+                                    v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
+                                    v-tooltip.bottom.left="'Cetak Sertifikat'" icon="feather:printer"
                                     @click="cetakSertifikatLembarKerja(item)" color="info" raised circle class="mr-2">
                                   </VIconButton>
                                   <VIconButton v-if="item.statusorderpenyelia == 1" color="info" circle
@@ -145,13 +140,10 @@
                                     v-tooltip.bottom.left="'Lembar Kerja'" />
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
                                     circle icon="pi pi-check-circle" v-if="item.statusorderpenyelia == 0"
-                                    @click="orderVerify(item)"/>
+                                    @click="orderVerify(item)" />
                                   <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity"
                                     v-if="item.statusorderpenyelia == 1" @click="detailOrder(item)" color="info" raised
                                     circle class="mr-2">
-                                  </VIconButton>
-                                  <VIconButton color="primary" circle icon="pi pi-ellipsis-v" raised
-                                    @click="toggleOP($event, item)" v-tooltip.bottom.left="'TINDAKAN'">
                                   </VIconButton>
                                 </div>
                               </div>
@@ -163,13 +155,10 @@
                   </div>
                 </div>
               </TabPanel>
-
             </TabView>
-
           </div>
         </div>
       </div>
-
       <div class="column is-4">
         <VCard>
           <VIconButton circle class="is-pulled-right" icon="feather:refresh-cw" raised bold @click="fetchDataChart()"
@@ -184,71 +173,39 @@
             </ApexChart>
           </div>
         </VCard>
-        <UIWidget class="search-widget" style="margin-top: 1.7rem;">
-          <template #body>
-            <div class="field">
-              <div class="control">
-                <input v-model="filters" class="input custom-text-filter" placeholder="Cari Pelaksana" />
-                <button class="searcv-button" @click="fetchJadwalDokter()">
-                  <i aria-hidden="true" class="iconify" data-icon="feather:search"></i>
-                </button>
-              </div>
-            </div>
-          </template>
-        </UIWidget>
-
-        <div class="column border-custom mb-2 mt-5-min">
+        <div class="column border-custom mb-2 mt-5">
           <span style="font-weight: bold; font-size: 16px; font-family: var(--font-alt);">Pelaksana
           </span>
         </div>
         <div class="tile-grid tile-grid-v2">
-          <VPlaceholderPage :class="[dataDokter.length !== 0 && 'is-hidden']" title="Tidak Ada Pelaksana." larger>
+          <VPlaceholderPage :class="[dataPegawaiPelaksana.length !== 0 && 'is-hidden']" title="Tidak Ada Pelaksana."
+            larger>
             <template #image>
               <img class="light-image" src="/@src/assets/illustrations/placeholders/search-4.png" alt="" />
               <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
             </template>
           </VPlaceholderPage>
-
-          <!--Tile Grid v1-->
-
           <div name="list" tag="div" class="columns is-multiline">
-            <!--Grid item-->
             <div class="columns is-multiline p-2" style="max-height:500px;overflow: auto;">
-              <div v-for="item in dataDokter" :key="item.id" class="column is-12 p-0 pb-2 pl-2 pr-2 ">
+              <div v-for="item in dataPegawaiPelaksana" :key="item.id" class="column is-12 p-0 pb-2 pl-2 pr-2 ">
                 <div class="tile-grid-item">
                   <div class="tile-grid-item-inner">
-                    <VAvatar size="small" picture="/images/avatars/svg/dokter.svg" color="primary" bordered />
+                    <VAvatar size="small" picture="/images/simrs/male.png" color="primary" bordered />
                     <div class="meta">
-                      <span class="dark-inverted text-elipsis-wrap" style="width:200px !important">{{ item.namalengkap
+                      <span class="dark-inverted">{{ item.namalengkap
                       }}</span>
-                      <span>
-                        <i aria-hidden="true" class="iconify" data-icon="feather:clock" style="padding-right: 3px;"></i>
-                        {{ item.jammulai }} s.d {{ item.jamakhir }}</span>
+                      <span class="dark-inverted">{{ item.namajabatanulab
+                      }}</span>
                     </div>
-                    <VTag style="margin-left: auto;" color="info" label="Tag Label" rounded elevated> {{ item.hari }}
-                    </VTag>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
   </div>
-
-  <OverlayPanel ref="op" appendTo="body" style="width:300px">
-    <div class="columns is-multiline">
-      <!-- <div class="column is-6 pt-1 pb-1">
-        <VButton type="button" icon="fas fa-print" class="w-100" light circle outlined color="success" raised
-          @click="cetakSEP()">
-          Cetak SEP
-        </VButton>
-      </div> -->
-    </div>
-
-  </OverlayPanel>
   <VModal :open="modalDetailOrder" title="Verifikasi" noclose size="big" actions="right"
     @close="modalDetailOrder = false, clear()" cancelLabel="Tutup">
     <template #content>
@@ -270,7 +227,6 @@
               <div class="timeline-container">
                 <div class="timeline-item is-unread" v-for="(items, index) in detailOrderLayanan" :key="items.norec">
                   <div :class="'dot is-' + listColor[index + 1]"></div>
-
                   <div class="content-wrap is-grey">
                     <div class="content-box">
                       <div class="status"></div>
@@ -456,6 +412,7 @@ const route = useRoute()
 const rowGroupMetadata = ref({})
 const selectedItem: any = ref({})
 const isLoadingPop: any = ref(false)
+// const isLoadingCall: any = ref(false)
 const order: any = ref(0)
 let modalDetailOrder: any = ref(false)
 let isLoadDataOrder: any = ref(false)
@@ -480,11 +437,10 @@ const currentPage: any = ref({
   limit: 5,
   rows: 50,
 })
-let ID_RUANGAN = useRoute().query.id as string
-let dataSource: any = ref([])
 let dataStok: any = ref([])
 let dataObat: any = ref([])
 let dataDokter: any = ref([])
+let dataPegawaiPelaksana: any = ref([])
 let dataAlatKalibrasi: any = ref([])
 let isLoading: any = ref(false)
 let isLoadingTT: any = ref(false)
@@ -503,7 +459,6 @@ const fetchAlatKalibrasi = async (q: any) => {
     sampai = H.formatDate(item.value.filterTgl.end, 'YYYY-MM-DD')
   }
   let status = ''
-
   let statusorderpenyelia = ''
     , search = ''
   item.value.statusorderpenyelia = q
@@ -520,18 +475,14 @@ const fetchAlatKalibrasi = async (q: any) => {
   isLoading.value = false
   response.data.sort(compare);
   dataAlatKalibrasi.value = response.data
-
   updateRowGroupMetaData();
-
 }
 
 const orderVerify = async (e: any) => {
-  console.log(e)
   detailOrderLayanan.value = []
   modalDetailOrder.value = true
   item.value.norec = e.norec
   item.value.norec_detail = e.norec_detail
-  // getListPelayanan(data)
   isLoadDataOrder.value = true
   const response = await useApi().get(`/penyelia/layanan-verif-penyelia?norec_pd=${e.norec_detail}`)
   response.detail.forEach((element: any, i: any) => {
@@ -542,7 +493,6 @@ const orderVerify = async (e: any) => {
 }
 
 const detailOrder = async (e) => {
-  console.log(e)
   modalRiwayat.value = true
   item.value.namaproduk = e.namaproduk
   item.value.namamerk = e.namamerk
@@ -613,23 +563,12 @@ const compare = (a: any, b: any) => {
   return 0;
 }
 
-const fetchJadwalDokter = async () => {
-  let ruanganid = ''
-  if (item.value.filterRuangan) {
-    ruanganid = item.value.filterRuangan
-  }
-  let namaDokter = ''
-  if (filters.value != undefined) {
-    namaDokter = filters.value
-  }
-  dataDokter.value = []
-  dataStok.value = []
-
+const fetchDetail = async () => {
+  dataPegawaiPelaksana.value = []
   const response = await useApi().get(
-    '/dashboard/igd-detail?ruanganid=' + ruanganid + '&namadokter=' + namaDokter + '&limit=10'
+    'penyelia/get-pegawai-pelaksana'
   )
-  dataDokter.value = response.dokter
-  dataStok.value = response.produk
+  dataPegawaiPelaksana.value = response.pegawaiJakarta
 }
 
 const fetchDataChart = async () => {
@@ -716,19 +655,6 @@ const updateRowGroupMetaData = () => {
   }
 }
 
-const fetchDokter = async (filter: any) => {
-  await useApi().get(
-    `emr/dropdown/pegawai_m?select=id,namalengkap&param_search=namalengkap&query=${filter.query}&settingdatafix=objectjenispegawaifk,idJenisPegawaiDokter&limit=10`
-  ).then((response) => {
-    d_Dokter.value = response
-  })
-}
-
-const toggleOP = (event: any, item: any) => {
-  selectedItem.value = item
-  op.value.toggle(event);
-}
-
 const cetakSpk = (e) => {
   console.log(e)
 
@@ -738,8 +664,6 @@ const cetakSpk = (e) => {
 const cetakSertifikatLembarKerja = (e) => {
   H.printBlade(`penyelia/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
-
-
 
 const kirimWASuratKeteranganDokter = async (e: any) => {
   isLoadingPop.value = true;
@@ -785,6 +709,7 @@ watch(
 
 fetchAlatKalibrasi(0)
 fetchDataChart()
+fetchDetail()
 </script>
 
 <style lang="scss">

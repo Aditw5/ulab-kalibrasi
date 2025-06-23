@@ -72,12 +72,12 @@ class PenyeliaCtrl extends Controller
                 'mtrd.asmansetujulembarkerjafk',
                 'mtrd.statusorderasman',
                 'mtrd.tglverifpelaksana',
+                'mtrd.noorderalat',
             )
             ->where('pg.id', $this->getPegawaiId())
             ->where('mtr.statusorder', 1)
             ->where('mtr.iskaji', true)
             ->where('mtr.statusenabled', true)
-            ->where('mtrd.statusenabled', true)
             ->where('mtrd.statusenabled', true);
 
         if (isset($r['dari']) && $r['dari'] != '') {
@@ -89,7 +89,8 @@ class PenyeliaCtrl extends Controller
         if (isset($r['search']) && $r['search'] != '') {
             $searchTerm = '%' . $r['search'] . '%';
             $data = $data->where(function ($query) use ($searchTerm) {
-                $query->where('mt.namaperusahaan', 'ilike', $searchTerm)
+                $query->where('mtrd.noorderalat', 'ilike', $searchTerm)
+                    ->orWhere('prd.namaproduk', 'ilike', $searchTerm)
                     ->orWhere('mt.nopendaftaran', 'ilike', $searchTerm);
             });
         }
@@ -184,57 +185,6 @@ class PenyeliaCtrl extends Controller
         $result['as'] = '@adit';
 
         return $this->respond($result);
-    }
-
-    public function getAsmanDetail(Request $r)
-    {
-        $jabatanIds = [17, 20, 3, 7, 8, 4, 19, 9, 5, 18, 13, 15, 12, 16, 14];
-
-        $pegawaiJakarta = DB::table('pegawai_m as pg')
-            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
-            ->select(
-                'pg.id as pegawai_id',
-                'pg.namalengkap',
-                'pg.jabatan1fk',
-                'jb.id as jabatan_id',
-                'jb.namajabatanulab'
-            )
-            ->where('pg.statusenabled', true)
-            ->whereIn('jb.id', $jabatanIds)
-            ->where('pg.lokasikalibrasifk', 1)
-            ->where('jb.statusenabled', true);
-
-        if (isset($r['limit']) && $r['limit'] != '') {
-            $pegawaiJakarta->limit($r['limit']);
-        }
-
-        $pegawaiJakarta->orderBy('jb.namajabatanulab');
-        $pegawaiJakarta = $pegawaiJakarta->get();
-
-        $pegawaiGresik = DB::table('pegawai_m as pg')
-            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
-            ->select(
-                'pg.id as pegawai_id',
-                'pg.namalengkap',
-                'pg.jabatan1fk',
-                'jb.id as jabatan_id',
-                'jb.namajabatanulab'
-            )
-            ->where('pg.statusenabled', true)
-            ->whereIn('jb.id', $jabatanIds)
-            ->where('pg.lokasikalibrasifk', 2)
-            ->where('jb.statusenabled', true);
-
-        if (isset($r['limit']) && $r['limit'] != '') {
-            $pegawaiGresik->limit($r['limit']);
-        }
-
-        $pegawaiGresik->orderBy('jb.namajabatanulab');
-        $pegawaiGresik = $pegawaiGresik->get();
-
-        $res['pegawaiJakarta'] = $pegawaiJakarta;
-        $res['pegawaiGresik'] = $pegawaiGresik;
-        return $this->respond($res);
     }
 
     public function saveVerif(Request $r)
@@ -1041,5 +991,43 @@ class PenyeliaCtrl extends Controller
         $result['as'] = '@adit';
 
         return $this->respond($result);
+    }
+
+    public function getPegawaiPelaksana(Request $r)
+    {
+        $jabatanIds = [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            18
+        ];
+
+        $pegawaiJakarta = DB::table('pegawai_m as pg')
+            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
+            ->select(
+                'pg.id as pegawai_id',
+                'pg.namalengkap',
+                'pg.jabatan1fk',
+                'jb.id as jabatan_id',
+                'jb.namajabatanulab'
+            )
+            ->where('pg.statusenabled', true)
+            ->whereIn('jb.id', $jabatanIds)
+            ->where('pg.lokasikalibrasifk', 1)
+            ->where('jb.statusenabled', true);
+
+        if (isset($r['limit']) && $r['limit'] != '') {
+            $pegawaiJakarta->limit($r['limit']);
+        }
+
+        $pegawaiJakarta->orderBy('jb.namajabatanulab');
+        $pegawaiJakarta = $pegawaiJakarta->get();
+
+
+        $res['pegawaiJakarta'] = $pegawaiJakarta;
+        return $this->respond($res);
     }
 }

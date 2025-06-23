@@ -175,8 +175,10 @@
                                 <p>Email : {{ item.email }}</p>
                                 <p>No HP : {{ item.nohp }}</p>
                                 <div class="buttons mt-4" style="display: flex; justify-content: center;">
-                                  <VIconButton v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
+                                  <VIconButton v-if="item.statusorder != 1" v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
                                     outlined circle icon="pi pi-arrow-right" @click="kajiUlang(item)" />
+                                  <VIconButton v-else  v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
+                                    outlined circle icon="pi pi-arrow-right" disabled />
                                 </div>
                               </div>
                             </div>

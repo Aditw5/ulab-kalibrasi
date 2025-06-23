@@ -220,6 +220,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('registrasi/save-konfirmasi-pendaftaran', 'saveKonfirmasiPendaftaran');
         Route::get('registrasi/cetak-tanda-terima', 'cetakTandaTerima');
         Route::get('registrasi/cetak-permintaan-kalibrasi', 'cetakPermintaanKalibrasi');
+        Route::post('registrasi/save-penolakan-alat', 'savePenolakanALat');
     });
 
     Route::controller(AsmanCtrl::class)->group(function () {
@@ -269,6 +270,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('penyelia/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
         Route::get('penyelia/download-file-terunggah', 'downloadFileTerunggah');
         Route::get('penyelia/excel-length', 'getExcelLength');
+        Route::get('penyelia/get-pegawai-pelaksana', 'getPegawaiPelaksana');
     });
 
     Route::controller(PelaksanaCtrl::class)->group(function () {

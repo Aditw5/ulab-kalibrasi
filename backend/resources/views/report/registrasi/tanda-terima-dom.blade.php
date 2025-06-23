@@ -284,13 +284,36 @@
                 @foreach ($res['alat'] as $index => $alat)
                     <tr>
                         <td> <span style="font-size: 9pt;" class="text-biasa">{{ $index + 1 }} </span></td>
-                        <td> <span style="font-size: 9pt;" class="text-biasa">{{ $alat->namaproduk }}</span></td>
+                        <td width="25%">
+                            <span
+                                style="font-size: 9pt; {{ !empty($alat->alasanpenolakanregis) ? 'color: red;' : '' }}"
+                                class="text-biasa">
+                                {{ $alat->namaproduk }}
+                                @if (!empty($alat->alasanpenolakanregis))
+                                    (Ditolak)
+                                @endif
+                            </span>
+                        </td>
                         <td> <span style="font-size: 9pt;" class="text-biasa">{{ trim($alat->namamerk) }}
                                 {{ $alat->namatipe }}</span></td>
                         <td> <span style="font-size: 9pt;" class="text-biasa">{{ $alat->namaserialnumber }}</span>
                         </td>
                         <td> <span style="font-size: 9pt;" class="text-biasa">1 Set </span></td>
-                        <td> <span style="font-size: 9pt;" class="text-biasa">{{ $alat->keterangan }}</span></td>
+                        <td>
+                            <span style="font-size: 9pt;" class="text-biasa">
+
+                                @if (!empty($alat->keterangan))
+                                    {{ $alat->keterangan }}
+                                @elseif (!empty($alat->alasanpenolakanregis))
+                                    <div style="color: red; font-size: 12px; margin-top: 10px;">
+                                        {{ $alat->alasanpenolakanregis }}
+                                    </div>
+                                @else
+                                    <span style="color: gray; font-size: 12px;">
+                                        Tidak ada file atau alasan penolakan</span>
+                                @endif
+                            </span>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -361,8 +384,15 @@
                 <tr>
                     <td width="5%"> <span style="font-size: 9pt;" class="text-biasa">{{ $index + 1 }} </span>
                     </td>
-                    <td width="25%"> <span style="font-size: 9pt;"
-                            class="text-biasa">{{ $alat->namaproduk }}</span></td>
+                    <td width="25%">
+                        <span style="font-size: 9pt; {{ !empty($alat->alasanpenolakanregis) ? 'color: red;' : '' }}"
+                            class="text-biasa">
+                            {{ $alat->namaproduk }}
+                            @if (!empty($alat->alasanpenolakanregis))
+                                (Ditolak)
+                            @endif
+                        </span>
+                    </td>
                     <td width="15%"> <span style="font-size: 9pt;" class="text-biasa">{{ trim($alat->namamerk) }}
                             {{ $alat->namatipe }}</span></td>
                     <td width="15%"> <span style="font-size: 9pt;"
@@ -370,10 +400,17 @@
                     </td>
                     <td width="15%"> <span style="font-size: 9pt;" class="text-biasa">1 Set </span></td>
                     <td width="25%" style="text-align: center">
-                        @if ($alat->namafile)
+                        @if (!empty($alat->namafile))
                             <img src="{{ 'berkas-mitra/' . $alat->namafile }}" width="170px" style="margin:2px 0;">
+                        @elseif (!empty($alat->alasanpenolakanregis))
+                            <div style="color: red; font-size: 12px; margin-top: 10px;">
+                                {{ $alat->alasanpenolakanregis }}
+                            </div>
+                        @else
+                            <span style="color: gray; font-size: 12px;">Tidak ada file atau alasan penolakan</span>
                         @endif
                     </td>
+
 
                 </tr>
             @endforeach

@@ -309,6 +309,8 @@ class AsmanCtrl extends Controller
                 'mtrd.durasikalbrasi',
                 'mtrd.namafile',
                 'mtrd.keterangan',
+                'mtrd.alasanpenolakanregis',
+                'mtrd.tanggalpenolakanregis',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -331,7 +333,7 @@ class AsmanCtrl extends Controller
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
-            ->where('mtrd.statusenabled', true)
+            // ->where('mtrd.statusenabled', true)
             ->where('mtr.norec', $r['norec_pd']);
 
         if (isset($r['norecdetail']) && $r['norecdetail'] != "" && $r['norecdetail'] != "undefined") {
@@ -542,11 +544,14 @@ class AsmanCtrl extends Controller
                 ->update([
                     'noorderalat' => $noorderalat,
                     'iskaji' => true,
+                    'statusenabled' => true,
                     'lokasikajifk' => $VI['lokasikalibrasi'],
                     'lingkupkalibrasifk' => $VI['lingkupkalibrasi'],
                     'penyeliateknikfk' => $VI['penyeliateknik'],
                     'pelaksanateknikfk' => $VI['pelaksana'],
-                    'durasikalbrasi' => $VI['durasikalbrasi']
+                    'durasikalbrasi' => $VI['durasikalbrasi'],
+                    'tanggalpenolakanregis' => null,
+                    'alasanpenolakanregis' => null,
                 ]);
 
             $transMessage = "Simpan Verif Item Sukses";

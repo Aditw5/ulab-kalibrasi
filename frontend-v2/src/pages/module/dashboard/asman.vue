@@ -483,11 +483,11 @@
                                         <VField>
                                             <VLabel>Lingkup Kalibrasi</VLabel>
                                             <VControl>
-                                                <AutoComplete v-model="item.lingkupkalibrasiUpdate" :suggestions="d_lingkup"
-                                                    @complete="fetchLingkup($event)" :optionLabel="'label'"
-                                                    :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
-                                                    :loadingIcon="'pi pi-spinner'" :field="'label'"
-                                                    placeholder="ketik untuk mencari..." />
+                                                <AutoComplete v-model="item.lingkupkalibrasiUpdate"
+                                                    :suggestions="d_lingkup" @complete="fetchLingkup($event)"
+                                                    :optionLabel="'label'" :dropdown="true" :minLength="3"
+                                                    class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                                    :field="'label'" placeholder="ketik untuk mencari..." />
                                             </VControl>
                                         </VField>
                                     </div>
@@ -495,11 +495,11 @@
                                         <VField>
                                             <VLabel>Penyelia Teknik</VLabel>
                                             <VControl>
-                                                <AutoComplete v-model="item.penyeliateknikUpdate" :suggestions="d_penyelia"
-                                                    @complete="fetchPenyelia($event)" :optionLabel="'label'"
-                                                    :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
-                                                    :loadingIcon="'pi pi-spinner'" :field="'label'"
-                                                    placeholder="ketik untuk mencari..." />
+                                                <AutoComplete v-model="item.penyeliateknikUpdate"
+                                                    :suggestions="d_penyelia" @complete="fetchPenyelia($event)"
+                                                    :optionLabel="'label'" :dropdown="true" :minLength="3"
+                                                    class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                                    :field="'label'" placeholder="ketik untuk mencari..." />
 
                                             </VControl>
                                         </VField>
@@ -527,15 +527,16 @@
                                     <div class="column is-2">
                                         <VField label="Durasi Hari">
                                             <VControl icon="lnir lnir-repeat-one">
-                                                <VInput type="number" v-model="item.durasikalbrasiUpdate" placeholder="Jumlah"
-                                                    class="is-rounded" />
+                                                <VInput type="number" v-model="item.durasikalbrasiUpdate"
+                                                    placeholder="Jumlah" class="is-rounded" />
                                             </VControl>
                                         </VField>
                                     </div>
                                     <div class="columns mt-2" style="margin-left:40px">
                                         <VButtons>
-                                            <VButton color="success" raised icon="feather:edit" v-if="item.pelaksanaUpdate"
-                                                @click="update(item)" :loading="isLoadingSave"> Update
+                                            <VButton color="success" raised icon="feather:edit"
+                                                v-if="item.pelaksanaUpdate" @click="update(item)"
+                                                :loading="isLoadingSave"> Update
                                             </VButton>
                                             <VButton raised @click="clear()"> Batal </VButton>
                                         </VButtons>
@@ -576,9 +577,18 @@
                                                 <div class="box-text" style="width:70%">
                                                     <div class="meta-text">
                                                         <p>
-                                                            <span>{{ items.namaproduk }}</span>
+                                                            <span>{{ items.namaproduk }}
+                                                                <VTag v-if="items.tanggalpenolakanregis != null" color="danger" label="Alat Ditolak"
+                                                                    rounded>
+                                                                </VTag>
+                                                            </span>
                                                         </p>
                                                         <table class="tb-order">
+                                                            <tr v-if="items.tanggalpenolakanregis != null">
+                                                                <td>Alasan Penolakan</td>
+                                                                <td>:</td>
+                                                                <td>{{ items.alasanpenolakanregis ?? '' }} </td>
+                                                            </tr>
                                                             <tr>
                                                                 <td>Lingkup</td>
                                                                 <td>:</td>
@@ -1092,8 +1102,8 @@ const getDetailVerify = (e: any) => {
 }
 
 const cetakSertifikatLembarKerja = (e) => {
-  console.log(e)
-  H.printBlade(`asman/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
+    console.log(e)
+    H.printBlade(`asman/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
 
 
