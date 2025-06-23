@@ -281,6 +281,35 @@ class MitraCtrl extends Controller
         return $this->respond($result);
     }
 
+    public function produkByMitra(Request $r)
+    {
+        $search = $r['query'];
+        $data = DB::table('produk_m as pm')
+            ->leftJoin('mapmitratoproduk_m as mmp', 'mmp.objectprodukfk', '=', 'pm.id')
+            ->select(
+                'pm.id',
+                'pm.namaproduk',
+            )
+            ->where('mmp.statusenabled', true)
+            ->where('mmp.objectmitrafk', $r['idmitra'])
+            ->where('pm.statusenabled', true);
+            
+        if (isset($r['param_search']) && $r['param_search'] != '') {
+            $exp = explode(',', $r['param_search']);
+            foreach ($exp as $items) {
+                $where[] = [$items, 'ILIKE', '%' . $search . '%'];
+            }
+            $data = $data->where($where);
+        }
+        $data = $data->get();
+
+
+        $result['data'] = $data;
+        $result['as'] = '@epic';
+
+        return $this->respond($result);
+    }
+
     public function LayananKajian(Request $r)
     {
         $data = DB::table('mitraregistrasi_t as mtr')

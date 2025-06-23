@@ -322,13 +322,23 @@ const removeAlat = (index: any) => {
   }
 }
 
+
 const fetchProduk = async (filter: any) => {
   await useApi().get(
-    `emr/dropdown/produk_m?select=id,namaproduk&param_search=namaproduk&query=${filter.query}&limit=10`
-  ).then((response) => {
-    d_produk.value = response
-  })
+    `registrasi/produk-by-id?idmitra=${ID_MITRA}&param_search=namaproduk&query=${filter.query}`).then((response) => {
+      d_produk.value = response.data.map((e: any) => {
+        return { label: e.namaproduk, value: e.id }
+      })
+    })
 }
+
+// const fetchProduk = async (filter: any) => {
+//   await useApi().get(
+//     `emr/dropdown/produk_m?select=id,namaproduk&param_search=namaproduk&query=${filter.query}&limit=10`
+//   ).then((response) => {
+//     d_produk.value = response
+//   })
+// }
 
 const fetchmerk = async (filter: any) => {
   await useApi().get(

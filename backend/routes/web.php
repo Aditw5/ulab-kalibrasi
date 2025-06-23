@@ -221,6 +221,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('registrasi/cetak-tanda-terima', 'cetakTandaTerima');
         Route::get('registrasi/cetak-permintaan-kalibrasi', 'cetakPermintaanKalibrasi');
         Route::post('registrasi/save-penolakan-alat', 'savePenolakanALat');
+        Route::get('registrasi/produk-by-id', 'produkByMitra');
     });
 
     Route::controller(AsmanCtrl::class)->group(function () {
