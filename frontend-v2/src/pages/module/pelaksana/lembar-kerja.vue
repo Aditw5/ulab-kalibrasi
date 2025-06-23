@@ -166,6 +166,19 @@
               </div>
               <div class="column is-3 mt-5-min">
                 <div class="column is-12">
+                  <span>Suhu </span>      
+                </div>
+                <VField addons>
+                  <VControl>
+                    <VInput v-model="item.suhu" placeholder="Suhu" />
+                  </VControl>
+                  <VControl class="field-addon-body">
+                    <VButton static>°C</VButton>
+                  </VControl>
+                </VField>
+              </div>
+              <div class="column is-3 mt-5-min">
+                <div class="column is-12">
                   <span>Kelembaban Relatif </span>
                 </div>
                 <VField addons>
