@@ -153,7 +153,7 @@
               </div>
               <div class="column is-3 mt-5-min">
                 <div class="column is-12">
-                  <span>Suhu </span>
+                  <span>Suhu </span>      
                 </div>
                 <VField addons>
                   <VControl>
