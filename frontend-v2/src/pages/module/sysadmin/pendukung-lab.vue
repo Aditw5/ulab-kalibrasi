@@ -52,7 +52,7 @@ useHead({
     title: 'Jenis Pemeriksaan - ' + import.meta.env.VITE_PROJECT,
 })
  
-import MasterDetailPemeriksaan from './master-detail-pemeriksaan.vue'  
+// import MasterDetailPemeriksaan from './master-detail-pemeriksaan.vue'  
 import MasterKelompokProduk from './master-kelompok-produk.vue'
   import MasterJenisPemeriksaan from './master-jenis-pemeriksaan.vue'
   import MasterSatuanHasil from './master-satuan-hasil.vue'

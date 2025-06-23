@@ -151,17 +151,29 @@
                   </VControl>
                 </VField>
               </div>
-              <div class="column is-3">
-                <VField label="Suhu">
-                  <VControl fullwidth>
+              <div class="column is-3 mt-5-min">
+                <div class="column is-12">
+                  <span>Suhu </span>
+                </div>
+                <VField addons>
+                  <VControl>
                     <VInput v-model="item.suhu" placeholder="Suhu" />
+                  </VControl>
+                  <VControl class="field-addon-body">
+                    <VButton static>°C</VButton>
                   </VControl>
                 </VField>
               </div>
-              <div class="column is-3">
-                <VField label="Kelembaban Relatif">
-                  <VControl fullwidth>
+              <div class="column is-3 mt-5-min">
+                <div class="column is-12">
+                  <span>Kelembaban Relatif </span>
+                </div>
+                <VField addons>
+                  <VControl>
                     <VInput v-model="item.kelembabanRelatif" placeholder="Kelembaban Relatif" />
+                  </VControl>
+                  <VControl class="field-addon-body">
+                    <VButton static>% RH</VButton>
                   </VControl>
                 </VField>
               </div>
@@ -858,7 +870,7 @@ const detailOrder = async () => {
   item.value.namaserialnumber = data.namaserialnumber
   item.value.durasikalbrasi = data.durasikalbrasi
   item.value.tglkalibrasi = data.tglkalibrasilembarkerja ?? new Date(),
-  item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
+    item.value.tempatKalibrasi = data.tempatKalibrasilembarkerja
   item.value.suhu = data.suhulembarkerja
   item.value.kelembabanRelatif = data.kelembabanRelatiflembarkerja
   item.value.detailInstruksiKerja = (data.daftarinstruksikerja?.length > 0)

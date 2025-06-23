@@ -485,7 +485,7 @@
                 </td>
                 <td>
                     <span style="font-size: 8pt;color:#000000">
-                        {{ $res['lembarKerja'][0]->suhulembarkerja }}
+                        {{ $res['lembarKerja'][0]->suhulembarkerja }} (°C)
                     </span>
                 </td>
             </tr>
@@ -505,7 +505,7 @@
                 </td>
                 <td>
                     <span style="font-size: 8pt;color:#000000">
-                        {{ $res['lembarKerja'][0]->kelembabanRelatiflembarkerja }}
+                        {{ $res['lembarKerja'][0]->kelembabanRelatiflembarkerja }} (% RH)
                     </span>
                 </td>
             </tr>

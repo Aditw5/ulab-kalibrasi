@@ -59,8 +59,6 @@
                       <VAvatar size="small" picture="/images/simrs/produk-ico.png" color="primary" squared bordered />
                       <div class="meta">
                         <span class="dark-inverted"> {{ item.namaproduk }}</span>
-                        <span>{{ item.detailjenisproduk }}</span>
-                        <span>Jenis : {{ item.jenisproduk }}</span>
                       </div>
                       <VDropdown icon="feather:more-vertical" spaced right>
                         <template #content>
@@ -114,9 +112,6 @@
 
               <Column field="no" header="#"></Column>
               <Column field="namaproduk" header="Produk" :sortable="true"></Column>
-              <Column field="detailjenisproduk" header="Detail Jenis Produk"></Column>
-              <Column field="jenisproduk" header="Jenis Produk"></Column>
-              <Column field="kelompokprodukbpjs" header="Kelompok BPJS" :sortable="true"></Column>
               <Column :exportable="false" header="Action" style="text-align: center;">
                 <template #body="slotProps">
                   <VDropdown icon="feather:more-vertical" spaced right>
@@ -164,15 +159,6 @@
                 </VField>
               </div>
               <div class="column is-12">
-                <VField class="is-rounded-select is-autocomplete-select">
-                  <VLabel>Detail Jenis Produk</VLabel>
-                  <VControl icon="feather:columns">
-                    <Multiselect mode="single" v-model="item.detailjenisproduk" :options="DetailProduk"
-                      placeholder="Pilih Detail Jenis Produk" :searchable="true" />
-                  </VControl>
-                </VField>
-              </div>
-              <div class="column is-12">
                 <VField label="Rows">
                   <VControl icon="fas fa-list-ol">
                     <input v-model="currentPage.limit" v-on:keyup.enter="filter()" type="text" class="input is-rounded"
@@ -189,219 +175,9 @@
             </div>
           </div>
         </div>
-      </TabPanel>
-      <TabPanel header="Produk Tidak Aktif">
-        <div class="columns is-multiline  projects-card-grid">
-          <div class="column is-3">
-            <VField v-slot="{ id }" class="is-icon-select">
-              <VControl>
-                <Multiselect v-model="selectView" :attrs="{ id }" placeholder="Select View" label="name" :options="d_View"
-                  :searchable="true" track-by="name" mode="single" @select="changeView(selectView)" autocomplete="off">
-                  <template #singlelabel="{ value }">
-                    <div class="multiselect-single-label">
-                      <div class="select-label-icon-wrap">
-                        <i :class="value.icon"></i>
-                      </div>
-                      <span class="select-label-text">
-                        {{ value.name }}
-                      </span>
-                    </div>
-                  </template>
-                  <template #option="{ option }">
-                    <div class="select-option-icon-wrap">
-                      <i :class="option.icon"></i>
-                    </div>
-                    <span class="select-option-text">
-                      {{ option.name }}
-                    </span>
-                  </template>
-                </Multiselect>
-              </VControl>
-            </VField>
-          </div>
-          <!-- <div class="column is-6">
-            <a type="button" class="is-pulled-right" color="info" outlined raised>
-              <VButton color="primary" RouterLink :to="{ name: 'module-sysadmin-produk-baru' }">
-                <i class="fa fa-plus"></i> Produk Baru
-              </VButton>
-            </a>
-          </div> -->
-        </div>
-
-        <div class="columns">
-          <div class="column is-9" v-if="selectView == 'grid'">
-            <div class="page-placeholder" v-if="dataSourceTidakAktif.length == 0">
-              <div class="placeholder-content">
-                <img class="light-image" style=" max-width: 340px;" :src="H.assets().iconNotFound_rev" alt="" />
-                <img class="dark-image" style=" max-width: 340px;" :src="H.assets().iconNotFound_rev" alt="" />
-                <h3>{{ H.assets().notFound }}</h3>
-                <p class="is-larger">
-                  {{ H.assets().notFoundSubtitle }}
-                </p>
-              </div>
-            </div>
-            <div class="tile-grid tile-grid-v1">
-              <TransitionGroup name="list" tag="div" class="columns is-multiline">
-                <div v-for="(item, key) in dataSourceTidakAktif" :key="key" class="column is-4">
-                  <div class="tile-grid-item">
-                    <div class="tile-grid-item-inner">
-                      <VAvatar size="small" picture="/images/simrs/produk-ico.png" color="primary" squared bordered />
-                      <div class="meta">
-                        <span class="dark-inverted"> {{ item.namaproduk }}</span>
-                        <span>{{ item.detailjenisproduk }}</span>
-                        <span>Jenis : {{ item.jenisproduk }}</span>
-                      </div>
-                      <VDropdown icon="feather:more-vertical" spaced right>
-                        <template #content>
-                          <a role="menuitem" class="dropdown-item is-media" @click="editTidakAktif(item)">
-                            <div class="icon">
-                              <i class="iconify" data-icon="feather:bookmark" aria-hidden="true"></i>
-                            </div>
-                            <div class="meta">
-                              <span>Detail</span>
-                              <span>Untuk melihat data </span>
-                            </div>
-                          </a>
-                          <a role="menuitem" class="dropdown-item is-media" @click="editTidakAktif(item)">
-                            <div class="icon">
-                              <i class="iconify" data-icon="feather:edit" aria-hidden="true"></i>
-                            </div>
-                            <div class="meta">
-                              <span>Edit</span>
-                              <span>Untuk merubah data </span>
-                            </div>
-                          </a>
-                          <a role="menuitem" class="dropdown-item is-media" @click="hapus(item)">
-                            <div class="icon">
-                              <i aria-hidden="true" class="lnil lnil-trash-can-alt"></i>
-                            </div>
-                            <div class="meta">
-                              <span>Remove</span>
-                              <span>Hapus Data dari Daftar</span>
-                            </div>
-                          </a>
-                        </template>
-                      </VDropdown>
-                    </div>
-                  </div>
-                </div>
-              </TransitionGroup>
-              <div class="dataTable-bottom">
-                <div class="dataTable-info">Menampilkan {{ dataSourceTidakAktif.length }} ke {{ currentPage.limit }} dari
-                  {{ currentPage.total }} entri data
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="column is-9" v-else-if="selectView == 'list'">
-            <DataTable :value="dataSourceTidakAktif" class="p-datatable-sm" :paginator="true" :rows="10"
-              :rowsPerPageOptions="[5, 10, 25]"
-              paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-              responsiveLayout="stack" breakpoint="960px" sortMode="multiple"
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
-
-
-              <Column field="no" header="#"></Column>
-              <Column field="namaproduk" header="Produk" :sortable="true"></Column>
-              <Column field="detailjenisproduk" header="Detail Jenis Produk"></Column>
-              <Column field="jenisproduk" header="Jenis Produk"></Column>
-              <Column field="kelompokprodukbpjs" header="Kelompok BPJS" :sortable="true"></Column>
-              <Column :exportable="false" header="Action" style="text-align: center;">
-                <template #body="slotProps">
-                  <VDropdown icon="feather:more-vertical" spaced right>
-                    <template #content>
-                      <a role="menuitem" class="dropdown-item is-media" @click="editTidakAktif(slotProps.data)">
-                        <div class="icon">
-                          <i class="iconify" data-icon="feather:edit" aria-hidden="true"></i>
-                        </div>
-                        <div class="meta">
-                          <span>Edit</span>
-                          <span>Untuk merubah data </span>
-                        </div>
-                      </a>
-                      <a role="menuitem" class="dropdown-item is-media" @click="hapus(slotProps.data)">
-                        <div class="icon">
-                          <i aria-hidden="true" class="lnil lnil-trash-can-alt"></i>
-                        </div>
-                        <div class="meta">
-                          <span>Remove</span>
-                          <span>Hapus Data dari Daftar</span>
-                        </div>
-                      </a>
-                    </template>
-                  </VDropdown>
-                </template>
-              </Column>
-            </DataTable>
-          </div>
-          <div class="column is-3">
-            <div class="columns is-multiline">
-              <div class="column is-6">
-                <h3 class="title is-5 mb-2 mr-1">Filter</h3>
-              </div>
-              <div class="column is-6">
-                <a @click="clearFilter()" type="button" class="is-pulled-right mr-3" color="info" outlined raised>
-                  Clear
-                </a>
-              </div>
-              <div class="column is-12">
-                <VField label="Produk">
-                  <VControl icon="feather:search">
-                    <input v-model="item.namaproduk" v-on:keyup.enter="filter()" type="text" class="input is-rounded"
-                      placeholder="Nama Produk" />
-                  </VControl>
-                </VField>
-              </div>
-              <div class="column is-12">
-                <VField class="is-rounded-select is-autocomplete-select">
-                  <VLabel>Detail Jenis Produk</VLabel>
-                  <VControl icon="feather:columns">
-                    <Multiselect mode="single" v-model="item.detailjenisproduk" :options="DetailProduk"
-                      placeholder="Pilih Detail Jenis Produk" :searchable="true" />
-                  </VControl>
-                </VField>
-              </div>
-              <div class="column is-12">
-                <VField label="Rows">
-                  <VControl icon="fas fa-list-ol">
-                    <input v-model="currentPage.limit" v-on:keyup.enter="filter()" type="text" class="input is-rounded"
-                      placeholder="Rows" />
-                  </VControl>
-                </VField>
-              </div>
-              <div class="column is-12">
-                <VButton @click="filter()" :loading="isLoading" type="button" icon="feather:search"
-                  class="is-fullwidth mr-3" color="info" raised>
-                  Pencarian
-                </VButton>
-              </div>
-            </div>
-          </div>
-        </div>
-      </TabPanel>
-      <TabPanel header="Kelompok Produk">
-        <MasterKelompokProduk v-if="activeValue == 2"></MasterKelompokProduk>
-      </TabPanel>
-      <TabPanel header="Jenis Produk">
-        <MasterJenisProduk v-if="activeValue == 3"></MasterJenisProduk>
-      </TabPanel>
-      <TabPanel header="Detail Jenis Produk">
-        <MasterDetailJenisProduk v-if="activeValue == 4"></MasterDetailJenisProduk>
-      </TabPanel>
-      <TabPanel header="Bahan Produk">
-        <MasterBahanProduk v-if="activeValue == 5"></MasterBahanProduk>
-      </TabPanel>
-      <TabPanel header="Bentuk Produk">
-        <MasterBentukProduk v-if="activeValue == 6"></MasterBentukProduk>
-      </TabPanel>
-      <TabPanel header="Produsen Produk">
-        <MasterProdusenProduk v-if="activeValue == 7"></MasterProdusenProduk>
       </TabPanel>
       <TabPanel header="Map Ruangan To Produk">
-        <MasterKelompokProduk v-if="activeValue == 8"></MasterKelompokProduk>
-      </TabPanel>
-      <TabPanel header="Harga Netto">
-        <HargaNetto v-if="activeValue == 9"></HargaNetto>
+        <MasterKelompokProduk v-if="activeValue == 2"></MasterKelompokProduk>
       </TabPanel>
     </TabView>
 
@@ -416,10 +192,10 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import MasterKelompokProduk from './master-kelompok-produk.vue'
 import MasterJenisProduk from './master-jenis-produk.vue'
-import MasterBahanProduk from './master-bahan-produk.vue'
-import MasterBentukProduk from './master-bentuk-produk.vue'
-import MasterProdusenProduk from './master-produsen-produk.vue'
-import MasterDetailJenisProduk from './master-detail-jenis-produk.vue'
+// import MasterBahanProduk from './master-bahan-produk.vue'
+// import MasterBentukProduk from './master-bentuk-produk.vue'
+// import MasterProdusenProduk from './master-produsen-produk.vue'
+// import MasterDetailJenisProduk from './master-detail-jenis-produk.vue'
 import { useHead } from '@vueuse/head'
 import { useUserSession } from '/@src/stores/userSession'
 import * as H from '/@src/utils/appHelper'
@@ -494,35 +270,6 @@ async function fetchData() {
   dataSource.value = response.data
   currentPage.value.total = response.count
 }
-async function fetchDataTidakAktif() {
-  isLoading.value = true
-  let limit: any = currentPage.value.limit
-  let offset: any = route.query.page ? route.query.page : 1
-  offset = offset * limit - limit
-  let rows: any = currentPage.value.rows
-  let nmProduk = ''
-  let JenisProduk = ''
-  let DetailJenisProduk = ''
-
-  if (item.namaproduk) nmProduk = '&namaproduk=' + item.namaproduk
-  if (item.jenisproduk) JenisProduk = '&objectjenisprodukfk=' + item.jenisproduk
-  if (item.detailjenisproduk) DetailJenisProduk = '&objectdetailjenisprodukfk=' + item.detailjenisproduk
-
-  const response = await useApi().get(
-    '/sysadmin/master-produk-tidak-aktif?offset=' + offset +
-    '&limit=' + limit +
-    '&rows=' + rows +
-    nmProduk + JenisProduk + DetailJenisProduk
-  )
-  isLoading.value = false
-  for (let x = 0; x < response.data.length; x++) {
-    const element = response.data[x];
-    element.no = x + 1
-  }
-
-  dataSourceTidakAktif.value = response.data
-  currentPage.value.total = response.count
-}
 
 // function listDropdown() {
 //   DetailProduk.value = []
@@ -560,12 +307,10 @@ function clearFilter() {
   delete item.detailjenisproduk
   item.qAktif = false
   fetchData()
-  fetchDataTidakAktif()
 }
 
 function filter() {
   fetchData()
-  fetchDataTidakAktif()
 }
 function edit(e: any) {
   router.push({
@@ -596,7 +341,6 @@ function hapus(e: any) {
   useApi().post(
     `sysadmin/delete-master-produk`, { 'id': e.id }).then((response: any) => {
       fetchData()
-      fetchDataTidakAktif()
     }).catch((e: any) => {
 
     })
@@ -605,7 +349,6 @@ function changeView(e: any) {
   selectView.value = e
 }
 fetchData()
-fetchDataTidakAktif()
 </script>
 
 <style lang="scss">

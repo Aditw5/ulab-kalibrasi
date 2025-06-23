@@ -49,101 +49,12 @@ class MasterProdukCtrl extends Controller
     public function masterProduk(Request $r)
     {
 
-        $kelompokUser = DB::table('loginuser_s as lg')
-            ->join('kelompokuser_s as ku', 'ku.id', 'lg.objectkelompokuserfk', 'ku.id')
-            ->select('lg.namauser', 'ku.kelompokuser', 'ku.id')
-            ->where('lg.id', $this->getUserId())
-            ->first();
-
-
         $data  = DB::table('produk_m as pk')
-            ->leftjoin('detailjenisproduk_m as djp', 'pk.objectdetailjenisprodukfk', '=', 'djp.id')
-            ->leftjoin('jenisproduk_m as jp', 'djp.objectjenisprodukfk', '=', 'jp.id')
-            ->leftjoin('bentukproduk_m as bp', 'pk.objectbentukprodukfk', '=', 'bp.id')
-            ->leftjoin('bahanproduk_m as bh', 'pk.objectbahanprodukfk', '=', 'bh.id')
-            ->leftjoin('kelompokprodukbpjs_m as kpb', 'pk.objectkelompokprodukbpjsfk', '=', 'kpb.id')
             ->select(
                 'pk.id',
-                'jp.jenisproduk',
-                'djp.detailjenisproduk',
                 'pk.statusenabled',
-                'pk.isgeneric',
-                'pk.kodeexternal',
-                'pk.namaexternal',
-                'pk.keterangan',
-                'pk.norec',
-                'pk.reportdisplay',
-                'pk.deskripsiproduk',
-                'pk.isprodukintern',
-                'pk.kdbarcode',
-                'pk.kdproduk',
-                'pk.kdproduk_intern',
-                'pk.objectdetailjenisprodukfk',
-                'djp.objectjenisprodukfk',
-                'pk.objectkategoryprodukfk',
-                'pk.kekuatan',
                 'pk.namaproduk',
-                'pk.nilainormal',
-                'pk.qproduk',
-                'pk.qtyjualterkecil',
-                'pk.qtykalori',
-                'pk.qtykarbohidrat',
-                'pk.objectkelompokprodukfk',
-                'pk.objectgenerikfk',
-                'pk.objectjenisgenerikfk',
-                'pk.objectlevelprodukfk',
-                'pk.objectdepartemenfk',
-                'pk.objectbentukprodukfk',
-                'pk.objectbahanprodukfk',
-                'pk.objecttypeprodukfk',
-                'pk.objectwarnaprodukfk',
-                'pk.objectmerkprodukfk',
-                'pk.objectdetailobatfk',
-                'pk.objectgolonganprodukfk',
-                'pk.objectdetailgolonganprodukfk',
-                'pk.objectsatuanstandarfk',
-                'pk.qtylemak',
-                'pk.qtyporsi',
-                'pk.qtyprotein',
-                'pk.qtysatukemasan',
-                'pk.qtyterkecil',
-                'pk.kdprodukintern',
-                'pk.objectjenisperiksapenunjangfk',
-                'pk.bahansamplefk',
-                'pk.kodebmn',
-                'pk.spesifikasi',
-                'pk.golongandarahfk',
-                'pk.objectstatusprodukfk',
-                'pk.rhesusfk',
-                'pk.tglproduksi',
-                'pk.status',
-                'pk.verifikasianggaran',
-                'pk.isarvdonasi',
-                'pk.isnarkotika',
-                'pk.ispsikotropika',
-                'pk.isonkologi',
-                'pk.isoot',
-                'pk.isprekusor',
-                'pk.objectprodusenprodukfk',
-                'bp.namabentukproduk',
-                'pk.objectrekananfk',
-                'bh.namabahanproduk',
-                'kpb.kelompokprodukbpjs',
-                'pk.objectkelompokprodukbpjsfk'
             )
-            ->where('pk.kdprofile', $this->kdProfile)
-            ->where(function ($query) use ($kelompokUser) {
-                if ($kelompokUser && $kelompokUser->id == 6) {
-                    $query->whereIn('pk.objectdetailjenisprodukfk', [
-                        1469, 1470, 1471, 1472, 1473, 1474, 1475,
-                        1587, 1588, 1589, 1591, 1597, 474, 1346, 1463,
-                        1464, 1476, 1593, 1904, 1346, 1346, 1346, 1346,
-                        1346, 1346, 1346, 1346, 1346, 444, 899, 1318,
-                        763, 796, 797, 808, 1082, 1398, 1430, 1434,
-                        1493, 1657, 1910, 1956, 1958, 2219
-                    ]);
-                }
-            })
             ->where('pk.statusenabled', true);
 
         $count = 0;
@@ -156,9 +67,6 @@ class MasterProdukCtrl extends Controller
         if (isset($r['namaproduk']) && $r['namaproduk'] != '') {
             $data = $data->where('pk.namaproduk', 'ilike', '%' . $r['namaproduk'] . '%');
         }
-        if (isset($r['objectdetailjenisprodukfk']) && $r['objectdetailjenisprodukfk'] != '') {
-            $data = $data->where('pk.objectdetailjenisprodukfk', '=', $r['objectdetailjenisprodukfk']);
-        }
         $count = $data->count();
         if (isset($r['_total']) && $r['_total'] != '') {
         }
@@ -169,12 +77,11 @@ class MasterProdukCtrl extends Controller
             $data = $data->limit($r['limit']);
         }
 
-        $data = $data->orderByDesc('pk.id', 'desc');
+        $data = $data->orderByDesc('pk.id', 'asc');
         $data = $data->get();
 
         $res['data'] = $data;
         $res['count'] = $count;
-        $res['keluser'] = $kelompokUser;
         return $this->respond($res);
     }
     public function masterProdukTidakAktif(Request $r)
@@ -456,41 +363,41 @@ class MasterProdukCtrl extends Controller
     public function masterProdukdropdown(Request $r)
     {
         //kategori
-        $res['jenisproduk'] = JenisProduk::mine()->get();
-        $res['detailjenisproduk'] = DetailJenisProduk::mine()->get();
-        $res['kelompokproduk'] = KelompokProduk::mine()->get();
-        $res['kategoryproduk'] = KategoryProduk::mine()->get();
-        $res['levelproduk'] = LevelProduk::mine()->get();
-        $res['generik'] = Generik::mine()->get();
-        $res['namagproduk'] = GeneralProduk::mine()->get();
-        //departemen
-        $res['namadepartemen'] = Departemen::mine()->get();
-        //spesifikasi
-        $res['namabentukproduk'] = BentukProduk::mine()->get();
-        $res['namabahanproduk'] = BahanProduk::mine()->get();
-        $res['typeproduk'] = TypeProduk::mine()->get();
-        $res['warnaproduk'] = WarnaProduk::mine()->get();
-        $res['merkproduk'] = MerkProduk::mine()->get();
-        $res['name'] = DetailObat::mine()->get();
-        $res['golonganproduk'] = GolonganProduk::mine()->get();
-        $res['detailgolonganproduk'] = DetailGolonganProduk::mine()->get();
-        //satuan standar
-        $res['satuanstandar'] = SatuanStandar::mine()->get();
-        //penunjang
-        //jenis periksa
-        $res['jenisperiksa'] = JenisPeriksaPenunjang::mine()->get();
-        $res['namabahansample'] = BahanSample::mine()->get();
-        $res['golongandarah'] = GolonganDarah::mine()->get();
-        $res['rhesus'] = Rhesus::mine()->get();
-        // keuangan
-        //farmasi
-        $res['statusproduk'] = StatusProduk::mine()->get();
-        //rekanan
-        $res['namaprodusenproduk'] = ProdusenProduk::mine()->get();
-        $res['namarekanan'] = Rekanan::mine()->get();
-        $res['kelompokprodukbpjs'] = KelompokProdukBpjs::mine()->get();
+        // $res['jenisproduk'] = JenisProduk::mine()->get();
+        // $res['detailjenisproduk'] = DetailJenisProduk::mine()->get();
+        // $res['kelompokproduk'] = KelompokProduk::mine()->get();
+        // $res['kategoryproduk'] = KategoryProduk::mine()->get();
+        // $res['levelproduk'] = LevelProduk::mine()->get();
+        // $res['generik'] = Generik::mine()->get();
+        // $res['namagproduk'] = GeneralProduk::mine()->get();
+        // //departemen
+        // $res['namadepartemen'] = Departemen::mine()->get();
+        // //spesifikasi
+        // $res['namabentukproduk'] = BentukProduk::mine()->get();
+        // $res['namabahanproduk'] = BahanProduk::mine()->get();
+        // $res['typeproduk'] = TypeProduk::mine()->get();
+        // $res['warnaproduk'] = WarnaProduk::mine()->get();
+        // $res['merkproduk'] = MerkProduk::mine()->get();
+        // $res['name'] = DetailObat::mine()->get();
+        // $res['golonganproduk'] = GolonganProduk::mine()->get();
+        // $res['detailgolonganproduk'] = DetailGolonganProduk::mine()->get();
+        // //satuan standar
+        // $res['satuanstandar'] = SatuanStandar::mine()->get();
+        // //penunjang
+        // //jenis periksa
+        // $res['jenisperiksa'] = JenisPeriksaPenunjang::mine()->get();
+        // $res['namabahansample'] = BahanSample::mine()->get();
+        // $res['golongandarah'] = GolonganDarah::mine()->get();
+        // $res['rhesus'] = Rhesus::mine()->get();
+        // // keuangan
+        // //farmasi
+        // $res['statusproduk'] = StatusProduk::mine()->get();
+        // //rekanan
+        // $res['namaprodusenproduk'] = ProdusenProduk::mine()->get();
+        // $res['namarekanan'] = Rekanan::mine()->get();
+        // $res['kelompokprodukbpjs'] = KelompokProdukBpjs::mine()->get();
 
-
+        $res = null;
 
         return $this->respond($res);
     }
