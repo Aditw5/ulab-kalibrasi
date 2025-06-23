@@ -207,10 +207,10 @@
   import { useRoute, useRouter } from 'vue-router'
   import { useHead } from '@vueuse/head'
   import * as H from '/@src/utils/appHelper'
-  import ButtonEmr from '../page-emr-plugins/button-emr.vue'
+  // import ButtonEmr from '../page-emr-plugins/button-emr.vue'
   import AutoComplete from 'primevue/autocomplete';
   import Fieldset from 'primevue/fieldset';
-  import TandaTangan from '../page-emr-plugins/tanda-tangan.vue'
+  // import TandaTangan from '../page-emr-plugins/tanda-tangan.vue'
   import { useViewWrapper } from '/@src/stores/viewWrapper'
   import { useThemeColors } from '/@src/composable/useThemeColors'
   import { useUserSession } from '/@src/stores/userSession'
