@@ -674,11 +674,14 @@ export function printBlade(url: any): any {
   //   }).catch((err) => {
   //     console.log(err);
   //   });
-  window.open(import.meta.env.VITE_API_BASE_URL + url
-    + "&user=" + useUserSession().getUser().pegawai.namaLengkap
-    + '&kdprofile=' + useUserSession().getProfile().id
-    + "&token=" + useUserSession().token, "_blank");
-}
+window.open(
+  "http://ulabumro.id:8000/service/" + url
+  + "&user=" + useUserSession().getUser().pegawai.namaLengkap
+  + '&kdprofile=' + useUserSession().getProfile().id
+  + "&token=" + useUserSession().token,
+  "_blank"
+);
+
 export function namaPegawai(): any {
   return useUserSession().getUser().pegawai.namaLengkap
 }
