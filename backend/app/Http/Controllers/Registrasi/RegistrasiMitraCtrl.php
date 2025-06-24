@@ -204,6 +204,7 @@ class RegistrasiMitraCtrl extends Controller
             $model_PD->petugas = $this->getNamaPegawai();
             $model_PD->statusorder = 0;
             $model_PD->statusordermanager = 0;
+            $model_PD->jenisorder = 'kalibrasi';
             $model_PD->rentangUkur = $PD['rentangUkur'];
             $model_PD->rentangUkurketPermintaanPelanggan = $PD['rentangUkurketPermintaanPelanggan'];
             $model_PD->save();
@@ -231,7 +232,99 @@ class RegistrasiMitraCtrl extends Controller
             // $this->kirimWhatsappNotifikasi('6289654715638', $model_PD->namapenanggungjawab, $nopendaftaran);
 
 
-            $transMessage = "Simpan Registrasi Mitra Sukses";
+            $transMessage = "Simpan Registrasi Kalibrasi Mitra Sukses";
+            DB::commit();
+            $result = array(
+                "status" => 200,
+                "result" => array(
+                    "as" => '@epic',
+                ),
+            );
+        } catch (Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = array(
+                "status" => 400,
+                "result"  => $e->getMessage()
+            );
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function saveRegistrasiRepairMitra(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $PD = $r['mitraregistrasi'];
+            $APD = $r['mitraregistrasidetail'];
+            if ($PD['norec'] == '') {
+                $lokasi = $PD['lokasirepair'];
+                switch ($lokasi) {
+                    case 1:
+                        $lokasiPrefix = 'J';
+                        break;
+                    default:
+                        $lokasiPrefix = 'G';
+                }
+                $tahun = date('y');
+                $lastPendaftaran = MitraRegistrasi::where('lokasirepair', $lokasi)
+                    ->whereYear('tglregistrasi', date('Y'))
+                    ->orderByDesc('nopendaftaran')
+                    ->first();
+
+                if ($lastPendaftaran && preg_match('/(\d{3})$/', $lastPendaftaran->nopendaftaran, $m)) {
+                    $urut = intval($m[1]) + 1;
+                } else {
+                    $urut = 1;
+                }
+                $urut3digit = str_pad($urut, 3, '0', STR_PAD_LEFT);
+                $nopendaftaran = 'RE'.$lokasiPrefix . '-' . $tahun . '-' . $urut3digit;
+                $model_PD = new MitraRegistrasi();
+                $model_PD->norec = $model_PD->generateNewId();
+                $model_PD->statusenabled = true;
+            } else {
+                $model_PD =  MitraRegistrasi::where('norec', $PD['norec'])->first();
+                $nopendaftaran = $model_PD->nopendaftaran;
+            }
+            $model_PD->nomitrafk = $PD['nomitrafk'];
+            $model_PD->tglregistrasi =  $PD['tglregistrasi'];
+            $model_PD->nopendaftaran = $nopendaftaran;
+            $model_PD->catatan = $PD['catatan'];
+            $model_PD->lokasirepair = $PD['lokasirepair'];
+            $model_PD->namapenanggungjawab = $PD['namapenanggungjawab'];
+            $model_PD->nohppenanggungjawab = $PD['nohppenanggungjawab'];
+            $model_PD->jabatanpenanggungjawab = $PD['jabatanpenanggungjawab'];
+            $model_PD->petugas = $this->getNamaPegawai();
+            $model_PD->statusorder = 0;
+            $model_PD->statusordermanager = 0;
+            $model_PD->jenisorder = 'repair';
+            $model_PD->save();
+
+            $dataAPD = [];
+            foreach ($APD as $alat) {
+                if (isset($alat['norec']) && $alat['norec'] != '') {
+                    $model_APD = MitraRegistrasiDetail::where('norec', $alat['norec'])->first();
+                } else {
+                    $model_APD = new MitraRegistrasiDetail;
+                    $model_APD->norec = $model_APD->generateNewId();
+                    $model_APD->statusenabled = true;
+                }
+                $model_APD->namaalatfk = $alat['namaalatfk'] ?? null;
+                $model_APD->namamerkfk = $alat['namamerkfk'] ?? null;
+                $model_APD->namatipefk = $alat['namatipefk'] ?? null;
+                $model_APD->serialnumberfk = $alat['serialnumberfk'] ?? null;
+                $model_APD->noregistrasifk = $model_PD->norec;
+                $model_APD->save();
+
+                $dataAPD[] = $model_APD;
+            }
+
+            // $this->kirimWhatsappNotifikasi($PD['nohppenanggungjawab'], $model_PD->namapenanggungjawab, $nopendaftaran);
+            // $this->kirimWhatsappNotifikasi('6289654715638', $model_PD->namapenanggungjawab, $nopendaftaran);
+
+
+            $transMessage = "Simpan Registrasi Repair Mitra Sukses";
             DB::commit();
             $result = array(
                 "status" => 200,

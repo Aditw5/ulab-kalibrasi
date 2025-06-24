@@ -204,6 +204,7 @@ Route::middleware(['log'])->group(function () {
     Route::controller(RegistrasiMitraCtrl::class)->group(function () {
         Route::get('registrasi/mitra-registrasi', 'mitraRegistrasi');
         Route::post('registrasi/save-registrasi-mitra', 'saveRegistrasiMitra');
+        Route::post('registrasi/save-registrasi-repair-mitra', 'saveRegistrasiRepairMitra');
     });
 
     Route::controller(MitraCtrl::class)->group(function () {

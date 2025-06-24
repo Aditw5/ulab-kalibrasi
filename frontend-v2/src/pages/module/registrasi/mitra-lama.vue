@@ -153,17 +153,12 @@
                     <VButton type="button" icon="fa fa-history" class="is-fullwidth mr-3" color="warning" outlined
                       raised @click="riwayatPasien(items)">
                       Riwayat </VButton>
-
-                    <VButton type="button" icon="feather:arrow-right-circle" class="is-fullwidth mr-3" color="primary"
-                      outlined raised @click="registrasiLab(items)" :disabled="items.status == 'Meninggal'"
-                      v-if="items.tglmeninggal == null && (kelompokUser == 'laboratorium' || kelompokUser == 'radiologi')">
-                      Registrasi </VButton>
-
                     <VButton type="button" icon="feather:arrow-right-circle" class="is-fullwidth mr-3" color="purple"
-                      outlined raised @click="registrasi(items)" :loading="items.isLoading"
-                      :disabled="items.status == 'Meninggal'"
-                      v-else="items.tglmeninggal == null && (kelompokUser != 'laboratorium' || kelompokUser != 'radiologi')">
-                      Registrasi </VButton>
+                      outlined raised @click="registrasi(items)" :loading="items.isLoading">
+                      Registrasi Kalibrasi</VButton>
+                    <VButton type="button" icon="feather:arrow-right-circle" class="is-fullwidth mr-3" color="warning"
+                      outlined raised @click="registrasiReapir(items)" :loading="items.isLoading">
+                      Registrasi Repair</VButton>
 
 
                   </div>
@@ -600,11 +595,12 @@ const registrasi = async (e: any) => {
     },
   })
 }
-function registrasiLab(e: any) {
+const registrasiReapir = async (e: any) => {
   router.push({
-    name: 'module-registrasi-registrasi-ruangan-lab',
+    name: 'module-registrasi-registrasi-repair-mitra',
     query: {
-      nocmfk: e.id,
+      nomitrafk: e.id,
+      statusmitra: "LAMA",
     },
   })
 }

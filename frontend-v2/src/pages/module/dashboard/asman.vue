@@ -106,16 +106,26 @@
                                                                         class="fas fa-circle icon-separator"></i>
                                                                     <i aria-hidden="true" class="iconify"
                                                                         data-icon="feather:calendar"></i>
-                                                                    <span>{{ items.tgldaftar }}</span>
+                                                                    <span>{{ items.tglregistrasi }}</span>
                                                                 </span>
                                                                 <br>
+                                                                <VTag v-if="items.jenisorder == 'repair'" color="warning"
+                                                                    rounded>Repair</VTag>
+                                                                <VTag v-if="items.jenisorder == 'kalibrasi'" color="info"
+                                                                    rounded>Kalibrasi</VTag>
                                                             </div>
                                                             <div class="meta-right">
                                                                 <VIconButton v-tooltip.bottom.left="'Verifikasi'"
                                                                     label="Bottom Left" color="primary" circle
                                                                     icon="pi pi-check-circle"
-                                                                    v-if="items.statusorder == 0"
+                                                                    v-if="items.statusorder == 0 && items.jenisorder == 'kalibrasi'"
                                                                     @click="orderVerify(items)"
+                                                                    style="margin-right: 15px;" />
+                                                                <VIconButton v-tooltip.bottom.left="'Verifikasi Repair'"
+                                                                    label="Bottom Left" color="warning" circle
+                                                                    icon="pi pi-check-circle"
+                                                                    v-if="items.statusorder == 0 && items.jenisorder == 'repair'"
+                                                                    @click="orderVerifyRepair(items)"
                                                                     style="margin-right: 15px;" />
 
                                                                 <VIconButton v-tooltip.bottom.left="'Detail'"
@@ -349,9 +359,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                    }}</span>
+                                                                }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                    }}</span>
+                                                                }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -384,9 +394,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                    }}</span>
+                                                                }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                    }}</span>
+                                                                }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -578,8 +588,8 @@
                                                     <div class="meta-text">
                                                         <p>
                                                             <span>{{ items.namaproduk }}
-                                                                <VTag v-if="items.tanggalpenolakanregis != null" color="danger" label="Alat Ditolak"
-                                                                    rounded>
+                                                                <VTag v-if="items.tanggalpenolakanregis != null"
+                                                                    color="danger" label="Alat Ditolak" rounded>
                                                                 </VTag>
                                                             </span>
                                                         </p>
@@ -646,8 +656,194 @@
                 </div>
             </template>
             <template #action>
-                <VButton v-if="isLoadDataSoNorec" icon="feather:printer" @click="cetakBuktiOrder(norec)" color="info"
-                    :loading="isLoadingSave" raised>Cetak</VButton>
+                <VButton icon="feather:save" @click="save(item)" color="info" :loading="isLoadingSave" raised>Simpan
+                    Verif
+                </VButton>
+            </template>
+        </VModal>
+        <VModal :open="modalDetailOrderRepair" title="Verifikasi Repair" noclose size="big" actions="right"
+            @close="modalDetailOrderRepair = false, clear()" cancelLabel="Tutup">
+            <template #content>
+                <div class="business-dashboard hr-dashboard">
+                    <div class="columns is-multiline">
+                        <div class="column is-12 p-0">
+                            <div class="block-header">
+                                <div class="left column is-6 p-0">
+                                    <div class="current-user">
+                                        <h3>{{ item.namaperusahaan }}</h3>
+                                    </div>
+                                </div>
+                                <div class="left column is-6 p-0">
+                                    <div>
+                                        <div>
+                                            <h4 class="block-heading">No. Pendaftaran</h4>
+                                            <p class="block-hext">{{ item.nopendaftaran }}</p>
+                                            <h4 class="block-heading">Tgl Registrasi</h4>
+                                            <p class="block-hext">{{ item.tglregistrasi }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="column is-12 p-4 mt-5">
+                    <Fieldset legend="Edit Tindakan" :toggleable="true">
+                        <div class="columns pl-3">
+                            <div class="column is-1 pr-0" style="padding-left: 0px;margin-right: -38px">
+                                <VField label="No">
+                                    <VAvatar initials="1" />
+                                </VField>
+                            </div>
+                            <div class="column is-11 ml-5">
+                                <div class="columns">
+                                    <div class="column is-4">
+                                        <VField>
+                                            <VLabel>Lokasi Repair</VLabel>
+                                            <VControl>
+                                                <AutoComplete v-model="item.lokasiRepairUpdate"
+                                                    :suggestions="d_lokasikalibrasi" @complete="fetchLokasi($event)"
+                                                    :optionLabel="'label'" :dropdown="true" :minLength="3"
+                                                    class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                                    :field="'label'" placeholder="ketik untuk mencari..." />
+                                            </VControl>
+                                        </VField>
+                                    </div>
+                                    <div class="column is-4">
+                                        <VField>
+                                            <VLabel>Penyelia Teknik</VLabel>
+                                            <VControl>
+                                                <AutoComplete v-model="item.penyeliateknikUpdate"
+                                                    :suggestions="d_penyelia" @complete="fetchPenyelia($event)"
+                                                    :optionLabel="'label'" :dropdown="true" :minLength="3"
+                                                    class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                                                    :field="'label'" placeholder="ketik untuk mencari..." />
+
+                                            </VControl>
+                                        </VField>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="columns pl-3">
+                            <div class="column is-1 pr-0" style="padding-left: 0px;margin-right: -38px">
+                            </div>
+                            <div class="column is-11 ml-5">
+                                <div class="columns">
+                                    <div class="column is-4">
+                                        <VField>
+                                            <VLabel>Pelaksana Teknik</VLabel>
+                                            <VControl>
+                                                <AutoComplete v-model="item.pelaksanaUpdate" :suggestions="d_pelaksana"
+                                                    @complete="fetchPelaksana($event)" :optionLabel="'label'"
+                                                    :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
+                                                    :loadingIcon="'pi pi-spinner'" :field="'label'"
+                                                    placeholder="ketik untuk mencari..." />
+                                            </VControl>
+                                        </VField>
+                                    </div>
+                                    <div class="columns mt-2" style="margin-left:40px">
+                                        <VButtons>
+                                            <VButton color="success" raised icon="feather:edit"
+                                                v-if="item.pelaksanaUpdate" @click="update(item)"
+                                                :loading="isLoadingSave"> Update
+                                            </VButton>
+                                            <VButton raised @click="clear()"> Batal </VButton>
+                                        </VButtons>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </Fieldset>
+                </div>
+                <div class="column is-12">
+                    <Fieldset legend="Data Alat" :toggleable="true">
+                        <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataOrder">
+                            <div class="columns is-multiline">
+                                <div class="column is-2" style="margin-top: 27px;">
+                                    <VPlaceload class="mx-2" />
+                                </div>
+                                <div class="column">
+                                    <VPlaceloadText :lines="4" width="75%" last-line-width="20%" />
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="timeline-wrapper" v-else>
+                            <div class="timeline-wrapper-inner">
+                                <div class="timeline-container">
+                                    <div class="timeline-item is-unread" v-for="(items, index) in detailOrderLayanan"
+                                        :key="items.norec">
+                                        <div :class="'dot is-' + listColor[index + 1]"></div>
+
+                                        <div class="content-wrap is-grey">
+                                            <div class="content-box">
+                                                <div class="status"></div>
+                                                <VIconBox size="medium" :color="listColor[index + 1]" rounded>
+                                                    <i class="iconify" data-icon="feather:package"
+                                                        aria-hidden="true"></i>
+                                                </VIconBox>
+                                                <div class="box-text" style="width:70%">
+                                                    <div class="meta-text">
+                                                        <p>
+                                                            <span>{{ items.namaproduk }}
+                                                                <VTag v-if="items.tanggalpenolakanregis != null"
+                                                                    color="danger" label="Alat Ditolak" rounded>
+                                                                </VTag>
+                                                            </span>
+                                                        </p>
+                                                        <table class="tb-order">
+                                                            <tr v-if="items.tanggalpenolakanregis != null">
+                                                                <td>Alasan Penolakan</td>
+                                                                <td>:</td>
+                                                                <td>{{ items.alasanpenolakanregis ?? '' }} </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Lokasi</td>
+                                                                <td>:</td>
+                                                                <td>{{ items.lokasirepair }} </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Penyelia Teknik </td>
+                                                                <td>:</td>
+                                                                <td class="font-values">{{ items.penyeliateknik }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Pelaksana Teknik</td>
+                                                                <td>:</td>
+                                                                <td>{{ items.pelaksanateknik }} </td>
+                                                            </tr>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+                                                <div class="box-end" style="width: 30%">
+                                                    <div class="columns is-multiline">
+                                                        <div class="column is-6" style="margin-top: 0.5rem;">
+                                                            <VIconButton v-tooltip.bottom.left="'Edit'"
+                                                                icon="feather:edit" @click="edit(items)" color="warning"
+                                                                raised circle class="mr-2">
+                                                            </VIconButton>
+                                                            <VIconButton v-tooltip.bottom.right="'Tolak'"
+                                                                icon="feather:trash" @click="hapusItems(items)"
+                                                                color="danger" raised circle>
+                                                            </VIconButton>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Fieldset>
+                </div>
+            </template>
+            <template #action>
                 <VButton icon="feather:save" @click="save(item)" color="info" :loading="isLoadingSave" raised>Simpan
                     Verif
                 </VButton>
@@ -822,6 +1018,7 @@ let dokterPraktek: any = ref([])
 let dokterNonPraktek: any = ref([])
 let isLoading: any = ref(false)
 let modalDetailOrder: any = ref(false)
+let modalDetailOrderRepair: any = ref(false)
 let modalFilter: any = ref(false)
 let modalDetailOrderVerify: any = ref(false)
 let modalGolonganDarah: any = ref(false)
@@ -1047,7 +1244,8 @@ const fetchLingkup = async (filter: any) => {
 }
 
 const fetchPenyelia = async (filter: any) => {
-    let lokasi = item.value.lokasikalibrasi.value
+    console.log(item.value.lokasiRepairUpdate.value)
+    let lokasi = item.value.lokasikalibrasiUpdate?.value ?? item.value.lokasiRepairUpdate?.value ?? null;
     await useApi().get(
         `registrasi/pegawai-lokasi-kalibrasi?lokasi=${lokasi}&param_search=namalengkap&query=${filter.query}`).then((response) => {
             d_penyelia.value = response.data.map((e: any) => {
@@ -1057,7 +1255,7 @@ const fetchPenyelia = async (filter: any) => {
 }
 
 const fetchPelaksana = async (filter: any) => {
-    let lokasi = item.value.lokasikalibrasi.value
+    let lokasi = item.value.lokasikalibrasiUpdate?.value ?? item.value.lokasiRepairUpdate?.value ?? null;
     await useApi().get(
         `registrasi/pegawai-lokasi-kalibrasi?lokasi=${lokasi}&param_search=namalengkap&query=${filter.query}`).then((response) => {
             d_pelaksana.value = response.data.map((e: any) => {
@@ -1077,6 +1275,29 @@ const orderVerify = async (e: any) => {
     item.value.catatan = e.keterangan
     item.value.norec = e.iddetail
     item.value.lokasikalibrasi = e.lokasikalibrasi
+    item.value.lingkupkalibrasi = e.lingkupkalibrasi
+    // getListPelayanan(data)
+    isLoadDataOrder.value = true
+    isLoadDataSoNorec.value = false
+    const response = await useApi().get(`/asman/layanan-verif?norec_pd=${e.iddetail}`)
+    response.detail.forEach((element: any, i: any) => {
+        element.no = i + 1
+    });
+    isLoadDataOrder.value = false
+    detailOrderLayanan.value = response.detail
+}
+
+const orderVerifyRepair = async (e: any) => {
+    console.log(e)
+    detailOrderLayanan.value = []
+    modalDetailOrderRepair.value = true
+    item.value.namaperusahaan = e.namaperusahaan
+    item.value.inisial = e.initials
+    item.value.nopendaftaran = e.nopendaftaran
+    item.value.catatan = e.keterangan
+    item.value.norec = e.iddetail
+    item.value.lokasikalibrasi = e.lokasikalibrasi
+    item.value.lokasirepair = e.lokasirepair
     item.value.lingkupkalibrasi = e.lingkupkalibrasi
     // getListPelayanan(data)
     isLoadDataOrder.value = true
@@ -1109,9 +1330,14 @@ const cetakSertifikatLembarKerja = (e) => {
 
 
 const edit = (e: any) => {
+    console.log(e)
     item.value.lokasikalibrasiUpdate = {
         value: e.lokasikalibrasifk ?? '',
         label: e.lokasi ?? ''
+    };
+    item.value.lokasiRepairUpdate = {
+        value: e.lokasirepairfk ?? '',
+        label: e.lokasirepair ?? ''
     };
     item.value.lingkupkalibrasiUpdate = {
         value: e.lingkupfk ?? '',
@@ -1132,15 +1358,16 @@ const edit = (e: any) => {
 
 const update = async (e: any) => {
     // console.log(e)
-    if (!e.durasikalbrasiUpdate) {
-        H.alert('error', 'Durasi harus di isi')
-        return
-    }
+    // if (!e.durasikalbrasiUpdate) {
+    //     H.alert('error', 'Durasi harus di isi')
+    //     return
+    // }
     let json = {
         'veriItem': {
             'norec': e.norec ? e.norec : '',
             'norec_detail': e.norec_detail ? e.norec_detail : '',
             'lokasikalibrasi': e.lokasikalibrasiUpdate.value,
+            'lokasirepair': e.lokasiRepairUpdate?.value ?? null,
             'lingkupkalibrasi': e.lingkupkalibrasiUpdate.value,
             'penyeliateknik': e.penyeliateknikUpdate.value,
             'pelaksana': e.pelaksanaUpdate.value,
@@ -1170,12 +1397,13 @@ const update = async (e: any) => {
 }
 
 const save = async (e: any) => {
-    // console.log(e)
+    console.log(e)
     let json = {
         'verif': {
             'norec': e.norec ?? '',
             'lokasikalibrasi': e.lokasikalibrasi ?? '',
             'lingkupkalibrasi': e.lingkupkalibrasi ?? '',
+            'lokasirepair': e.lokasirepair ?? '',
         }
     }
     isLoadingSave.value = true
@@ -1183,6 +1411,7 @@ const save = async (e: any) => {
         isLoadingSave.value = false
         clear()
         modalDetailOrder.value = false
+        modalDetailOrderRepair.value = false
         fetchDataOrder(0)
     }).catch((error: any) => {
         isLoadingSave.value = false
@@ -1255,6 +1484,7 @@ const clear = () => {
     item.value.lingkupkalibrasiUpdate = ''
     item.value.penyeliateknikUpdate = ''
     item.value.durasikalbrasiUpdate = ''
+    item.value.lokasiRepairUpdate = ''
 }
 
 const showModalFilter = () => {

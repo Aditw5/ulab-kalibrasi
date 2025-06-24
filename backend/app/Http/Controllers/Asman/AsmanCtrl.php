@@ -39,8 +39,10 @@ class AsmanCtrl extends Controller
                 'mtr.petugas',
                 'mtr.nopendaftaran',
                 'mtr.lokasikalibrasi',
+                'mtr.lokasirepair',
                 'mtr.norec as iddetail',
                 'mtr.statusorder',
+                'mtr.jenisorder',
             )
             ->where('mt.statusenabled', true)
             ->where('mtr.statusenabled', true)
@@ -301,6 +303,7 @@ class AsmanCtrl extends Controller
             ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftjoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
             ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftjoin('lokasikalibrasi_m as lk1', 'lk1.id', '=', 'mtrd.lokasirepairfk')
             ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
                 'mtr.norec',
@@ -328,6 +331,8 @@ class AsmanCtrl extends Controller
                 'pg2.namalengkap as pelaksanateknik',
                 'lk.id as lokasikalibrasifk',
                 'lk.lokasi',
+                'lk1.id as lokasirepairfk',
+                'lk1.lokasi as lokasirepair',
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
             )
@@ -511,48 +516,33 @@ class AsmanCtrl extends Controller
         try {
             $VI = $r['veriItem'];
 
-            $lokasi = DB::table('lokasikalibrasi_m')
-                ->where('id', $VI['lokasikalibrasi'])
-                ->first();
-            $lokasiInisial = '';
-            if ($lokasi) {
-                $lokasiInisial = $lokasi->inisial ?? strtoupper(substr($lokasi->lokasi, 0, 1));
+            if ($VI['lokasirepair'] != null) {
+                DB::table('mitraregistrasidetail_t')
+                    ->where('norec', $VI['norec_detail'])
+                    ->update([
+                        'iskaji' => true,
+                        'statusenabled' => true,
+                        'lokasirepairfk' => $VI['lokasirepair'],
+                        'penyeliateknikfk' => $VI['penyeliateknik'],
+                        'pelaksanateknikfk' => $VI['pelaksana'],
+                        'tanggalpenolakanregis' => null,
+                        'alasanpenolakanregis' => null,
+                    ]);
+            } else {
+                DB::table('mitraregistrasidetail_t')
+                    ->where('norec', $VI['norec_detail'])
+                    ->update([
+                        'iskaji' => true,
+                        'statusenabled' => true,
+                        'lokasikajifk' => $VI['lokasikalibrasi'],
+                        'lingkupkalibrasifk' => $VI['lingkupkalibrasi'],
+                        'penyeliateknikfk' => $VI['penyeliateknik'],
+                        'pelaksanateknikfk' => $VI['pelaksana'],
+                        'durasikalbrasi' => $VI['durasikalbrasi'],
+                        'tanggalpenolakanregis' => null,
+                        'alasanpenolakanregis' => null,
+                    ]);
             }
-
-            $lingkup = DB::table('lingkupkalibrasi_m')
-                ->where('id', $VI['lingkupkalibrasi'])
-                ->first();
-            $lingkupInisial = '';
-            if ($lingkup) {
-                $lingkupInisial = $lingkup->inisial ?? strtoupper(substr($lingkup->lingkupkalibrasi, 0, 1));
-            }
-
-            $tahun = date('y');
-            $bulan = date('m');
-
-            $urut = DB::table('mitraregistrasidetail_t')
-                ->where('noregistrasifk', $VI['norec'])
-                ->whereYear('tglverifasman', date('Y'))
-                ->whereMonth('tglverifasman', date('m'))
-                ->count() + 1;
-
-            $urutStr = str_pad($urut, 3, '0', STR_PAD_LEFT);
-            $noorderalat = "{$lokasiInisial}{$lingkupInisial}-{$tahun}.{$bulan}.{$urutStr}";
-
-            DB::table('mitraregistrasidetail_t')
-                ->where('norec', $VI['norec_detail'])
-                ->update([
-                    'noorderalat' => $noorderalat,
-                    'iskaji' => true,
-                    'statusenabled' => true,
-                    'lokasikajifk' => $VI['lokasikalibrasi'],
-                    'lingkupkalibrasifk' => $VI['lingkupkalibrasi'],
-                    'penyeliateknikfk' => $VI['penyeliateknik'],
-                    'pelaksanateknikfk' => $VI['pelaksana'],
-                    'durasikalbrasi' => $VI['durasikalbrasi'],
-                    'tanggalpenolakanregis' => null,
-                    'alasanpenolakanregis' => null,
-                ]);
 
             $transMessage = "Simpan Verif Item Sukses";
             DB::commit();
@@ -580,9 +570,17 @@ class AsmanCtrl extends Controller
         DB::beginTransaction();
         try {
             $VI = $r['verif'];
-            $lokasi = DB::table('lokasikalibrasi_m')
-                ->where('id', $VI['lokasikalibrasi'])
-                ->first();
+
+
+            if ($VI['lokasirepair'] != null) {
+                $lokasi = DB::table('lokasikalibrasi_m')
+                    ->where('id', $VI['lokasirepair'])
+                    ->first();
+            } else {
+                $lokasi = DB::table('lokasikalibrasi_m')
+                    ->where('id', $VI['lokasikalibrasi'])
+                    ->first();
+            }
 
             $lokasiInisial = '';
             if ($lokasi) {
@@ -610,7 +608,7 @@ class AsmanCtrl extends Controller
                     $lingkupInisial = $lingkup->inisial ?? strtoupper(substr($lingkup->lingkupkalibrasi, 0, 1));
                 }
 
-                $noUrut = $urut + $i + 1;
+                $noUrut = $urut + $i;
                 $urutStr = str_pad($noUrut, 3, '0', STR_PAD_LEFT);
                 $noorderalat = "{$lokasiInisial}{$lingkupInisial}-{$tahun}.{$bulan}.{$urutStr}";
 

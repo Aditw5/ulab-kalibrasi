@@ -170,13 +170,17 @@
                                 <VAvatar :picture="(item.foto != null ? item.foto : '/images/other/no_image.jpg')"
                                   size="big" />
                                 <h3 class="dark-inverted">{{ item.namaperusahaan }}</h3>
+                                <VTag v-if="item.jenisorder == 'repair'" color="warning" rounded>Repair</VTag>
+                                <VTag v-if="item.jenisorder == 'kalibrasi'" color="info" rounded>Kalibrasi</VTag>
                                 <h3 class="dark-inverted">{{ item.nopendaftaran }}</h3>
                                 <!-- <p>{{ item.nocm }}</p> -->
                                 <p>Email : {{ item.email }}</p>
                                 <p>No HP : {{ item.nohp }}</p>
                                 <div class="buttons mt-4" style="display: flex; justify-content: center;">
-                                  <VIconButton v-if="item.statusorder != 1" v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
+                                  <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'kalibrasi'" v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
                                     outlined circle icon="pi pi-arrow-right" @click="kajiUlang(item)" />
+                                  <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'repair'" v-tooltip.bottom.left="'Kaji Ulang Repair'" label="Bottom center" color="info"
+                                    outlined circle icon="pi pi-arrow-right" @click="kajiUlangRepair(item)" />
                                   <VIconButton v-else  v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
                                     outlined circle icon="pi pi-arrow-right" disabled />
                                 </div>
@@ -964,6 +968,19 @@ const kajiUlang = (e: any) => {
   console.log(e)
   router.push({
     name: 'module-registrasi-kaji-ulang',
+    query: {
+      nocmfk: e.id,
+      norec_mitra_daftar: e.iddetail,
+      tglregistrasi: e.tglregistrasi
+    },
+
+  })
+}
+
+const kajiUlangRepair = (e: any) => {
+  console.log(e)
+  router.push({
+    name: 'module-registrasi-kaji-ulang-repair',
     query: {
       nocmfk: e.id,
       norec_mitra_daftar: e.iddetail,

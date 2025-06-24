@@ -42,6 +42,7 @@ class MitraCtrl extends Controller
                 'mtr.statusorder',
                 'mtr.namapenanggungjawab',
                 'mtr.tanggalkonfirmasipendaftaran',
+                'mtr.jenisorder',
             )
             ->where('mt.statusenabled', true)
             ->where('mtr.statusenabled', true)
@@ -106,6 +107,7 @@ class MitraCtrl extends Controller
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
                 'mtr.catatan',
+                'mtr.jenisorder',
                 'mrk.id as idmerk',
                 'mrk.namamerk',
                 'tp.id as idtipe',
@@ -393,13 +395,14 @@ class MitraCtrl extends Controller
                 ->update([
                     'keterangan' => $r->keterangan,
                     // 'tanggalkaji' => $r->tanggalKajian,
-                    'lokasikajifk' => $r->lokasikalibrasi,
+                    'lokasikajifk' => $r->lokasikalibrasi ?? null,
+                    'lokasirepairfk' => $r->lokasirepairfk ?? null,
                     'lingkupkalibrasifk' => $r->lingkupkalibrasi,
                     'penyeliateknikfk' => $r->penyeliateknik,
                     'pelaksanateknikfk' => $r->pelaksana,
                     'namamanager' => $r->manager,
                     'namaasman' => $r->namaasman,
-                    'durasikalbrasi' => $r->durasikalbrasi,
+                    'durasikalbrasi' => $r->durasikalbrasi ?? null,
                     'iskaji' => true,
                     'namafile' => $filename,
                     'updated_at' => now(),
