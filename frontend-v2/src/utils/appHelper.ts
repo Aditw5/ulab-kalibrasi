@@ -665,20 +665,46 @@ export function formatDateOnlyLong(tgl: any): any {
 export function apiBackend(): any {
   return import.meta.env.VITE_API_BASE_URL
 }
+
+// export function printBlade(url: any): any {
+//   // fetch(import.meta.env.VITE_API_BASE_URL + url, { /*method: 'POST'*/method: 'GET', headers: { 'token': useUserSession().token } })
+//   //   .then((response) => response.blob())
+//   //   .then((blob) => {
+//   //     const _url = window.URL.createObjectURL(blob);
+//   //     window.open(_url, '_blank').focus();
+//   //   }).catch((err) => {
+//   //     console.log(err);
+//   //   });
+//   window.open(import.meta.env.VITE_API_BASE_URL + url
+//     + "&user=" + useUserSession().getUser().pegawai.namaLengkap
+//     + '&kdprofile=' + useUserSession().getProfile().id
+//     + "&token=" + useUserSession().token, "_blank");
+// }
+
 export function printBlade(url: any): any {
-  // fetch(import.meta.env.VITE_API_BASE_URL + url, { /*method: 'POST'*/method: 'GET', headers: { 'token': useUserSession().token } })
-  //   .then((response) => response.blob())
-  //   .then((blob) => {
-  //     const _url = window.URL.createObjectURL(blob);
-  //     window.open(_url, '_blank').focus();
-  //   }).catch((err) => {
-  //     console.log(err);
-  //   });
-  window.open(import.meta.env.VITE_API_BASE_URL + url
+  window.open(
+    "http://ulabumro.id:8000/service/" + url
     + "&user=" + useUserSession().getUser().pegawai.namaLengkap
     + '&kdprofile=' + useUserSession().getProfile().id
-    + "&token=" + useUserSession().token, "_blank");
+    + "&token=" + useUserSession().token,
+    "_blank"
+  );
 }
+
+// export function printBlade(url: any): any {
+//   // fetch(import.meta.env.VITE_API_BASE_URL + url, { /*method: 'POST'*/method: 'GET', headers: { 'token': useUserSession().token } })
+//   //   .then((response) => response.blob())
+//   //   .then((blob) => {
+//   //     const _url = window.URL.createObjectURL(blob);
+//   //     window.open(_url, '_blank').focus();
+//   //   }).catch((err) => {
+//   //     console.log(err);
+//   //   });
+//   window.open(import.meta.env.VITE_API_BASE_URL + url
+//     + "&user=" + useUserSession().getUser().pegawai.namaLengkap
+//     + '&kdprofile=' + useUserSession().getProfile().id
+//     + "&token=" + useUserSession().token, "_blank");
+// }
 
 
 export function namaPegawai(): any {
