@@ -227,7 +227,7 @@ class RegistrasiMitraCtrl extends Controller
                 $dataAPD[] = $model_APD;
             }
 
-            $this->kirimWhatsappNotifikasi($PD['nohppenanggungjawab'], $model_PD->namapenanggungjawab, $nopendaftaran);
+            // $this->kirimWhatsappNotifikasi($PD['nohppenanggungjawab'], $model_PD->namapenanggungjawab, $nopendaftaran);
             // $this->kirimWhatsappNotifikasi('6289654715638', $model_PD->namapenanggungjawab, $nopendaftaran);
 
 
