@@ -146,8 +146,8 @@
                     </td>
                     <td align="center">
                         <span style="font-size: 9pt;" class="text-biasa">
-                            <img src="{{ 'berkas-mitra/' . $res['alat']->namafile }}" width="170px"
-                                style="margin-top:50px ;">
+                            {{-- <img src="{{ 'berkas-mitra/' . $res['alat']->namafile }}" width="170px"
+                                style="margin-top:50px ;"> --}}
                         </span>
                     </td>
                     <td> <span style="font-size: 9pt;" class="text-biasa">{{ $res['alat']->keterangan }}</span>
