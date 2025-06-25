@@ -70,19 +70,19 @@
                 <tr>
                     <td class="text-center">
                         <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
-                                SURAT PERINTAH KERJA {{ strtoupper($res['alat'][0]->lingkupkalibrasi) }}
+                                Tanda Terima Alat
                             </b></span>
                     </td>
                 </tr>
 
                 <tr>
 
-                    <table width="100%" cellspacing="0" cellpadding="0" border="0"
-                        style="border-collapse: collapse;">
+                    <table width="80%" cellspacing="0" cellpadding="0" border="0" 
+                        style="border-collapse: collapse; margin-left: 70px">
                         <tbody>
                             <tr>
                                 <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
-                                    No.Dok : FMMO-163-14.4.3.b-74.4
+                                    No.Dok : FMMO-163-14.4.3.b-74.2
                                 </td>
                                 <td style="font-size:9pt;color:#000;font-weight:600;padding:2px 4px;text-align:center;">
                                     Revisi : 01

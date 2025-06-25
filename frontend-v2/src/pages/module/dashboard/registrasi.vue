@@ -181,7 +181,7 @@
                                     outlined circle icon="pi pi-arrow-right" @click="kajiUlang(item)" />
                                   <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'repair'" v-tooltip.bottom.left="'Kaji Ulang Repair'" label="Bottom center" color="info"
                                     outlined circle icon="pi pi-arrow-right" @click="kajiUlangRepair(item)" />
-                                  <VIconButton v-else  v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
+                                  <VIconButton v-if="item.statusorder == 1"  v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
                                     outlined circle icon="pi pi-arrow-right" disabled />
                                 </div>
                               </div>
