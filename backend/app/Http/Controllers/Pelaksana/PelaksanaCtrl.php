@@ -1472,9 +1472,9 @@ class PelaksanaCtrl extends Controller
             ->where('mtrd.norec', $r['norec_detail'])
             ->first();
 
-        // $tr = new GoogleTranslate('en'); 
-        // $translated = $tr->translate($data->kesimpulanrepair);
-        // $res['alat']->kesimpulanrepair_en = $translated;
+        $tr = new GoogleTranslate('en'); 
+        $translated = $tr->translate($data->kesimpulanrepair);
+        $res['alat']->kesimpulanrepair_en = $translated;
         $res['pdf']  = $r['pdf'];
         $res['ttdPelaksana'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->pelaksanateknik));
         $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
