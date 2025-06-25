@@ -273,6 +273,12 @@ Route::middleware(['log'])->group(function () {
         Route::get('penyelia/download-file-terunggah', 'downloadFileTerunggah');
         Route::get('penyelia/excel-length', 'getExcelLength');
         Route::get('penyelia/get-pegawai-pelaksana', 'getPegawaiPelaksana');
+        Route::post('penyelia/save-data-laporan-repair', 'simpanLaporanRepairPenyelia');
+        Route::get('penyelia/get-laporan-repair', 'getLaporanRepairPenyelia');
+        Route::get('penyelia/detail-alat-repair', 'detailAlatRepairPenyelia');
+        Route::post('penyelia/hapus-laporan-repair', 'hapusLaporanRepairPenyelia');
+        Route::post('penyelia/save-setujui-laporan-repair', 'setujuiLaporanRepair');
+        Route::get('penyelia/cetak-laporan-repair', 'cetakLaporanRepairPenyelia');
     });
 
     Route::controller(PelaksanaCtrl::class)->group(function () {
@@ -292,6 +298,11 @@ Route::middleware(['log'])->group(function () {
         Route::post('pelaksana/save-excel-lembar-kerja', 'saveExcelLembarKerja');
         Route::get('pelaksana/download-file-terunggah', 'downloadFileTerunggah');
         Route::get('pelaksana/excel-length', 'getExcelLength');
+        Route::post('pelaksana/save-data-laporan-repair', 'simpanLaporanRepair');
+        Route::get('pelaksana/get-laporan-repair', 'getLaporanRepair');
+        Route::get('pelaksana/detail-alat-repair', 'detailAlatRepair');
+        Route::post('pelaksana/hapus-laporan-repair', 'hapusLaporanRepair');
+        Route::get('pelaksana/cetak-laporan-repair', 'cetakLaporanRepair');
     });
 
     Route::controller(DaftarRegistrasiCtrl::class)->group(function () {

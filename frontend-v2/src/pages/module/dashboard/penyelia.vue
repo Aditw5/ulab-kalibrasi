@@ -60,7 +60,7 @@
                     <VCard class="text-center pt-0 pb-0 mt-0">
                       <VRadio v-model="order" value="0" label="Belum Verif" name="outlined_radio" color="success" />
                       <VRadio v-model="order" value="1" label="Sudah Verif" name="outlined_radio" color="info" />
-                      <VRadio v-model="order" value="2" label="Sertifikat Disetujui Penyelia" name="outlined_radio"
+                      <VRadio v-model="order" value="2" label="Sertifikat/Laporan Disetujui Penyelia" name="outlined_radio"
                         color="info" />
                     </VCard>
                     <VPlaceholderPage :class="[dataAlatKalibrasi.length !== 0 && 'is-hidden']"
@@ -99,7 +99,7 @@
                                   <span>{{ item.noorderalat }}</span>
                                 </span>
                                 <div>
-                                  <VTag v-if="item.statusPengerjaan == null"
+                                  <VTag v-if="item.statusPengerjaan == null && item.jenisorder == 'kalibrasi'"
                                     :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                     class="ml-2" />
                                   <VTag v-if="item.statusPengerjaan != null" :label="item.statusPengerjaan"
@@ -107,9 +107,14 @@
                                   <VTag
                                     v-if="item.pelaksanaisilembarkerjafk != null && (item.setujuilembarkerjapenyelia == null || item.setujuilembarkerjapenyelia == false)"
                                     :label="'Sudah Isi Lembar Kerja'" :color="'info'" class="ml-2" />
+                                  <VTag v-if="item.pelaksanaisilaporanrepairfk != null"
+                                    :label="'Sudah Isi Laporan Repair'" :color="'success'" class="ml-2" />
                                   <VTag
                                     v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true"
                                     :label="'Sertifikat Disetujui Penyelia'" :color="'primary'" class="ml-2" />
+                                  <VTag
+                                    v-if="item.penyeliasetujulaporanrepairfk != null"
+                                    :label="'Laporan Repair Disetujui Penyelia'" :color="'success'" class="ml-2" />
                                   <VTag
                                     v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
                                     :label="'Sertifikat Disetujui Asaman'" :color="'primary'" class="ml-2" />
@@ -135,8 +140,16 @@
                                     v-tooltip.bottom.left="'Cetak Sertifikat'" icon="feather:printer"
                                     @click="cetakSertifikatLembarKerja(item)" color="info" raised circle class="mr-2">
                                   </VIconButton>
-                                  <VIconButton v-if="item.statusorderpenyelia == 1" color="info" circle
-                                    icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
+                                  <VIconButton
+                                    v-if="item.statusorderpenyelia == 2 && item.jenisorder == 'repair'"
+                                    v-tooltip.bottom.left="'Cetak Laporan Repair'" icon="feather:printer"
+                                    @click="cetakLaporanRepair(item)" color="success" raised circle class="mr-2">
+                                  </VIconButton>
+                                  <VIconButton v-if="item.statusorderpenyelia == 1 && item.jenisorder == 'repair'"
+                                    color="info" circle icon="fas fa-tools" outlined raised @click="laporanRepair(item)"
+                                    v-tooltip.bottom.left="'Laporan Repair'" />
+                                  <VIconButton v-if="item.statusorderpenyelia == 1 && item.jenisorder == 'kalibrasi'"
+                                    color="info" circle icon="fas fa-pager" outlined raised @click="lembarKerja(item)"
                                     v-tooltip.bottom.left="'Lembar Kerja'" />
                                   <VIconButton v-tooltip.bottom.left="'Verifikasi'" label="Bottom Left" color="primary"
                                     circle icon="pi pi-check-circle" v-if="item.statusorderpenyelia == 0"
@@ -247,19 +260,22 @@
                             <tr>
                               <td>Lokasi</td>
                               <td>:</td>
-                              <td>{{ items.lokasi }} </td>
+                              <td v-if="items.jenisorder == 'kalibrasi'">{{ items.lokasi }} </td>
+                              <td v-if="items.jenisorder == 'repair'">{{ items.lokasirepair }} </td>
                             </tr>
                             <tr>
-                              <td>Penyelias Teknik </td>
+                              <td v-if="items.jenisorder == 'kalibrasi'">Penyelia Teknik </td>
+                              <td v-if="items.jenisorder == 'repair'">Penyelia Teknik Repair </td>
                               <td>:</td>
                               <td class="font-values">{{ items.penyeliateknik }}</td>
                             </tr>
                             <tr>
-                              <td>Pelaksana Teknik</td>
+                              <td v-if="items.jenisorder == 'kalibrasi'">Pelaksana Teknik</td>
+                              <td v-if="items.jenisorder == 'repair'">Pelaksana Teknik Repair</td>
                               <td>:</td>
                               <td>{{ items.pelaksanateknik }} </td>
                             </tr>
-                            <tr>
+                            <tr v-if="items.jenisorder == 'kalibrasi'">
                               <td>Durasi</td>
                               <td>:</td>
                               <td>
@@ -516,6 +532,16 @@ const lembarKerja = (e: any) => {
   })
 }
 
+const laporanRepair = (e: any) => {
+  router.push({
+    name: 'module-penyelia-laporan-repair',
+    query: {
+      norec: e.norec,
+      norec_detail: e.norec_detail,
+    }
+  })
+}
+
 
 
 const filter = async () => {
@@ -663,6 +689,10 @@ const cetakSpk = (e) => {
 
 const cetakSertifikatLembarKerja = (e) => {
   H.printBlade(`penyelia/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
+}
+
+const cetakLaporanRepair = (e) => {
+  H.printBlade(`penyelia/cetak-laporan-repair?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
 
 const kirimWASuratKeteranganDokter = async (e: any) => {

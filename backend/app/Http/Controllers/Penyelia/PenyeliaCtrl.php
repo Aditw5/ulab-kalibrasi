@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\File;
 use App\Models\Transaksi\LembarKerja;
+use App\Models\Transaksi\LaporanRepair;
 use Illuminate\Support\Facades\App;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class PenyeliaCtrl extends Controller
 {
@@ -73,6 +75,10 @@ class PenyeliaCtrl extends Controller
                 'mtrd.statusorderasman',
                 'mtrd.tglverifpelaksana',
                 'mtrd.noorderalat',
+                'mtr.jenisorder',
+                'mtrd.pelaksanaisilaporanrepairfk',
+                'mtrd.tglisilaporanrepairpelaksana',
+                'mtrd.penyeliasetujulaporanrepairfk',
             )
             ->where('pg.id', $this->getPegawaiId())
             ->where('mtr.statusorder', 1)
@@ -143,6 +149,7 @@ class PenyeliaCtrl extends Controller
             ->leftjoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
             ->leftjoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
             ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftjoin('lokasikalibrasi_m as lk1', 'lk1.id', '=', 'mtr.lokasirepair')
             ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
                 'mtr.norec',
@@ -168,8 +175,11 @@ class PenyeliaCtrl extends Controller
                 'pg2.namalengkap as pelaksanateknik',
                 'lk.id as lokasikalibrasifk',
                 'lk.lokasi',
+                'lk1.id as lokasirepair',
+                'lk1.lokasi as lokasirepair',
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
+                'mtr.jenisorder',
             )
             ->where('pg.id', $this->getPegawaiId())
             ->where('mtr.statusenabled', true)
@@ -1029,5 +1039,407 @@ class PenyeliaCtrl extends Controller
 
         $res['pegawaiJakarta'] = $pegawaiJakarta;
         return $this->respond($res);
+    }
+
+    public function simpanLaporanRepairPenyelia(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $daftar = $request->input('daftarlaporanrepair');
+            $norecDetail = $request->input('norec_detail');
+            $kesimpulan = $request->input('kesimpulan');
+
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $norecDetail)
+                ->update([
+                    'penyeliaisilaporanrepairfk' => $this->getPegawaiId(),
+                    'tglisilaporanrepairpenyelia' => now(),
+                    'kesimpulanrepair' => $kesimpulan,
+                ]);
+
+            $result = [];
+
+            foreach ($daftar as $index => $repair) {
+                $filePath = null;
+                if ($request->hasFile("daftarlaporanrepair.$index.fileMitra")) {
+                    $file = $request->file("daftarlaporanrepair.$index.fileMitra");
+                    $allowedExtensions = ['jpg', 'jpeg', 'png'];
+                    $extension = strtolower($file->getClientOriginalExtension());
+
+                    if (!in_array($extension, $allowedExtensions)) {
+                        throw new \Exception("File harus berupa gambar (jpg, jpeg, atau png).");
+                    }
+
+                    $filename = time() . "_row{$index}_" . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+                    $file->move(public_path('berkas-laporan-repair'), $filename);
+                    $filePath = $filename;
+                }
+
+                $model_Repair = new LaporanRepair;
+                $model_Repair->norec = $model_Repair->generateNewId();
+                $model_Repair->statusenabled = true;
+                $model_Repair->penanganan = $repair['penanganan'] ?? null;
+                $model_Repair->status = $repair['status'] ?? null;
+                $model_Repair->sparepart = $repair['sparepart'] ?? null;
+                $model_Repair->detailregistrasifk = $norecDetail;
+                $model_Repair->fotoalatrepair = $filePath;
+                $model_Repair->petugas = $this->getPegawaiId();
+                $model_Repair->save();
+                $result[] = $model_Repair;
+            }
+
+            $transStatus = 'true';
+        } catch (Exception $e) {
+            $transStatus = 'false';
+        }
+
+        $transMessage = "Simpan Laporan Repair Kerja";
+        if ($transStatus != 'false') {
+            DB::commit();
+            $result = array(
+                "status" => 201,
+                "message" => $transMessage . ' Berhasil',
+                "result" => $result
+            );
+        } else {
+            DB::rollBack();
+            $result = array(
+                "status" => 400,
+                "message" => $transMessage . ' Gagal' . $e->getMessage(),
+                "result" => $result
+            );
+        }
+        return $this->respond($result['result'], $result['status'], $result['message']);
+    }
+
+    public function getLaporanRepairPenyelia(Request $request)
+    {
+        $data = DB::table('laporanrepair_t as lp')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lp.detailregistrasifk')
+            ->join('mitraregistrasi_t as mtr', 'mtr.norec', '=', 'mtrd.noregistrasifk')
+            ->join('pegawai_m as pg', 'pg.id', '=', 'lp.petugas')
+            ->select(
+                'lp.*',
+                'mtr.norec as norecregis',
+                'mtrd.kesimpulanrepair',
+                'pg.namalengkap as petugasrepair'
+            )
+            ->where('mtrd.norec', $request->norecdetail)
+            ->where('lp.statusenabled', true)
+            ->get();
+
+        return $this->respond($data);
+    }
+
+    public function detailAlatRepairPenyelia(Request $r)
+    {
+        $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtrd.asmanveriffk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
+            ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->select(
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.durasikalbrasi',
+                'mtrd.namafile',
+                'mtrd.keterangan',
+                'mtrd.statusorderasman',
+                'mtrd.statusorderpenyelia',
+                'mtrd.statusorderpelaksana',
+                'mtrd.tglverifasman',
+                'mtrd.tglverifpenyelia',
+                'mtrd.tglverifpelaksana',
+                'mtrd.tglkalibrasilembarkerja',
+                'mtrd.tempatKalibrasilembarkerja',
+                'mtrd.kondisiRuanganlembarkerja',
+                'mtrd.suhulembarkerja',
+                'mtrd.kelembabanRelatiflembarkerja',
+                'mtrd.noorderalat',
+                'mtrd.kesimpulanrepair',
+                'prd.namaproduk',
+                'mtr.catatan',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as asmanfk',
+                'pg3.namalengkap as asamanverifikasi',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.norec', $r['norec_pd'])
+            ->orderByDesc('prd.namaproduk')
+            ->first();
+
+        $result = [
+            'data' => $data,
+            'as' => '@adit'
+        ];
+
+        return $this->respond($result);
+    }
+
+    public function hapusLaporanRepairPenyelia(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $laporan = DB::table('laporanrepair_t')
+                ->where('norec', $r['norec'])
+                ->first();
+
+            if ($laporan && $laporan->fotoalatrepair) {
+                $filePath = public_path('berkas-laporan-repair/' . $laporan->fotoalatrepair);
+                if (file_exists($filePath)) {
+                    unlink($filePath); 
+                }
+            }
+
+            DB::table('laporanrepair_t')
+                ->where('norec', $r['norec'])
+                ->delete();
+
+            $transMessage = "Hapus Laporan Repair Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Hapus Laporan Repair Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+     public function setujuiLaporanRepair(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $VI = $r['verif'];
+            DB::table('mitraregistrasidetail_t')
+                ->where('norec', $VI['norec'])
+                ->update([
+                    'penyeliasetujulaporanrepairfk' => $this->getPegawaiId(),
+                    'tglsetujupenyelialaporanrepair' => now(),
+                    'statusorderpenyelia' => 2,
+                    'statusorderasman' => 0,
+                ]);
+
+
+            $transMessage = "Simpan Setujui Laporan Repair Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function cetakLaporanRepairPenyelia(Request $r)
+    {
+
+        $profile = $this->profile();
+        $print = false;
+        $pageWidth = 950;
+
+        $res['identitas'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.petugaskaji')
+            ->leftJoin('jabatan_m as jb', 'jb.id', '=', 'pg.jabatan1fk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+            ->select(
+                'jb.id as idjabatan',
+                'jb.namajabatanulab as namajabanpetugaskaji',
+                'mtr.norec',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mt.namaperusahaan',
+                'mt.alamatktr',
+                'pg.id as petugaskajifk',
+                'pg.namalengkap as namapetugaskaji',
+                'lk.lokasi',
+                'mtr.jabatanpenanggungjawab',
+                'mtr.namapenanggungjawab'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtr.norec', $r['norec'])
+            ->first();
+
+        $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
+            ->select(
+                'lk.*',
+                'mtrd.tglkalibrasilembarkerja',
+                'mtrd.tempatKalibrasilembarkerja',
+                'mtrd.kondisiRuanganlembarkerja',
+                'mtrd.suhulembarkerja',
+                'mtrd.kelembabanRelatiflembarkerja'
+            )
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->where('lk.statusenabled', true)
+            ->get();
+
+        $res['laporanRepair'] = DB::table('laporanrepair_t as lp')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lp.detailregistrasifk')
+            ->select(
+                'lp.*',
+                'mtrd.tglkalibrasilembarkerja',
+                'mtrd.tempatKalibrasilembarkerja',
+                'mtrd.kondisiRuanganlembarkerja',
+                'mtrd.suhulembarkerja',
+                'mtrd.kelembabanRelatiflembarkerja'
+            )
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->where('lp.statusenabled', true)
+            ->get();
+
+        $res['alat'] =  $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtrd.penyeliateknikfk')
+            ->leftJoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
+            ->leftJoin('pegawai_m as pg3', 'pg3.id', '=', 'mtr.asmanveriffk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->select(
+                'pg.id as penyeliateknikfk',
+                'pg.namalengkap as penyeliateknik',
+                'pg2.id as pelaksanateknikfk',
+                'pg2.namalengkap as pelaksanateknik',
+                'pg3.id as asmanfk',
+                'pg3.namalengkap as asamanverifikasi',
+                'mtrd.noorderalat',
+                'mtrd.namamanager',
+                'mtrd.setujuilembarkerjamanager',
+                'mtrd.setujuilembarkerjaasman',
+                'mtrd.setujuilembarkerjapenyelia',
+                'mtrd.kesimpulanrepair',
+                'mtrd.keterangan',
+                'mtrd.namafile',
+                'prd.namaproduk',
+                'mrk.namamerk',
+                'tp.namatipe',
+                'sn.namaserialnumber',
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.iskaji', true)
+            ->where('mtrd.statusenabled', true)
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->first();
+
+        $tr = new GoogleTranslate('en'); 
+        $translated = $tr->translate($data->kesimpulanrepair);
+        $res['alat']->kesimpulanrepair_en = $translated;
+        $res['pdf']  = $r['pdf'];
+        $res['ttdPelaksana'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->pelaksanateknik));
+        $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
+        $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->penyeliateknik));
+        $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->namamanager));
+        $res['halamanPertama'] = false;
+
+        $blade = 'report.pelaksana.laporan-repair';
+
+        if ($res['pdf'] == 'true') {
+            $pdfDummy = App::make('dompdf.wrapper');
+            $pdfDummy->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                    'jumlahHalaman' => null,
+                )
+            );
+            $dompdfDummy = $pdfDummy->getDomPDF();
+            $dompdfDummy->render();
+            $jumlahHalaman = $dompdfDummy->getCanvas()->get_page_count();
+
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->loadView(
+                $blade . '-dom',
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                    'jumlahHalaman' => $jumlahHalaman,
+                )
+            );
+
+
+            $dompdf = $pdf->getDomPDF();
+            $canvas = $dompdf->get_canvas();
+            $canvas->page_text(230, 780, "Halaman ke {PAGE_NUM} dari {PAGE_COUNT} halaman", null, 8, array(0, 0, 0));
+            $font = $dompdf->getFontMetrics()->getFont('Helvetica', 'italic');
+            $canvas->page_text(260, 788, "Page {PAGE_NUM} of {PAGE_COUNT} pages", $font, 7, array(0, 0, 0));
+
+            return $pdf->stream();
+        }
+
+        if (isset($r['storage'])) {
+            $res['storage']  = true;
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->setpaper('a4', 'landscape');
+            $pdf->loadView(
+                $blade,
+                array(
+                    'profile' => $profile,
+                    'pageWidth' => $pageWidth,
+                    'print' => $print,
+                    'res' => $res,
+                )
+            );
+            return $pdf;
+        }
+
+
+        return view(
+            $blade,
+            compact('profile', 'pageWidth', 'print', 'res')
+        );
     }
 }
