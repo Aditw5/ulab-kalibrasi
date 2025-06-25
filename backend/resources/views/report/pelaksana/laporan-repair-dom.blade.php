@@ -186,8 +186,8 @@
                         <td width="5%"> <span style="font-size: 9pt;" class="text-biasa">{{ $index + 1 }} </span>
                         </td>
                         <td width="25%">
-                            {{-- <img src="{{ 'berkas-laporan-repair/' . $alat->fotoalatrepair }}" width="170px"
-                                style="margin:2px 0;"> --}}
+                            <img src="{{ 'berkas-laporan-repair/' . $alat->fotoalatrepair }}" width="170px"
+                                style="margin:2px 0;">
                         </td>
                         <td width="15%">
                             <span style="font-size: 9pt;" class="text-biasa">
