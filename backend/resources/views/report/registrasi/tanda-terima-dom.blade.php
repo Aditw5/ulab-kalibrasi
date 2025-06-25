@@ -70,7 +70,7 @@
                 <tr>
                     <td class="text-center">
                         <span style="font-size: 10pt;font-weight: 600;color:#000000"><b>
-                                Tanda Terima Alat
+                                TANDA TERIMA ALAT
                             </b></span>
                     </td>
                 </tr>
