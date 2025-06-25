@@ -46,7 +46,7 @@
 </head>
 
 <body>
-    {{-- {{ dd($res) }} --}}
+    {{ dd($res) }}
 
     <div class="pdf-header">
         <table width="100%" cellspacing="0" cellpadding="0" border="0">
