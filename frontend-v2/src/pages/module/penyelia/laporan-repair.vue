@@ -206,7 +206,14 @@
               <Column field="penanganan" header="Penanganan" />
               <Column field="status" header="Status" />
               <Column field="sparepart" header="Sparepart" />
-              <Column field="fotoalatrepair" header="Foto Repair" />
+              <Column header="Foto Repair" style="text-align:center; min-width: 150px" row-clickable>
+                <template #body="slotProps">
+                  <div
+                    :style="'background-image:url(' + 'https://ulabumro.id:8000/berkas-laporan-repair/' + slotProps.data.fotoalatrepair + ')'"
+                    style="text-align: center; background-position: center; width: 400px; height: 300px;">
+                  </div>
+                </template>
+              </Column>
               <Column field="created_at" header="Tanggal Isi" />
               <Column field="petugasrepair" header="Pengisi" />
               <Column header="Aksi" style="text-align:center; min-width: 150px" row-clickable>
@@ -502,7 +509,7 @@ const detailOrder = async () => {
   item.value.kesimpulan = data.kesimpulanrepair
   // const backendUrl = import.meta.env.VITE_API_URL 
   // MARKINGSITE.value = `${backendUrl}/berkas-mitra/${data.namafile}`
-  MARKINGSITE.value = 'http://ulabumro.id:8000/berkas-mitra/' + data.namafile
+  MARKINGSITE.value = 'https://ulabumro.id:8000/berkas-mitra/' + data.namafile
 }
 
 const Save = async () => {

@@ -135,6 +135,9 @@ class MitraCtrl extends Controller
                 'mtrd.tglsetujumanagerlembarkerja',
                 'mtrd.managersetujulembarkerjafk',
                 'mtrd.tglverifpelaksana',
+                'mtrd.penyeliasetujulaporanrepairfk',
+                'mtrd.asmansetujulaporanrepairfk',
+                'mtrd.managersetujulaporanrepairfk',
             )
             // ->where('mtrd.iskaji', true)
             ->where('mtr.statusenabled', true)

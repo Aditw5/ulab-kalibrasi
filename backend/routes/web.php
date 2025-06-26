@@ -241,6 +241,11 @@ Route::middleware(['log'])->group(function () {
         Route::get('asman/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
         Route::get('asman/download-file-terunggah', 'downloadFileTerunggah');
         Route::get('asman/excel-length', 'getExcelLength');
+        Route::get('asman/get-laporan-repair', 'getLaporanRepairAsman');
+        Route::get('asman/detail-alat-repair', 'detailAlatRepairAsman');
+        Route::post('asman/hapus-laporan-repair', 'hapusLaporanRepairAsman');
+        Route::post('asman/save-setujui-laporan-repair', 'setujuiLaporanRepairAsman');
+        Route::get('asman/cetak-laporan-repair', 'cetakLaporanRepairAsman');
     });
 
     Route::controller(ManagerCtrl::class)->group(function () {
@@ -255,6 +260,11 @@ Route::middleware(['log'])->group(function () {
         Route::get('manager/cetak-sertifikat-lembar-kerja', 'cetakSertifikatLembarKerja');
         Route::get('manager/download-file-terunggah', 'downloadFileTerunggah');
         Route::get('manager/excel-length', 'getExcelLength');
+        Route::get('manager/get-laporan-repair', 'getLaporanRepairManager');
+        Route::get('manager/detail-alat-repair', 'detailAlatRepairManager');
+        Route::post('manager/hapus-laporan-repair', 'hapusLaporanRepairManager');
+        Route::post('manager/save-setujui-laporan-repair', 'setujuiLaporanRepairManager');
+        Route::get('manager/cetak-laporan-repair', 'cetakLaporanRepairManager');
     });
 
     Route::controller(PenyeliaCtrl::class)->group(function () {

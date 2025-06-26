@@ -127,29 +127,10 @@
                                                                     v-if="items.statusorder == 0 && items.jenisorder == 'repair'"
                                                                     @click="orderVerifyRepair(items)"
                                                                     style="margin-right: 15px;" />
-
                                                                 <VIconButton v-tooltip.bottom.left="'Detail'"
                                                                     label="Bottom Left" v-else color="primary" circle
                                                                     icon="pi pi-book" @click="getDetailVerify(items)"
                                                                     style="margin-right: 15px;" />
-                                                                <VDropdown icon="feather:more-vertical" spaced right
-                                                                    v-tooltip.bubble="'CETAK'">
-                                                                    <template #content>
-                                                                        <a role="menuitem"
-                                                                            class="dropdown-item is-media"
-                                                                            @click="cetakSEP(items)">
-                                                                            <div class="icon">
-                                                                                <i class="iconify"
-                                                                                    data-icon="feather:printer"
-                                                                                    aria-hidden="true"></i>
-                                                                            </div>
-                                                                            <div class="meta">
-                                                                                <span>Cetak SEP</span>
-                                                                                <span>Cetak Surat Elegibilitas</span>
-                                                                            </div>
-                                                                        </a>
-                                                                    </template>
-                                                                </VDropdown>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -264,7 +245,7 @@
 
                                                                     </span>
                                                                     <div>
-                                                                        <VTag v-if="item.statusPengerjaan == null"
+                                                                        <VTag v-if="item.statusPengerjaan == null && item.jenisorder == 'kalibrasi'"
                                                                             :label="'Durasi Kalibrasi : ' + item.durasikalbrasi"
                                                                             :color="'warning'" class="ml-2" />
                                                                         <VTag v-if="item.statusPengerjaan != null"
@@ -274,6 +255,14 @@
                                                                             v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true"
                                                                             :label="'Sertifikat Disetujui Penyelia'"
                                                                             :color="'primary'" class="ml-2" />
+                                                                        <VTag
+                                                                            v-if="item.penyeliasetujulaporanrepairfk != null"
+                                                                            :label="'Laporan Repair Disetujui Penyelia'"
+                                                                            :color="'info'" class="ml-2" />
+                                                                        <VTag
+                                                                            v-if="item.asmansetujulaporanrepairfk != null"
+                                                                            :label="'Laporan Repair Disetujui Asman'"
+                                                                            :color="'info'" class="ml-2" />
                                                                         <VTag
                                                                             v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
                                                                             :label="'Sertifikat Disetujui Asman'"
@@ -301,17 +290,29 @@
                                                                             raised circle class="mr-2">
                                                                         </VIconButton>
                                                                         <VIconButton
-                                                                            v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
+                                                                            v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true && item.jenisorder == 'kalibrasi'"
                                                                             v-tooltip.bottom.left="'Cetak Sertifikat'"
                                                                             icon="feather:printer"
                                                                             @click="cetakSertifikatLembarKerja(item)"
                                                                             color="info" raised circle class="mr-2">
                                                                         </VIconButton>
                                                                         <VIconButton
-                                                                            v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true && (item.setujuilembarkerjaasman == null || item.setujuilembarkerjaasman == false)"
+                                                                            v-if="item.asmansetujulaporanrepairfk != null && item.jenisorder == 'repair'"
+                                                                            v-tooltip.bottom.left="'Cetak Laporan Repair'"
+                                                                            icon="feather:printer"
+                                                                            @click="cetakLaporanRepair(item)"
+                                                                            color="success" raised circle class="mr-2">
+                                                                        </VIconButton>
+                                                                        <VIconButton
+                                                                            v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true && (item.setujuilembarkerjaasman == null || item.setujuilembarkerjaasman == false) && item.jenisorder == 'kalibrasi'"
                                                                             color="info" circle icon="fas fa-pager"
                                                                             outlined raised @click="lembarKerja(item)"
                                                                             v-tooltip.bottom.left="'Lembar Kerja'" />
+                                                                        <VIconButton
+                                                                            v-if="item.penyeliasetujulaporanrepairfk != null && item.jenisorder == 'repair' && item.asmansetujulaporanrepairfk == null"
+                                                                            color="warning" circle icon="fas fa-tools"
+                                                                            outlined raised @click="laporanRepair(item)"
+                                                                            v-tooltip.bottom.left="'Laporan Repair'" />
                                                                         <VIconButton v-tooltip.bottom.left="'Aktivitas'"
                                                                             icon="feather:activity"
                                                                             @click="detailOrder(item)" color="info"
@@ -1431,13 +1432,14 @@ const save = async (e: any) => {
 }
 
 const cetakSpk = (e) => {
-    console.log(e)
-
     H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&penyeliateknikfk=${e.penyeliateknikfk}`);
 }
 
+const cetakLaporanRepair = (e) => {
+  H.printBlade(`asman/cetak-laporan-repair?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
+}
+
 const lembarKerja = (e: any) => {
-    console.log(e)
     router.push({
         name: 'module-asman-lembar-kerja',
         query: {
@@ -1447,7 +1449,15 @@ const lembarKerja = (e: any) => {
     })
 }
 
-
+const laporanRepair = (e: any) => {
+  router.push({
+    name: 'module-asman-laporan-repair',
+    query: {
+      norec: e.norec,
+      norec_detail: e.norec_detail,
+    }
+  })
+}
 
 const reloadItemVerify = async (e: any) => {
     const response = await useApi().get(`/asman/layanan-verif?norec_pd=${e}`)
@@ -1491,34 +1501,10 @@ const showModalFilter = () => {
     modalFilter.value = true
 }
 
-
-const goTo = (e: any) => {
-
-    let bindData = sourceItemSelect.value
-    router.push({
-        name: 'module-radiologi-transaksi-radiologi',
-        query: {
-            nocmfk: bindData.nocmfk,
-            norec_pasien_daftar: bindData.norec_pd,
-            norec_apd: bindData.norec_apd
-        },
-
-    })
-}
-
 const changePeriode = () => {
     fetchDataOrder(0)
 }
 
-
-const cetakOrder = async (e: any) => {
-    let so_norec = e.norec;
-    H.printBlade(`report/cetak-order?type=radiologi&noregistrasi=${so_norec}`)
-}
-const cetakSEP = (e: any) => {
-    qzService.printData('registrasi/pemakaian-asuransi/sep?noregistrasi=' + e.noregistrasi + "&pdf=true",
-        'SEP', 1)
-}
 
 const reload = async () => {
     fetchDataOrder(0)

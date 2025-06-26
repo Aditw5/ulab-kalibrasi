@@ -144,8 +144,9 @@
                                         <span>Cetak Tanda Terima </span>
                                       </div>
                                     </a>
-                                    <a v-if="item.iskaji !== null && item.statusorder == 1 && item.tanggalkonfirmasipendaftaran != null" role="menuitem"
-                                      @click="cetakPermintaanKalibrasi(item)" class="dropdown-item is-media">
+                                    <a v-if="item.iskaji !== null && item.statusorder == 1 && item.tanggalkonfirmasipendaftaran != null"
+                                      role="menuitem" @click="cetakPermintaanKalibrasi(item)"
+                                      class="dropdown-item is-media">
                                       <div class="icon">
                                         <i aria-hidden="true" class="lnil lnil-printer"></i>
                                       </div>
@@ -153,7 +154,8 @@
                                         <span>Cetak Permintaan Kalibrasi dan Kontrak </span>
                                       </div>
                                     </a>
-                                    <a v-if="item.iskaji !== null && item.statusorder == 1 && item.tanggalkonfirmasipendaftaran == null" role="menuitem" @click="konfirmaasiPendaftaran(item)"
+                                    <a v-if="item.iskaji !== null && item.statusorder == 1 && item.tanggalkonfirmasipendaftaran == null"
+                                      role="menuitem" @click="konfirmaasiPendaftaran(item)"
                                       class="dropdown-item is-media">
                                       <div class="icon">
                                         <i aria-hidden="true" class="lnil lnil-checkmark"></i>
@@ -177,12 +179,15 @@
                                 <p>Email : {{ item.email }}</p>
                                 <p>No HP : {{ item.nohp }}</p>
                                 <div class="buttons mt-4" style="display: flex; justify-content: center;">
-                                  <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'kalibrasi'" v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
-                                    outlined circle icon="pi pi-arrow-right" @click="kajiUlang(item)" />
-                                  <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'repair'" v-tooltip.bottom.left="'Kaji Ulang Repair'" label="Bottom center" color="info"
+                                  <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'kalibrasi'"
+                                    v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info" outlined
+                                    circle icon="pi pi-arrow-right" @click="kajiUlang(item)" />
+                                  <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'repair'"
+                                    v-tooltip.bottom.left="'Kaji Ulang Repair'" label="Bottom center" color="info"
                                     outlined circle icon="pi pi-arrow-right" @click="kajiUlangRepair(item)" />
-                                  <VIconButton v-if="item.statusorder == 1"  v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info"
-                                    outlined circle icon="pi pi-arrow-right" disabled />
+                                  <VIconButton v-if="item.statusorder == 1" v-tooltip.bottom.left="'Kaji Ulang'"
+                                    label="Bottom center" color="info" outlined circle icon="pi pi-arrow-right"
+                                    disabled />
                                 </div>
                               </div>
                             </div>
@@ -249,7 +254,7 @@
 
                                     </span>
                                     <div>
-                                      <VTag v-if="item.statusPengerjaan == null && item.iskaji == true"
+                                      <VTag v-if="item.statusPengerjaan == null && item.iskaji == true && item.jenisorder == 'kalibrasi'"
                                         :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                         class="ml-2" />
                                       <VTag v-if="item.statusPengerjaan != null" :label="item.statusPengerjaan"
@@ -263,6 +268,12 @@
                                       <VTag
                                         v-if="item.setujuilembarkerjamanager != null || item.setujuilembarkerjamanager == true"
                                         :label="'Sertifikat Disetujui Manager'" :color="'primary'" class="ml-2" />
+                                      <VTag v-if="item.penyeliasetujulaporanrepairfk != null"
+                                        :label="'Laporan Repair Disetujui Penyelia'" :color="'info'" class="ml-2" />
+                                      <VTag v-if="item.asmansetujulaporanrepairfk != null"
+                                        :label="'Laporan Repair Disetujui Asman'" :color="'info'" class="ml-2" />
+                                      <VTag v-if="item.managersetujulaporanrepairfk != null"
+                                        :label="'Laporan Repair Disetujui Manager'" :color="'info'" class="ml-2" />
                                     </div>
                                     <div>
                                       <span style="font-weight: bold;">Penyelia Teknik
@@ -280,15 +291,16 @@
                                   <div class="meta-right flex justify-center items-center">
                                     <div class="buttons">
                                       <VIconButton
-                                        v-if="item.setujuilembarkerjaasman != null && item.setujuilembarkerjaasman == true"
+                                        v-if="item.asmansetujulaporanrepairfk != null && item.jenisorder == 'kalibrasi'"
                                         v-tooltip.bottom.left="'Cetak Sertifikat'" icon="feather:printer"
                                         @click="cetakSertifikatLembarKerja(item)" color="info" raised circle
                                         class="mr-2">
                                       </VIconButton>
                                       <VIconButton
-                                        v-if="item.setujuilembarkerjapenyelia != null && item.setujuilembarkerjapenyelia == true && (item.setujuilembarkerjaasman == null || item.setujuilembarkerjaasman == false)"
-                                        color="info" circle icon="fas fa-pager" outlined raised
-                                        @click="lembarKerja(item)" v-tooltip.bottom.left="'Lembar Kerja'" />
+                                        v-if="item.managersetujulaporanrepairfk != null && item.jenisorder == 'repair'"
+                                        v-tooltip.bottom.left="'Cetak Laporan Repair'" icon="feather:printer"
+                                        @click="cetakLaporanRepair(item)" color="success" raised circle class="mr-2">
+                                      </VIconButton>
                                       <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity"
                                         @click="detailOrder(item)" color="info" raised circle class="mr-2">
                                       </VIconButton>
@@ -1026,6 +1038,9 @@ const cetakSertifikatLembarKerja = (e) => {
   H.printBlade(`asman/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
 
+const cetakLaporanRepair = (e) => {
+  H.printBlade(`asman/cetak-laporan-repair?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
+}
 
 qzService.connect()
 // fetchdDropdown()

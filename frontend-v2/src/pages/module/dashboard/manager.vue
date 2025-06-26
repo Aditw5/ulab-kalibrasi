@@ -57,7 +57,8 @@
                                             <div class="search-menu-igd mb-2">
                                                 <div class="search-location-igd" style="width: 100%">
                                                     <i class="iconify" data-icon="feather:search"></i>
-                                                    <input type="text" placeholder="Cari Nama Alat, No Order Alat, No Pendaftaran"
+                                                    <input type="text"
+                                                        placeholder="Cari Nama Alat, No Order Alat, No Pendaftaran"
                                                         v-model="item.qsearch"
                                                         v-on:keyup.enter="fetchAlatKalibrasi(orderAlat)" />
                                                 </div>
@@ -114,7 +115,7 @@
                                                                         <i aria-hidden="true" class="iconify"
                                                                             data-icon="feather:calendar"></i>
                                                                         <span>{{ item.tglsetujuasmanlembarkerja
-                                                                        }}</span>
+                                                                            }}</span>
                                                                         <i aria-hidden="true"
                                                                             class="fas fa-circle icon-separator"></i>
                                                                         <i aria-hidden="true" class="iconify"
@@ -139,6 +140,14 @@
                                                                             v-if="item.setujuilembarkerjamanager != null && item.setujuilembarkerjamanager == true"
                                                                             :label="'Sertifikat Disetujui Manager'"
                                                                             :color="'primary'" class="ml-2" />
+                                                                        <VTag
+                                                                            v-if="item.asmansetujulaporanrepairfk != null"
+                                                                            :label="'Laporan Repair Disetujui Asman'"
+                                                                            :color="'info'" class="ml-2" />
+                                                                        <VTag
+                                                                            v-if="item.managersetujulaporanrepairfk != null"
+                                                                            :label="'Laporan Repair Disetujui Manager'"
+                                                                            :color="'info'" class="ml-2" />
                                                                     </div>
                                                                     <div>
                                                                         <span style="font-weight: bold;">Penyelia Teknik
@@ -157,17 +166,29 @@
                                                                     class="meta-right flex justify-center items-center">
                                                                     <div class="buttons">
                                                                         <VIconButton
-                                                                            v-if="item.setujuilembarkerjamanager != null || item.setujuilembarkerjamanager == true"
+                                                                            v-if="(item.setujuilembarkerjamanager != null || item.setujuilembarkerjamanager == true) && item.jenisorder == 'kalibrasi'"
                                                                             v-tooltip.bottom.left="'Cetak Sertifikat'"
                                                                             icon="feather:printer"
                                                                             @click="cetakSertifikatLembarKerja(item)"
                                                                             color="info" raised circle class="mr-2">
                                                                         </VIconButton>
                                                                         <VIconButton color="info" circle
-                                                                            v-if="item.setujuilembarkerjamanager == null || item.setujuilembarkerjamanager == false"
+                                                                            v-if="(item.setujuilembarkerjamanager == null || item.setujuilembarkerjamanager == false) && item.jenisorder == 'kalibrasi'"
                                                                             icon="fas fa-pager" outlined raised
                                                                             @click="lembarKerja(item)"
                                                                             v-tooltip.bottom.left="'Lembar Kerja'" />
+                                                                        <VIconButton color="warning" circle
+                                                                            v-if="item.managersetujulaporanrepairfk == null && item.jenisorder == 'repair'"
+                                                                            icon="fas fa-tools" outlined raised
+                                                                            @click="laporanRepair(item)"
+                                                                            v-tooltip.bottom.left="'Laporan Repair'" />
+                                                                        <VIconButton
+                                                                            v-if="item.managersetujulaporanrepairfk != null && item.jenisorder == 'repair'"
+                                                                            v-tooltip.bottom.left="'Cetak Laporan Repair'"
+                                                                            icon="feather:printer"
+                                                                            @click="cetakLaporanRepair(item)"
+                                                                            color="success" raised circle class="mr-2">
+                                                                        </VIconButton>
                                                                         <VIconButton v-tooltip.bottom.left="'Aktivitas'"
                                                                             icon="feather:activity"
                                                                             @click="detailOrder(item)" color="info"
@@ -227,12 +248,6 @@
                                                     :loading="isLoading"> Cari Data
                                                 </VButton>
                                             </div>
-                                            <VCard class="text-center pt-0 pb-0 mt-0">
-                                                <VRadio v-model="order" value="0" label="Belum Verif"
-                                                    name="outlined_radio" color="success" />
-                                                <VRadio v-model="order" value="1" label="Sudah Verif"
-                                                    name="outlined_radio" color="info" />
-                                            </VCard>
                                             <VPlaceholderPage :title="H.assets().notFound"
                                                 :subtitle="H.assets().notFoundSubtitle" class="my-6"
                                                 :class="[dataOrder.length !== 0 && 'is-hidden']">
@@ -265,9 +280,13 @@
                                                                         class="fas fa-circle icon-separator"></i>
                                                                     <i aria-hidden="true" class="iconify"
                                                                         data-icon="feather:calendar"></i>
-                                                                    <span>{{ items.tgldaftar }}</span>
+                                                                    <span>{{ items.tglregistrasi }}</span>
                                                                 </span>
                                                                 <br>
+                                                                <VTag v-if="items.jenisorder == 'repair'" color="warning"
+                                                                    rounded>Repair</VTag>
+                                                                <VTag v-if="items.jenisorder == 'kalibrasi'" color="info"
+                                                                    rounded>Kalibrasi</VTag>
                                                             </div>
                                                             <div class="meta-right">
                                                                 <VIconButton v-tooltip.bottom.left="'Detail'"
@@ -313,9 +332,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                    }}</span>
+                                                                }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                    }}</span>
+                                                                }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -348,9 +367,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                    }}</span>
+                                                                }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                    }}</span>
+                                                                }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -549,20 +568,11 @@ let so_norec = ref('')
 let statusOrder: any = ref([])
 let result: any = ref([])
 let isLoading: any = ref(false)
-let modalDetailOrder: any = ref(false)
 let modalFilter: any = ref(false)
-let modalDetailOrderVerify: any = ref(false)
-let isLoadingSave: any = ref(false)
-let isLoadDataOrder: any = ref(false)
-let isLoadDataSoNorec: any = ref(false)
 let dataPegawaiJakarta: any = ref([])
 let dataPegawaiGresik: any = ref([])
-let detailOrderVerify: any = ref(0)
-let detailOrderLayanan: any = ref(0)
 let totalData: any = ref(0)
 let isData: any = ref()
-let sourceItemSelect: any = ref([])
-let data2: any = ref([])
 let dataAlatKalibrasi: any = ref([])
 const activeTab = ref(0)
 let chartLO: any = ref({
@@ -718,6 +728,16 @@ const lembarKerja = (e: any) => {
     })
 }
 
+const laporanRepair = (e: any) => {
+    router.push({
+        name: 'module-manager-laporan-repair',
+        query: {
+            norec: e.norec,
+            norec_detail: e.norec_detail,
+        }
+    })
+}
+
 
 const getDetailVerify = (e: any) => {
     router.push({
@@ -761,7 +781,11 @@ const clear = () => {
 }
 
 const cetakSertifikatLembarKerja = (e) => {
-  H.printBlade(`manager/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
+    H.printBlade(`manager/cetak-sertifikat-lembar-kerja?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
+}
+
+const cetakLaporanRepair = (e) => {
+    H.printBlade(`asman/cetak-laporan-repair?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
 
 const showModalFilter = () => {
