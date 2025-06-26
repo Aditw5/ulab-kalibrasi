@@ -683,7 +683,7 @@ export function apiBackend(): any {
 
 export function printBlade(url: any): any {
   window.open(
-    "http://ulabumro.id:8000/service/" + url
+    "https://ulabumro.id:8000/service/" + url
     + "&user=" + useUserSession().getUser().pegawai.namaLengkap
     + '&kdprofile=' + useUserSession().getProfile().id
     + "&token=" + useUserSession().token,
