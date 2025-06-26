@@ -1028,17 +1028,6 @@ Route::controller(AuthCtrl::class)->group(function () {
     Route::post('service/auth/register', 'registerUser');
 });
 
-Route::get('service/auth/verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-
-    return response()->json([
-        'metaData' => [
-            'code'    => 200,
-            'message' => 'Email berhasil diverifikasi.',
-        ]
-    ], 200);
-})->middleware('signed')->name('verification.verify');
-
 Route::get('service/auth/verify-email/{id}/{hash}', function (Request $request, $id, $hash) {
     if (! $request->hasValidSignature()) {
         abort(403, 'Tautan verifikasi tidak valid atau sudah kadaluarsa.');
