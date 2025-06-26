@@ -241,7 +241,7 @@
                         @endforeach
                     </div>
 
-                    {{-- <div
+                    <div
                         style="font-size: 9pt; color: #000000; text-align: justify; margin: 20px auto 0 auto; max-width: 95%; font-style: italic; font-weight: normal;">
                         @foreach (explode("\n", trim($res['alat']->kesimpulanrepair_en)) as $paragraph)
                             @if (trim($paragraph) !== '')
@@ -250,7 +250,7 @@
                                 </p>
                             @endif
                         @endforeach
-                    </div> --}}
+                    </div>
                 </td>
             </tr>
         </table>
