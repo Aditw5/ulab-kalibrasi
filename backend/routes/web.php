@@ -145,6 +145,9 @@ use App\Http\Controllers\Sysadmin\MasterKSMCtrl;
 use App\Http\Controllers\Sysadmin\MasterVendorGiziCtrl;
 use App\Http\Controllers\WaServer\WaServerCtrl as WaServerWaServerCtrl;
 use App\Http\Controllers\WaServerCtrl;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Models\Master\User;
+use Illuminate\Auth\Events\Verified;
 
 
 Route::middleware(['jwt.auth'])->prefix("service")->group(function () {
@@ -1022,8 +1025,37 @@ Route::middleware(['log'])->group(function () {
 });
 Route::controller(AuthCtrl::class)->group(function () {
     Route::post('service/auth/login', 'login');
-    Route::post('service/auth/pasien', 'loginPasien');
+    Route::post('service/auth/register', 'registerUser');
 });
+
+Route::get('service/auth/verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    return response()->json([
+        'metaData' => [
+            'code'    => 200,
+            'message' => 'Email berhasil diverifikasi.',
+        ]
+    ], 200);
+})->middleware('signed')->name('verification.verify');
+
+Route::get('service/auth/verify-email/{id}/{hash}', function (Request $request, $id, $hash) {
+    if (! $request->hasValidSignature()) {
+        abort(403, 'Tautan verifikasi tidak valid atau sudah kadaluarsa.');
+    }
+    $user = User::findOrFail($id);
+    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        abort(403, 'Tautan verifikasi tidak cocok.');
+    }
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+    }
+    return redirect()->away('https://ulabumro.id/auth/signup-1?verified=1');
+    //  return redirect()->away('https://localhost:5173/auth/signup-1?verified=1');
+})
+->middleware('signed')
+->name('verification.verify');
 
 Route::get('/', function () {
     return view('welcome');

@@ -1,70 +1,99 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
 import type { TinySliderInstance } from 'tiny-slider/src/tiny-slider'
 import { tns } from 'tiny-slider/src/tiny-slider'
 import { useHead } from '@vueuse/head'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { onceImageErrored } from '/@src/utils/via-placeholder'
-
 import sleep from '/@src/utils/sleep'
 import { useNotyf } from '/@src/composable/useNotyf'
+import Password from 'primevue/password'
+import axios from 'axios'
 
-let slider: TinySliderInstance
 const sliderElement = ref<HTMLElement>()
 const router = useRouter()
 const notif = useNotyf()
 const step = ref(0)
-const selectedAvatar = ref(2)
 const isLoading = ref(false)
-const resizeValue = ref(70)
-const uploadModalOpen = ref(false)
-const avatars = [
-  '/images/avatars/svg/vuero-1.svg',
-  '/images/avatars/svg/vuero-2.svg',
-  '/images/avatars/svg/vuero-3.svg',
-  '/images/avatars/svg/vuero-4.svg',
-  '/images/avatars/svg/vuero-5.svg',
-  '/images/avatars/svg/vuero-6.svg',
-  '/images/avatars/svg/vuero-7.svg',
-  '/images/avatars/svg/vuero-8.svg',
-  '/images/avatars/svg/vuero-9.svg',
-  '/images/avatars/svg/vuero-10.svg',
-  '/images/avatars/svg/vuero-11.svg',
-  '/images/avatars/svg/vuero-12.svg',
-]
+
+const loginuser = reactive({
+  name: '',
+  nowa: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+})
+
+const isError = ref(false)
+const errorMsg = ref('')
+
+useHead({
+  title: 'Auth Signup - ' + import.meta.env.VITE_PROJECT,
+})
 
 const handleSignup = async () => {
-  if (!isLoading.value) {
-    step.value++
-    isLoading.value = true
-    sleep(2000)
+  isError.value = false
+  errorMsg.value = ''
+  if (
+    !loginuser.name ||
+    !loginuser.nowa ||
+    !loginuser.email ||
+    !loginuser.password ||
+    !loginuser.password_confirmation
+  ) {
+    errorMsg.value = 'Semua field wajib diisi.'
+    isError.value = true
+    return
+  }
+  if (loginuser.password !== loginuser.password_confirmation) {
+    errorMsg.value = 'Password dan Confirm Password tidak cocok.'
+    isError.value = true
+    return
+  }
+  isLoading.value = true
+  try {
+    const { data } = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}auth/register`,
+      { loginuser }
+    )
+    if (data.status === 200) {
+      notif.success('Registrasi berhasil! Cek email untuk verifikasi.')
+      router.push({ name: 'auth-login' })
+    } else {
+      errorMsg.value = data.result || data.metaData?.message || 'Registrasi gagal.'
+      isError.value = true
+    }
 
-    notif.dismissAll()
-    notif.success('Welcome, Erik Kovalsky')
-    router.push({ name: 'sidebar-dashboards' })
+  } catch (err: any) {
+    let message = ''
+    if (err.response?.data) {
+      message =
+        err.response.data.response?.result ||
+        err.response.data.metaData?.message ||
+        err.response.data.message ||
+        err.message
+    } else {
+      message = err.message
+    }
+    errorMsg.value = message
+    isError.value = true
+
+  } finally {
     isLoading.value = false
   }
 }
 
-const onAvatarChanged = (info: any) => {
-  // direct access to info object
-  const indexPrev = info.indexCached
-  const indexCurrent = info.index
-
-  // update style based on index
-  info.slideItems[indexPrev].classList.remove('active')
-  info.slideItems[indexCurrent].classList.add('active')
-
-  if (info.displayIndex) {
-    selectedAvatar.value = info.displayIndex - 1
-  }
-}
+const route = useRoute()
+const isVerified = ref(false)
 
 useHead({
-  title: 'Auth Signup 1 - Vuero',
+  title: 'Auth Signup - ' + import.meta.env.VITE_PROJECT,
 })
 
 onMounted(() => {
+  if (route.query.verified === '1') {
+    isVerified.value = true
+  }
   if (sliderElement.value) {
     slider = tns({
       container: sliderElement.value,
@@ -80,156 +109,111 @@ onMounted(() => {
       loop: true,
       edgePadding: 325,
     })
-    slider.events.on('indexChanged', onAvatarChanged)
-    onAvatarChanged(slider.getInfo())
   }
 })
 
 onUnmounted(() => {
-  if (slider) {
-    slider.events.off('indexChanged', onAvatarChanged)
-    slider.destroy()
-  }
 })
 </script>
-
 <template>
   <div>
     <div class="signup-nav">
       <div class="signup-nav-inner">
         <RouterLink :to="{ name: 'index' }" class="logo">
-          <AnimatedLogo width="36px" height="36px" />
+          <AnimatedLogoJMT width="70px" height="70px" />
         </RouterLink>
       </div>
     </div>
-
-    <div id="vuero-signup" class="signup-wrapper">
-      <div class="signup-steps" :class="[step === 0 && 'is-hidden']">
-        <div class="steps-container">
-          <div
-            class="step-icon is-active"
-            :class="[step >= 1 && 'is-active', step < 1 && 'is-inactive']"
-          >
-            <div class="inner">
-              <i aria-hidden="true" class="iconify" data-icon="feather:user"></i>
-            </div>
-            <span class="step-label">Profile Pic</span>
-          </div>
-          <div
-            class="step-icon"
-            :class="[step >= 2 && 'is-active', step < 2 && 'is-inactive']"
-          >
-            <div class="inner">
-              <i aria-hidden="true" class="iconify" data-icon="feather:shield"></i>
-            </div>
-            <span class="step-label">Account</span>
-          </div>
-          <div
-            class="step-icon"
-            :class="[step >= 3 && 'is-active', step < 3 && 'is-inactive']"
-          >
-            <div class="inner">
-              <i aria-hidden="true" class="iconify" data-icon="feather:check"></i>
-            </div>
-            <span class="step-label">Done</span>
-          </div>
-          <progress class="progress" :value="step - 1" :max="2">25%</progress>
-        </div>
+    <div v-if="isVerified" class="verify-success-page">
+      <div class="box has-text-centered">
+        <h1 class="title is-4">✅ Email Berhasil Diverifikasi!</h1>
+        <p class="subtitle mb-4">
+          Terima kasih, email Anda sudah terverifikasi.
+          Silakan klik tombol di bawah untuk login.
+        </p>
+        <VButton color="primary" @click="router.push({ name: 'auth-login' })">
+          Login Sekarang
+        </VButton>
       </div>
-
-      <img
-        :class="[step > 0 && 'is-hidden']"
-        class="card-bg"
-        src="/@src/assets/backgrounds/signup/vuero-signup.png?format=webp"
-        alt=""
-      />
-
+    </div>
+    <div v-if="!isVerified" id="vuero-signup" class="signup-wrapper">
+      <img class="card-bg h-hidden-mobile" src="/@src/assets/backgrounds/signup/ulab-signup.png" alt="" />
       <div class="hero is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <!-- Step 1 -->
             <div class="columns signup-columns" :class="[step !== 0 && 'is-hidden']">
               <div class="column is-4 is-offset-1">
                 <h1 id="main-signup-title" class="title is-3 signup-title">
-                  Become a Vuero
+                  Become a ULABers
                 </h1>
-                <h2 id="main-signup-subtitle" class="subtitle signup-subtitle">
-                  And simply join an unmatched design experience.
-                </h2>
                 <div class="signup-card">
-                  <form class="signup-form is-mobile-spaced" @submit.prevent>
+                  <form class="signup-form is-mobile-spaced" @submit.prevent="handleSignup">
+                    <VMessage color="danger" v-show="isError">{{ errorMsg }}</VMessage>
                     <div class="columns is-multiline">
                       <div class="column is-6">
                         <VField>
                           <VControl>
-                            <VInput type="text" autocomplete="given-name" />
-                            <VLabel raw class="auth-label">First Name</VLabel>
+                            <VInput type="text" autocomplete="given-name" v-model="loginuser.name" />
+                            <VLabel raw class="auth-label">Nama Lengkap</VLabel>
                           </VControl>
                         </VField>
                       </div>
                       <div class="column is-6">
                         <VField>
                           <VControl>
-                            <VInput type="text" autocomplete="family-name" />
-                            <VLabel raw class="auth-label">Last Name</VLabel>
+                            <VInput type="text" autocomplete="tel" v-model="loginuser.nowa" />
+                            <VLabel raw class="auth-label">No Whatsapp</VLabel>
                           </VControl>
                         </VField>
                       </div>
                       <div class="column is-12">
                         <VField>
                           <VControl>
-                            <VInput type="text" autocomplete="email" />
-                            <VLabel raw class="auth-label">Email Address</VLabel>
+                            <VInput type="email" autocomplete="email" v-model="loginuser.email" />
+                            <VLabel raw class="auth-label">Email</VLabel>
                           </VControl>
                         </VField>
                       </div>
                       <div class="column is-12">
-                        <div class="signup-type">
-                          <div class="box-wrap">
-                            <input type="radio" name="signup_type" checked />
-                            <div class="signup-box">
-                              <i aria-hidden="true" class="lnil lnil-coffee-cup"></i>
-                              <div class="meta">
-                                <span>Free</span>
-                                <span>Nice to get started</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="box-wrap">
-                            <input type="radio" name="signup_type" />
-                            <div class="signup-box">
-                              <i aria-hidden="true" class="lnil lnil-crown-alt-1"></i>
-                              <div class="meta">
-                                <span>Paid</span>
-                                <span>Get a lot more features</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <VField>
+                          <VControl icon="lnil lnil-lock-alt autv-icon">
+                            <Password inputStyle=" padding-top: 14px;
+                              height: 60px;
+                              border-radius: 10px;
+                              padding-left: 55px;
+                              transition: all 0.3s;" v-model="loginuser.password" toggleMask placeholder=""
+                              class="is-rounded w-100 is-login-pass" />
+                            <VLabel raw class="auth-label">Password</VLabel>
+                          </VControl>
+                        </VField>
+                      </div>
+                      <div class="column is-12">
+                        <VField>
+                          <VControl icon="lnil lnil-lock-alt autv-icon">
+                            <Password inputStyle=" padding-top: 14px;
+                              height: 60px;
+                              border-radius: 10px;
+                              padding-left: 55px;
+                              transition: all 0.3s;" v-model="loginuser.password_confirmation" toggleMask
+                              placeholder="" class="is-rounded w-100 is-login-pass" />
+                            <VLabel raw class="auth-label">Confirm Password</VLabel>
+                          </VControl>
+                        </VField>
                       </div>
                     </div>
-
                     <div class="control is-agree">
                       <span>
-                        By continuing you agree to our <a href="#">Terms</a> and
+                        By signup you agree to our <a href="#">Terms</a> and
                         <a href="#">Privacy</a>
                       </span>
                     </div>
-
                     <div class="button-wrap has-help">
-                      <VButton
-                        color="primary"
-                        size="big"
-                        bold
-                        fullwidth
-                        rounded
-                        @click="step++"
-                      >
-                        Continue
+                      <VButton type="submit" color="primary" size="big" bold fullwidth rounded :loading="isLoading">
+                        Signup
                       </VButton>
                       <span>
                         Or
-                        <RouterLink :to="{ name: 'auth-login-1' }"> Sign In </RouterLink>
+                        <RouterLink :to="{ name: 'auth-login' }"> Sign In </RouterLink>
                         to your account.
                       </span>
                     </div>
@@ -237,182 +221,35 @@ onUnmounted(() => {
                 </div>
               </div>
             </div>
-
-            <!-- Step 2 -->
-            <div class="columns signup-columns" :class="[step !== 1 && 'is-hidden']">
-              <form class="column is-8" @submit.prevent>
-                <div class="signup-profile-wrapper">
-                  <h1 class="title is-5 signup-title has-text-centered">
-                    Add a profile picture
-                  </h1>
-                  <h2 class="subtitle signup-subtitle has-text-centered">
-                    This is your visual identity.
-                  </h2>
-                  <div class="picture-selector">
-                    <div class="image-container">
-                      <img :src="avatars[selectedAvatar]" alt="" />
-                      <div
-                        class="upload-button"
-                        role="button"
-                        tabindex="0"
-                        @keydown.space.prevent="uploadModalOpen = true"
-                        @click="uploadModalOpen = true"
-                      >
-                        <i
-                          aria-hidden="true"
-                          class="iconify"
-                          data-icon="feather:plus"
-                        ></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="divider-container">
-                  <div class="divider">
-                    <span>Or select an avatar</span>
-                  </div>
-                </div>
-
-                <div ref="sliderElement" class="avatar-carousel resized-mobile">
-                  <div v-for="(avatar, key) in avatars" :key="key" class="carousel-item">
-                    <div class="image-wrapper">
-                      <img
-                        :src="avatar"
-                        alt=""
-                        @error.once="(event) => onceImageErrored(event, '150x150')"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="button-wrap is-centered has-text-centered">
-                  <VButton color="primary" size="big" rounded lower @click="step++">
-                    Continue
-                  </VButton>
-                </div>
-              </form>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="columns signup-columns" :class="[step !== 2 && 'is-hidden']">
-              <div class="column is-4 is-offset-4 username-form">
-                <h1 class="title is-5 signup-title has-text-centered">Pick a username</h1>
-                <h2 class="subtitle signup-subtitle has-text-centered">
-                  Your username is how others will find you on Vuero so pick a good one.
-                  You can change it later.
-                </h2>
-                <form class="signup-form" @submit.prevent="handleSignup">
-                  <div class="columns is-multiline">
-                    <div class="column is-12">
-                      <VField>
-                        <VControl>
-                          <VInput type="text" autocomplete="username" />
-                          <VLabel raw class="auth-label">Username</VLabel>
-                        </VControl>
-                      </VField>
-                    </div>
-                    <div class="column is-12">
-                      <VField>
-                        <VControl>
-                          <VInput type="password" autocomplete="new-password" />
-                          <VLabel raw class="auth-label">Password</VLabel>
-                        </VControl>
-                      </VField>
-                    </div>
-                    <div class="column is-12">
-                      <VField>
-                        <VControl>
-                          <VInput type="password" autocomplete="new-password" />
-                          <VLabel raw class="auth-label">Confirm Password</VLabel>
-                        </VControl>
-                      </VField>
-                    </div>
-                    <div class="column is-12">
-                      <VField>
-                        <VControl class="has-switch">
-                          <VLabel>Send me marketing and transaction emails</VLabel>
-                          <VSwitchBlock color="success" checked />
-                        </VControl>
-                      </VField>
-                    </div>
-                  </div>
-
-                  <div class="button-wrap is-centered has-text-centered">
-                    <VButton
-                      size="big"
-                      color="primary"
-                      type="submit"
-                      rounded
-                      primary
-                      lower
-                      :loading="isLoading"
-                    >
-                      Done
-                    </VButton>
-                  </div>
-                </form>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- upload modal -->
-    <VModal
-      :open="uploadModalOpen"
-      title="Upload and crop your picture"
-      actions="center"
-      size="small"
-      @close="uploadModalOpen = false"
-    >
-      <template #content>
-        <div class="has-text-centered">
-          <div class="upload-demo-wrap"><VAvatar size="big" /></div>
-
-          <small class="help-text">Use the slider to resize the image</small>
-
-          <VField class="resize-handler">
-            <VControl>
-              <Slider v-model="resizeValue" :tooltips="false" />
-            </VControl>
-          </VField>
-        </div>
-      </template>
-      <template #cancel><wbr /></template>
-      <template #action>
-        <VField grouped>
-          <VControl>
-            <div class="file">
-              <label class="file-label">
-                <input class="file-input" type="file" name="resume" />
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <i aria-hidden="true" class="fas fa-cloud-upload-alt"></i>
-                  </span>
-                  <span class="file-label"> Choose a file… </span>
-                </span>
-              </label>
-            </div>
-          </VControl>
-          <VControl>
-            <VButton class="upload-result" size="big" outlined disabled>
-              Confirm
-            </VButton>
-          </VControl>
-        </VField>
-      </template>
-    </VModal>
   </div>
 </template>
 
 <style lang="scss">
+
+.verify-success-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+.box.has-text-centered {
+  max-width: 400px;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
 .signup-nav {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 65px;
+  height: 50px;
   z-index: 99;
 
   .signup-nav-inner {
@@ -426,7 +263,7 @@ onUnmounted(() => {
     .logo {
       img {
         display: block;
-        min-width: 48px;
+        min-width: 68px;
         max-width: 48px;
       }
     }
@@ -567,7 +404,7 @@ onUnmounted(() => {
     right: 0;
     bottom: 0;
     display: block;
-    width: 90%;
+    width: 100%;
     transition: all 0.3s; // transition-all test
 
     &.faded {
@@ -601,7 +438,7 @@ onUnmounted(() => {
             color: var(--muted-grey);
           }
 
-          > div {
+          >div {
             margin-left: auto;
             transform: scale(0.8);
           }
@@ -635,8 +472,8 @@ onUnmounted(() => {
             background: var(--fade-grey-light-6);
             border-color: var(--placeholder);
 
-            ~ .auth-label,
-            ~ .autv-icon i {
+            ~.auth-label,
+            ~.autv-icon i {
               color: var(--muted-grey);
             }
           }
@@ -784,7 +621,7 @@ onUnmounted(() => {
         display: flex;
         align-items: center;
 
-        > span {
+        >span {
           margin-left: 12px;
           font-family: var(--font);
 
@@ -844,7 +681,7 @@ onUnmounted(() => {
           opacity: 0;
           cursor: pointer;
 
-          &:checked + .signup-box {
+          &:checked+.signup-box {
             border-color: var(--primary);
 
             i {
@@ -1152,8 +989,8 @@ onUnmounted(() => {
             background: var(--dark-sidebar-dark-4);
             border-color: var(--dark-sidebar-light-12);
 
-            ~ .auth-label,
-            ~ .auth-icon i {
+            ~.auth-label,
+            ~.auth-icon i {
               color: var(--primary);
             }
           }
@@ -1163,7 +1000,7 @@ onUnmounted(() => {
       .signup-type {
         .box-wrap {
           input {
-            &:checked + .signup-box {
+            &:checked+.signup-box {
               border-color: var(--primary);
 
               i {
@@ -1193,7 +1030,7 @@ onUnmounted(() => {
 
       .button-wrap {
         &.has-help {
-          > span {
+          >span {
             color: var(--light-text);
 
             a {
@@ -1228,6 +1065,7 @@ onUnmounted(() => {
   .divider-container {
     .divider {
       span {
+
         &::before,
         &::after {
           border-color: var(--dark-sidebar-light-18);

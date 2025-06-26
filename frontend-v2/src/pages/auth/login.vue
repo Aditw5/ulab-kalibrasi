@@ -42,11 +42,11 @@ const listMenu = useStorage('list_menu', [])
 listMenu.value = []
 
 // onMounted(() => {
-  // const script = document.createElement('script');
-  // script.src = 'https://www.google.com/recaptcha/api.js';
-  // script.async = true;
-  // script.defer = true;
-  // document.body.appendChild(script);
+// const script = document.createElement('script');
+// script.src = 'https://www.google.com/recaptcha/api.js';
+// script.async = true;
+// script.defer = true;
+// document.body.appendChild(script);
 // })
 useHead({
   title: 'Auth Login - ' + import.meta.env.VITE_PROJECT,
@@ -99,7 +99,7 @@ const handleLogin = () => {
             router.push(redirect)
           } else {
             router.push({
-              name: res.data.kelompokUser.menu !=null? res.data.kelompokUser.menu : 'app',
+              name: res.data.kelompokUser.menu != null ? res.data.kelompokUser.menu : 'app',
             })
           }
 
@@ -133,10 +133,10 @@ onMounted(async () => {
 });
 
 const loadModels = async () => {
-    await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-    await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-    await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-    await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+  await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+  await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+  await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+  await faceapi.nets.faceExpressionNet.loadFromUri('/models');
 }
 
 
@@ -319,16 +319,6 @@ const onPlayHandler = () => {
               <p>Reset your account password.</p>
             </div>
             <form :class="[step !== 'login' && 'is-hidden']" class="login-wrapper" @submit.prevent="handleLogin">
-              <!-- <VMessage color="primary">
-                <div>
-                  <strong class="pr-1">email:</strong>
-                  <span>john.doe@cssninja.io</span>
-                </div>
-                <div>
-                  <strong class="pr-1">password:</strong>
-                  <span>ada.lovelace</span>
-                </div>
-              </VMessage> -->
               <VMessage color="danger" v-show="isError">{{ error }}</VMessage>
               <VField>
                 <VControl icon="lnil lnil-envelope autv-icon">
@@ -338,18 +328,14 @@ const onPlayHandler = () => {
                 </VControl>
               </VField>
               <VField>
-                <VControl icon="lnil lnil-lock-alt autv-icon" >
+                <VControl icon="lnil lnil-lock-alt autv-icon">
                   <VLabel class="auth-label">Password</VLabel>
-                 <!--  <VInput type="password" autocomplete="current-password" v-model="kataSandi"
-                    @input="changeUser($event.target.value)" />
-                    -->
-                    <Password v-model="kataSandi" toggleMask   placeholder=""  class="is-rounded w-100 is-login-pass"
-                      inputStyle=" padding-top: 14px;
+                  <Password v-model="kataSandi" toggleMask placeholder="" class="is-rounded w-100 is-login-pass"
+                    inputStyle=" padding-top: 14px;
                       height: 60px;
                       border-radius: 10px;
                       padding-left: 55px;
-                      transition: all 0.3s;"
-                      @input="changeUser($event.target.value)"/>
+                      transition: all 0.3s;" @input="changeUser($event.target.value)" />
                 </VControl>
               </VField>
               <!-- <VField>
@@ -364,7 +350,6 @@ const onPlayHandler = () => {
                 <VControl class="is-flex">
                   <VLabel raw class="remember-toggle">
                     <VInput raw type="checkbox" />
-
                     <span class="toggler">
                       <span class="active">
                         <i aria-hidden="true" class="iconify" data-icon="feather:check"></i>
@@ -384,13 +369,13 @@ const onPlayHandler = () => {
               <div class="button-wrap has-help">
                 <VButton id="login-button" icon="feather:arrow-right" :loading="isLoading" color="primary" type="submit"
                   size="big" rounded raised bold>
-                  Confirm
+                  Login
                 </VButton>
-                <!-- <span>
+                <span>
                   Or
                   <RouterLink :to="{ name: 'auth-signup-1' }">Create</RouterLink>
                   an account.
-                </span> -->
+                </span>
               </div>
             </form>
 
@@ -430,12 +415,14 @@ const onPlayHandler = () => {
 .container {
   text-align: center;
 }
+
 video {
   width: 100%;
   // max-width: 400px;
   border-radius: 10px;
   margin-bottom: 10px;
 }
+
 // canvas {
 //       position: absolute;
 //     }
@@ -446,6 +433,7 @@ button {
   border: none;
   cursor: pointer;
 }
+
 .modern-login {
   position: relative;
   background: var(--white);
