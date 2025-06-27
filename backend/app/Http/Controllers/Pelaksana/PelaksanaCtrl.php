@@ -1409,20 +1409,6 @@ class PelaksanaCtrl extends Controller
             ->where('mtr.norec', $r['norec'])
             ->first();
 
-        $res['lembarKerja'] = DB::table('lembarkerja_t as lk')
-            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
-            ->select(
-                'lk.*',
-                'mtrd.tglkalibrasilembarkerja',
-                'mtrd.tempatKalibrasilembarkerja',
-                'mtrd.kondisiRuanganlembarkerja',
-                'mtrd.suhulembarkerja',
-                'mtrd.kelembabanRelatiflembarkerja'
-            )
-            ->where('mtrd.norec', $r['norec_detail'])
-            ->where('lk.statusenabled', true)
-            ->get();
-
         $res['laporanRepair'] = DB::table('laporanrepair_t as lp')
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lp.detailregistrasifk')
             ->select(
@@ -1446,6 +1432,7 @@ class PelaksanaCtrl extends Controller
             ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
             ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
             ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasirepair')
             ->select(
                 'pg.id as penyeliateknikfk',
                 'pg.namalengkap as penyeliateknik',
@@ -1465,6 +1452,7 @@ class PelaksanaCtrl extends Controller
                 'mrk.namamerk',
                 'tp.namatipe',
                 'sn.namaserialnumber',
+                'lk.lokasi as lokasirepair',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -1472,7 +1460,7 @@ class PelaksanaCtrl extends Controller
             ->where('mtrd.norec', $r['norec_detail'])
             ->first();
 
-        $tr = new GoogleTranslate('en'); 
+        $tr = new GoogleTranslate('en');
         $translated = $tr->translate($data->kesimpulanrepair);
         $res['alat']->kesimpulanrepair_en = $translated;
         $res['pdf']  = $r['pdf'];
