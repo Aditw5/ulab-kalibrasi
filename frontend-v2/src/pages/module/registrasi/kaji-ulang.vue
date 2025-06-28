@@ -56,6 +56,29 @@
                         </div>
                       </div>
                     </div>
+                    <div class="column is-12" v-if="dataNamaPaket != null">
+                      <div class="columns is-multiline">
+                        <div class="ml-5 column is-3">
+                          <div class="meta-container">
+                            <div class="meta-content">
+                              <h4>Paket Kalibrasi {{ dataNamaPaket }}</h4>
+                              <p>
+                                <span>Estimaasi Tanggal selesai</span>
+                              </p>
+                              <p>
+                                <span><b>{{ dataPaketTanggal }}</b></span>
+                              </p>
+                            </div>
+                            <div class="timer ml-3">
+                              <div>
+                                <span>{{ dataPaket }}</span>
+                                <span>Hari</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div class="column is-12">
                       <div class="column is-12">
                         <table class="tb-custom mt-3">
@@ -104,8 +127,9 @@
                                   <div class="columns is-multiline">
                                     <div class="column is-12">
                                       <div class="title-ruangan">{{ itemsDet.nopendaftaran }}
-                                        <VTag v-if="itemsDet.tanggalpenolakanregis != null" color="danger" label="Alat Ditolak" />
-                                      </div> 
+                                        <VTag v-if="itemsDet.tanggalpenolakanregis != null" color="danger"
+                                          label="Alat Ditolak" />
+                                      </div>
                                       <div class="title-layan">{{ itemsDet.namaproduk }} </div>
                                       <div>
                                         <VTag color="info" :label="itemsDet.namaperusahaan" class="mr-2" />
@@ -113,6 +137,9 @@
                                             v-if="itemsDet.iskaji == true" /> -->
                                         <VTag :color="itemsDet.iskaji == true ? 'primary' : 'danger'"
                                           :label="itemsDet.iskaji == true ? 'Sudah Kaji' : 'Belum Kaji'" />
+                                      </div>
+                                      <div>
+                                        <VTag color="warning" :label="itemsDet.lingkupkalibrasi" />
                                       </div>
                                     </div>
                                   </div>
@@ -182,8 +209,8 @@
     </div>
   </div>
 
-  <VModal :open="modalBatalRegis" title="Tolak Alat" size="medium" actions="right"
-    @close="modalBatalRegis = false" cancelLabel="Tutup">
+  <VModal :open="modalBatalRegis" title="Tolak Alat" size="medium" actions="right" @close="modalBatalRegis = false"
+    cancelLabel="Tutup">
     <template #content>
       <div class="columns is-multiline">
         <div class="column is-12">
@@ -271,10 +298,9 @@
           <div class="column is-4">
             <VField>
               <VLabel>Lingkup Kalibrasi</VLabel>
-              <VControl>
-                <AutoComplete v-model="input.lingkupkalibrasi" :suggestions="d_lingkup" @complete="fetchLingkup($event)"
-                  :optionLabel="'label'" :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
-                  :loadingIcon="'pi pi-spinner'" :field="'label'" placeholder="ketik untuk mencari..." />
+              <VControl icon="feather:box">
+                <VInput type="text" v-model="input.lingkupkalibrasiFill" placeholder="Nama Pelayanan" class="is-rounded"
+                  disabled />
               </VControl>
             </VField>
           </div>
@@ -316,10 +342,17 @@
               </VControl>
             </VField>
           </div>
-          <div class="column is-2">
+          <div class="column is-2" v-if="dataNamaPaket == null">
             <VField label="Durasi Hari">
               <VControl icon="lnir lnir-repeat-one">
                 <VInput type="number" v-model="input.durasikalbrasi" placeholder="Jumlah" class="is-rounded" />
+              </VControl>
+            </VField>
+          </div>
+          <div class="column is-2" v-if="dataNamaPaket != null">
+            <VField label="Durasi Hari">
+              <VControl icon="lnir lnir-repeat-one">
+                <VInput type="number" v-model="input.durasikalbrasi" placeholder="Jumlah" class="is-rounded" disabled/>
               </VControl>
             </VField>
           </div>
@@ -392,6 +425,9 @@ const modalFilter: any = ref(false)
 const isLoadingPop: any = ref(false)
 const mitra: any = ref({})
 const dataSource: any = ref([])
+const dataPaket: any = ref()
+const dataNamaPaket: any = ref()
+const dataPaketTanggal: any = ref()
 const dataSourcePetugas: any = ref([])
 const dataPenunjang: any = ref([])
 const router = useRouter()
@@ -565,10 +601,6 @@ const simpan = async () => {
   }
   if (!input.value.lokasikalibrasi.value) {
     H.alert('error', 'Lokasi Kalibrasi harus di isi')
-    return
-  }
-  if (!input.value.lingkupkalibrasi.value) {
-    H.alert('error', 'Lingkup Kalibrasi harus di isi')
     return
   }
   if (!input.value.penyeliateknik.value) {
@@ -768,6 +800,9 @@ const fetchLayanan = async () => {
   await useApi().get(
     `/registrasi/layana-mitra?norec_pd=${NOREC_PD}&tglregistrasi=${TGLREGISTRASI}`).then(async (response: any) => {
       dataSource.value = response.detail
+      dataNamaPaket.value = response.detail[0].namapaket
+      dataPaket.value = response.totalDurasi
+      dataPaketTanggal.value = response.tanggalSelesai
       item.TOTAL = response.total
       item.length = response.length
       isLoadingBill.value = false
@@ -820,6 +855,8 @@ const KajiUlang = async (e: any) => {
   });
 
   input.value.namaproduk = e.namaproduk ?? '';
+  input.value.lingkupkalibrasiFill = e.lingkupkalibrasi ?? '';
+  input.value.durasikalbrasi = e.durasikalbrasi ?? '';
   kajiUlangData.value = e;
   modalKajiUlang.value = true;
   setAutoFill();
@@ -941,6 +978,98 @@ headerPasien(ID_MITRA, NOREC_PD, TGLREGISTRASI)
 @import '/@src/scss/abstracts/all';
 @import '/@src/scss/custom/config';
 @import '/@src/scss/module/dashboard/bedah.scss';
+
+.timer {
+
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 50px;
+  border-radius: 12px;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  font-family: var(--font);
+  text-align: center;
+
+  span {
+    display: block;
+
+    &:first-child {
+      font-size: 1.3rem;
+      color: var(--smoke-white);
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    &:nth-child(2) {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--primary-light-40);
+    }
+  }
+}
+
+.meta-container {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+
+  .meta-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    max-height: 46px;
+    background: var(--white);
+    border: 1px solid var(--fade-grey-dark-3);
+    border-radius: 500px;
+
+    img {
+      display: flex;
+      height: 22px;
+      width: 22px;
+    }
+  }
+
+  .meta-content {
+    margin-left: 8px;
+    font-family: var(--font);
+    line-height: 1.3;
+
+    h4 {
+      font-family: var(--font-alt);
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--dark-text);
+    }
+
+    p {
+      display: flex;
+      align-items: center;
+
+      .fa-circle {
+        font-size: 5px;
+        margin: 0 10px;
+      }
+
+      .fa-star {
+        position: relative;
+        top: -1px;
+        font-size: 12px;
+        color: #fab82a;
+
+        +span {
+          color: var(--dark-text);
+        }
+      }
+    }
+  }
+}
 
 tabs-wrapper.is-slider .tabs,
 .tabs-wrapper-alt.is-slider .tabs {

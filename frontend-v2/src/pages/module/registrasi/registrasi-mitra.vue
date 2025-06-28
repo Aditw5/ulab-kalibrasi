@@ -133,16 +133,16 @@
               <div class="column is-2">
                 <VField>
                   <VControl raw subcontrol>
-                    <VCheckbox v-model="item.rentangUkur" true-value="standarLab" label="Standar Lab" class="p-0" color="primary"
-                      square />
+                    <VCheckbox v-model="item.rentangUkur" true-value="standarLab" label="Standar Lab" class="p-0"
+                      color="primary" square />
                   </VControl>
                 </VField>
               </div>
               <div class="column is-3">
                 <VField>
                   <VControl raw subcontrol>
-                    <VCheckbox v-model="item.rentangUkur" true-value="permintaanPelanggan" label="Permintaan Pelanggan" class="p-0"
-                      color="primary" square />
+                    <VCheckbox v-model="item.rentangUkur" true-value="permintaanPelanggan" label="Permintaan Pelanggan"
+                      class="p-0" color="primary" square />
                   </VControl>
                 </VField>
               </div>
@@ -158,85 +158,111 @@
             <div class="columns is-multiline px-3">
               <div class="column is-12" v-if="item.rentangUkur == 'permintaanPelanggan'">
                 <VField label="Keterangan Permintaan Pelanggan">
-                  <VTextarea rows="2" placeholder="Permintaan Pelanggan......" v-model="item.rentangUkurketPermintaanPelanggan"></VTextarea>
+                  <VTextarea rows="2" placeholder="Permintaan Pelanggan......"
+                    v-model="item.rentangUkurketPermintaanPelanggan">
+                  </VTextarea>
                 </VField>
               </div>
             </div>
           </div>
+          <div class="column is-12">
+            <VField horizontal label="Paket Kalibrasi" class="is-rounded-select_Z  is-autocomplete-select">
+              <VControl icon="fa:user-md" fullwidth class="prime-auto ">
+                <AutoComplete v-model="item.paketkalibrasi" :suggestions="d_paketkalibrasi"
+                  @complete="fetchpaketKalibrasi($event)" :optionLabel="'label'" :dropdown="true" :minLength="3"
+                  class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'" :field="'label'"
+                  placeholder="ketik untuk mencari..." />
+              </VControl>
+            </VField>
+          </div>
           <Fieldset legend="- Order Alat" :toggleable="true">
-            <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
-              <table width="100%">
-                <thead>
-                  <tr class="tr-po">
-                    <th class="th-po" width="25%" style="vertical-align:inherit;text-align: center;">Nama Alat</th>
-                    <th class="th-po" width="15%" style="vertical-align:inherit;text-align: center;">Merk</th>
-                    <th class="th-po" width="15%" style="vertical-align:inherit;text-align: center;">Tipe</th>
-                    <th class="th-po" width="15%" style="vertical-align:inherit;text-align: center;">S/N</th>
-                    <th class="th-po" width="8%" style="vertical-align:inherit;text-align: center;">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody v-for="(items, index) in input.detailOrderAlat" :key="index">
-                  <tr class="tr-po">
-                    <td class="td-po">
-                      <div class="column pt-3 pb-0">
-                        <VField>
-                          <VControl>
-                            <AutoComplete v-model="items.alat" :suggestions="d_produk" @complete="fetchProduk($event)"
-                              :optionLabel="'label'" :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
-                              :loadingIcon="'pi pi-spinner'" :field="'label'" placeholder="ketik untuk mencari..." />
-                          </VControl>
-                        </VField>
-                      </div>
-                    </td>
-                    <td class="td-po">
-                      <div class="column pt-3 pb-0">
-                        <VField>
-                          <VControl>
-                            <AutoComplete v-model="items.merkalat" :suggestions="d_merk" @complete="fetchmerk($event)"
-                              :optionLabel="'label'" :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
-                              :loadingIcon="'pi pi-spinner'" :field="'label'" placeholder="ketik untuk mencari..." />
-                          </VControl>
-                        </VField>
-                      </div>
-                    </td>
-                    <td class="td-po">
-                      <div class="column pt-3 pb-0">
-                        <VField>
-                          <VControl>
-                            <AutoComplete v-model="items.tipealat" :suggestions="d_tipe" @complete="fetchtipe($event)"
-                              :optionLabel="'label'" :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
-                              :loadingIcon="'pi pi-spinner'" :field="'label'" placeholder="ketik untuk mencari..." />
-                          </VControl>
-                        </VField>
-                      </div>
-                    </td>
-                    <td class="td-po">
-                      <div class="column pt-3 pb-0">
-                        <VField>
-                          <VControl>
-                            <AutoComplete v-model="items.serialnumber" :suggestions="d_sn"
-                              @complete="fetchserialnumber($event)" :optionLabel="'label'" :dropdown="true"
-                              :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
-                              :field="'label'" placeholder="ketik untuk mencari..." />
-                          </VControl>
-                        </VField>
-                      </div>
-                    </td>
-                    <td class="td-po" style="vertical-align: inherit;">
-                      <div class="column is-12 pl-0 pr-0">
-                        <VButtons style="justify-content: space-around;">
-                          <VIconButton type="button" raised circle icon="feather:plus" v-tooltip-prime.bottom="'Tambah'"
-                            @click="addNewAlat()" outlined color="info">
-                          </VIconButton>
-                          <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
-                            icon="feather:trash" @click="removeAlat(items)" color="danger">
-                          </VIconButton>
-                        </VButtons>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="mt-5 form-section-inner is-horizontal">
+              <!-- wrapper untuk scroll horizontal di tablet/dekstop kecil -->
+              <div class="table-responsive">
+                <table class="table-po" width="100%">
+                  <thead>
+                    <tr class="tr-po">
+                      <th class="th-po" width="25%" style="text-align:center;">Nama Alat</th>
+                      <th class="th-po" width="15%" style="text-align:center;">Merk</th>
+                      <th class="th-po" width="15%" style="text-align:center;">Tipe</th>
+                      <th class="th-po" width="15%" style="text-align:center;">S/N</th>
+                      <th class="th-po" width="15%" style="text-align:center;">Lingkup Kalibrasi</th>
+                      <th class="th-po" width="8%" style="text-align:center;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody v-for="(items, index) in input.detailOrderAlat" :key="index">
+                    <tr class="tr-po">
+                      <td class="td-po" data-label="Nama Alat">
+                        <div class="column pt-3 pb-0">
+                          <VField>
+                            <VControl>
+                              <AutoComplete v-model="items.alat" :suggestions="d_produk" @complete="fetchProduk($event)"
+                                optionLabel="label" :dropdown="true" :minLength="3" class="is-input" appendTo="body"
+                                loadingIcon="pi pi-spinner" field="label" placeholder="ketik untuk mencari..." />
+                            </VControl>
+                          </VField>
+                        </div>
+                      </td>
+                      <td class="td-po" data-label="Merk">
+                        <div class="column pt-3 pb-0">
+                          <VField>
+                            <VControl>
+                              <AutoComplete v-model="items.merkalat" :suggestions="d_merk" @complete="fetchmerk($event)"
+                                optionLabel="label" :dropdown="true" :minLength="3" class="is-input" appendTo="body"
+                                loadingIcon="pi pi-spinner" field="label" placeholder="ketik untuk mencari..." />
+                            </VControl>
+                          </VField>
+                        </div>
+                      </td>
+                      <td class="td-po" data-label="Tipe">
+                        <div class="column pt-3 pb-0">
+                          <VField>
+                            <VControl>
+                              <AutoComplete v-model="items.tipealat" :suggestions="d_tipe" @complete="fetchtipe($event)"
+                                optionLabel="label" :dropdown="true" :minLength="3" class="is-input" appendTo="body"
+                                loadingIcon="pi pi-spinner" field="label" placeholder="ketik untuk mencari..." />
+                            </VControl>
+                          </VField>
+                        </div>
+                      </td>
+                      <td class="td-po" data-label="S/N">
+                        <div class="column pt-3 pb-0">
+                          <VField>
+                            <VControl>
+                              <AutoComplete v-model="items.serialnumber" :suggestions="d_sn"
+                                @complete="fetchserialnumber($event)" optionLabel="label" :dropdown="true"
+                                :minLength="3" class="is-input" appendTo="body" loadingIcon="pi pi-spinner"
+                                field="label" placeholder="ketik untuk mencari..." />
+                            </VControl>
+                          </VField>
+                        </div>
+                      </td>
+                      <td class="td-po" data-label="Lingkup Kalibrasi">
+                        <div class="column pt-3 pb-0">
+                          <VField>
+                            <VControl>
+                              <AutoComplete v-model="items.lingkupkalibrasi" :suggestions="d_lingkup"
+                                @complete="fetchLingkup($event)" optionLabel="label" :dropdown="true" :minLength="3"
+                                class="is-input" appendTo="body" loadingIcon="pi pi-spinner" field="label"
+                                placeholder="ketik untuk mencari..." />
+                            </VControl>
+                          </VField>
+                        </div>
+                      </td>
+                      <td class="td-po" data-label="Aksi" style="vertical-align:inherit;">
+                        <div class="column is-12 pl-0 pr-0">
+                          <VButtons style="justify-content: space-around;">
+                            <VIconButton type="button" raised circle icon="feather:plus"
+                              v-tooltip-prime.bottom="'Tambah'" @click="addNewAlat()" outlined color="info" />
+                            <VIconButton type="button" raised circle icon="feather:trash"
+                              v-tooltip-prime.bottom="'Hapus'" @click="removeAlat(items)" outlined color="danger" />
+                          </VButtons>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </Fieldset>
         </div>
@@ -294,6 +320,8 @@ const d_merk = ref([])
 const d_tipe = ref([])
 const d_sn = ref([])
 const d_lokasikalibrasi = ref([])
+const d_paketkalibrasi = ref([])
+const d_lingkup = ref([])
 const { y } = useWindowScroll()
 const router = useRouter()
 const isStuck = computed(() => {
@@ -372,6 +400,23 @@ const fetchlokasiKalibrasi = async (filter: any) => {
   })
 }
 
+const fetchpaketKalibrasi = async (filter: any) => {
+  await useApi().get(
+    `registrasi/dropdown-paket-kalibrasi?query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_paketkalibrasi.value = response
+    console.log(response)
+  })
+}
+
+const fetchLingkup = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/lingkupkalibrasi_m?select=id,lingkupkalibrasi&param_search=lingkupkalibrasi&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_lingkup.value = response
+  })
+}
+
 const mitraByID = (id: any) => {
   isLoadingMitra.value = true
   let paramsEdit = ''
@@ -400,7 +445,8 @@ const saveRegistrasi = async () => {
     namaalatfk: alat.alat?.value || null,
     namamerkfk: alat.merkalat?.value || null,
     namatipefk: alat.tipealat?.value || null,
-    serialnumberfk: alat.serialnumber?.value || null
+    serialnumberfk: alat.serialnumber?.value || null,
+    lingkupkalibrasifk: alat.lingkupkalibrasi?.value || null
   }));
 
   let json = {
@@ -412,11 +458,12 @@ const saveRegistrasi = async () => {
       'statusmitra': STATUSMITRA ? STATUSMITRA : 'LAMA',
       'namaperusahaan': mitra.value.namaperusahaan,
       'lokasikalibrasi': item.lokasi.value,
+      'paketkalibrasi': item.paketkalibrasi.value,
       'namapenanggungjawab': item.namapenanggungjawab,
       'nohppenanggungjawab': item.nohppenanggungjawab,
       'jabatanpenanggungjawab': item.jabatanpenanggungjawab,
       'rentangUkur': item.rentangUkur,
-      'rentangUkurketPermintaanPelanggan': item.rentangUkurketPermintaanPelanggan ?? null ,
+      'rentangUkurketPermintaanPelanggan': item.rentangUkurketPermintaanPelanggan ?? null,
     },
     'mitraregistrasidetail': mappedOrderAlat
   }
@@ -474,6 +521,55 @@ mitraByID(ID_MITRA)
 .td-po {
   padding: 8px !important;
 }
+
+/* wrapper untuk scroll horizontal */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive .table-po {
+  min-width: 600px;
+  /* sesuaikan jika perlu */
+}
+
+/* Stacked table di layar ≤768px */
+@media only screen and (max-width: 768px) {
+
+  .table-po,
+  .tr-po,
+  .th-po {
+    display: block;
+  }
+
+  .th-po {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .td-po {
+    display: block;
+    position: relative;
+    padding-left: 50%;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+
+  .td-po:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    content: attr(data-label);
+    font-weight: bold;
+  }
+}
+
 
 // .dropdown.is-dots .is-trigger {
 //     background: var(--red) !important;

@@ -298,7 +298,7 @@ class MitraCtrl extends Controller
             ->where('mmp.statusenabled', true)
             ->where('mmp.objectmitrafk', $r['idmitra'])
             ->where('pm.statusenabled', true);
-            
+
         if (isset($r['param_search']) && $r['param_search'] != '') {
             $exp = explode(',', $r['param_search']);
             foreach ($exp as $items) {
@@ -328,6 +328,7 @@ class MitraCtrl extends Controller
             ->leftjoin('pegawai_m as pg2', 'pg2.id', '=', 'mtrd.pelaksanateknikfk')
             ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->leftjoin('paketkalibrasi_m as pk', 'pk.id', '=', 'mtr.paketkalibrasi')
             ->select(
                 'mtr.norec',
                 'mtrd.norec as norec_detail',
@@ -335,9 +336,11 @@ class MitraCtrl extends Controller
                 'mtrd.namafile',
                 'mtrd.keterangan',
                 'mtrd.tanggalpenolakanregis',
+                'mtrd.durasikalbrasi',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
+                'mtr.paketkalibrasi',
                 'mtr.catatan',
                 'mrk.id as idmerk',
                 'mrk.namamerk',
@@ -354,16 +357,12 @@ class MitraCtrl extends Controller
                 'lk.lokasi',
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
+                'pk.namapaket',
             )
             ->where('mtr.statusenabled', true)
             // ->where('mtrd.statusenabled', true)
             ->where('mtr.norec', $r['norec_pd']);
 
-        // if (isset($r['tglregistrasi']) && $r['tglregistrasi'] != '' && $r['tglregistrasi'] != 'undefined') {
-        //     $data = $data->whereDate('mtr.tglregistrasi', '=', Carbon::parse($r['tglregistrasi'])->toDateString());
-        // } else {
-        //     $data = $data->whereDate('mtr.tglregistrasi', '=', now()->toDateString());
-        // }
 
         if (isset($r['norecdetail']) && $r['norecdetail'] != "" && $r['norecdetail'] != "undefined") {
             $data = $data->where('mtrd.norec', '=', $r['norecdetail']);
@@ -371,9 +370,30 @@ class MitraCtrl extends Controller
 
         $data = $data->orderByDesc('prd.namaproduk')->get();
 
+        $paket = optional($data->first())->paketkalibrasi;
+        $totalDurasi = 0;
+        $tanggalSelesai = null;
+        if ($paket) {
+            $sumPerLingkup = [];
+            foreach ($data as $item) {
+                $key    = $item->lingkupfk;
+                $durasi = (int) $item->durasikalbrasi;
+                if (!isset($sumPerLingkup[$key])) {
+                    $sumPerLingkup[$key] = 0;
+                }
+                $sumPerLingkup[$key] += $durasi;
+            }
+            $totalDurasi = !empty($sumPerLingkup) ? max($sumPerLingkup) : 0;
+            $tanggalSelesai = Carbon::today()
+                ->addDays($totalDurasi)
+                ->format('d-m-Y');
+        }
+
 
         $result['length'] = count($data);
         $result['detail'] = $data;
+        $result['totalDurasi'] = $totalDurasi;
+        $result['tanggalSelesai'] = $tanggalSelesai;
         $result['as'] = '@epic';
 
         return $this->respond($result);

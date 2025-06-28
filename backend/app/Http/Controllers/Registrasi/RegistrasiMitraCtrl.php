@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Registrasi;
 use App\Http\Controllers\Controller;
 use App\Models\Master\Pasien;
 use App\Models\Master\Pegawai;
-use App\Models\Master\Ruangan;
+use App\Models\Master\PaketKalibrasi;
 use App\Models\Transaksi\AntrianPasienDiperiksa;
 use App\Models\Transaksi\AntrianPasienRegistrasi;
 use App\Models\Transaksi\PasienDaftar;
@@ -198,6 +198,7 @@ class RegistrasiMitraCtrl extends Controller
             $model_PD->nopendaftaran = $nopendaftaran;
             $model_PD->catatan = $PD['catatan'];
             $model_PD->lokasikalibrasi = $PD['lokasikalibrasi'];
+            $model_PD->paketkalibrasi = $PD['paketkalibrasi'];
             $model_PD->namapenanggungjawab = $PD['namapenanggungjawab'];
             $model_PD->nohppenanggungjawab = $PD['nohppenanggungjawab'];
             $model_PD->jabatanpenanggungjawab = $PD['jabatanpenanggungjawab'];
@@ -209,6 +210,13 @@ class RegistrasiMitraCtrl extends Controller
             $model_PD->rentangUkurketPermintaanPelanggan = $PD['rentangUkurketPermintaanPelanggan'];
             $model_PD->save();
 
+            $durasikalibrasi = null;
+            if (!empty($PD['paketkalibrasi'])) {
+                $paket = PaketKalibrasi::find($PD['paketkalibrasi']);
+                if ($paket) {
+                    $durasikalibrasi = $paket->hari;
+                }
+            }
             $dataAPD = [];
             foreach ($APD as $alat) {
                 if (isset($alat['norec']) && $alat['norec'] != '') {
@@ -222,9 +230,12 @@ class RegistrasiMitraCtrl extends Controller
                 $model_APD->namamerkfk = $alat['namamerkfk'] ?? null;
                 $model_APD->namatipefk = $alat['namatipefk'] ?? null;
                 $model_APD->serialnumberfk = $alat['serialnumberfk'] ?? null;
+                $model_APD->lingkupkalibrasifk = $alat['lingkupkalibrasifk'] ?? null;
                 $model_APD->noregistrasifk = $model_PD->norec;
+                if ($durasikalibrasi !== null) {
+                    $model_APD->durasikalbrasi = $durasikalibrasi;
+                }
                 $model_APD->save();
-
                 $dataAPD[] = $model_APD;
             }
 
@@ -279,7 +290,7 @@ class RegistrasiMitraCtrl extends Controller
                     $urut = 1;
                 }
                 $urut3digit = str_pad($urut, 3, '0', STR_PAD_LEFT);
-                $nopendaftaran = 'RE'.$lokasiPrefix . '-' . $tahun . '-' . $urut3digit;
+                $nopendaftaran = 'RE' . $lokasiPrefix . '-' . $tahun . '-' . $urut3digit;
                 $model_PD = new MitraRegistrasi();
                 $model_PD->norec = $model_PD->generateNewId();
                 $model_PD->statusenabled = true;
@@ -653,5 +664,43 @@ class RegistrasiMitraCtrl extends Controller
         }
 
         return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function dropdownPaketKalibrasi(Request $r)
+    {
+        try {
+            $search = $r['query'] ?? '';
+            $concat_label = "
+                CONCAT_WS(
+                    ' - ', 
+                    COALESCE(pk.namapaket, '-'), 
+                    COALESCE(pk.hari::text || ' hari', '-'),
+                    COALESCE('Rp '|| replace(to_char( (pk.harga::numeric), 'FM999,999,999' ),',', '.'),'-')
+                )
+            ";
+
+            $data = DB::table('paketkalibrasi_m as pk')
+                ->select(
+                    'pk.id as value',
+                    DB::raw("$concat_label as label")
+                )
+                ->where('pk.statusenabled', true);
+
+            if (!empty($search)) {
+                $data = $data->whereRaw("$concat_label ILIKE ?", ["%$search%"]);
+            }
+
+            if (isset($r['orderby']) && $r['orderby'] != '') {
+                $data = $data->orderBy($r['orderby']);
+            }
+            if (isset($r['limit']) && $r['limit'] != '') {
+                $data = $data->limit($r['limit']);
+            }
+            $data = $data->get();
+        } catch (Exception $e) {
+            $data = $e->getMessage() . ' ' . $e->getLine();
+        }
+
+        return $this->respond($data);
     }
 }
