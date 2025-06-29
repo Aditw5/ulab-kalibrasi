@@ -1018,7 +1018,24 @@ class ManagerCtrl extends Controller
             ->where('lp.statusenabled', true)
             ->get();
 
-        return $this->respond($data);
+        $dataStatus = DB::table('statusalatrepair_t as sp')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'sp.detailregistrasifk')
+            ->join('mitraregistrasi_t as mtr', 'mtr.norec', '=', 'mtrd.noregistrasifk')
+            ->join('pegawai_m as pg', 'pg.id', '=', 'sp.petugas')
+            ->select(
+                'sp.*',
+                'mtr.norec as norecregis',
+                'pg.namalengkap as petugasisistatus'
+            )
+            ->where('mtrd.norec', $request->norecdetail)
+            ->where('sp.statusenabled', true)
+            ->get();
+
+        $result['data'] = $data;
+        $result['datastatus'] = $dataStatus;
+        $result['as'] = '@adit';
+
+        return $this->respond($result);
     }
 
     public function detailAlatRepairManager(Request $r)
@@ -1199,14 +1216,18 @@ class ManagerCtrl extends Controller
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lk.detailregistraifk')
             ->select(
                 'lk.*',
-                'mtrd.tglkalibrasilembarkerja',
-                'mtrd.tempatKalibrasilembarkerja',
-                'mtrd.kondisiRuanganlembarkerja',
-                'mtrd.suhulembarkerja',
-                'mtrd.kelembabanRelatiflembarkerja'
             )
             ->where('mtrd.norec', $r['norec_detail'])
             ->where('lk.statusenabled', true)
+            ->get();
+
+        $res['statusRepair'] = DB::table('statusalatrepair_t as sp')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'sp.detailregistrasifk')
+            ->select(
+                'sp.*',
+            )
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->where('sp.statusenabled', true)
             ->get();
 
         $res['laporanRepair'] = DB::table('laporanrepair_t as lp')
@@ -1232,6 +1253,7 @@ class ManagerCtrl extends Controller
             ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
             ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
             ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasirepair')
             ->select(
                 'pg.id as penyeliateknikfk',
                 'pg.namalengkap as penyeliateknik',
@@ -1251,6 +1273,7 @@ class ManagerCtrl extends Controller
                 'mrk.namamerk',
                 'tp.namatipe',
                 'sn.namaserialnumber',
+                'lk.lokasi as lokasirepair',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -1266,7 +1289,7 @@ class ManagerCtrl extends Controller
         $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->asamanverifikasi));
         $res['ttdPenyelia'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->penyeliateknik));
         $res['ttdManager'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat']->namamanager));
-        $res['halamanPertama'] = false;
+        $res['halamanPertama'] = true;
 
         $blade = 'report.pelaksana.laporan-repair';
 
@@ -1329,5 +1352,45 @@ class ManagerCtrl extends Controller
             $blade,
             compact('profile', 'pageWidth', 'print', 'res')
         );
+    }
+
+    public function hapusLaporanStatus(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $status = DB::table('statusalatrepair_t')
+                ->where('norec', $r['norec'])
+                ->first();
+
+            if ($status && $status->fotoalatstatus) {
+                $filePath = public_path('berkas-laporan-repair/' . $status->fotoalatstatus);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            DB::table('statusalatrepair_t')
+                ->where('norec', $r['norec'])
+                ->delete();
+
+            $transMessage = "Hapus Status Alat Repair Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Hapus Status ALat Repair Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
     }
 }

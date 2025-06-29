@@ -48,7 +48,42 @@
           <div class="column is-12">
             <div class="columns is-multiline" style="text-align:center">
               <div class="column is-12">
-                <h3 class="title is-5 mb-2 mr-1">Data Laporan Repair </h3>
+                <h3 class="title is-5 mb-2 mr-1">Data Status Alat Repair </h3>
+              </div>
+            </div>
+            <DataTable :value="dataSourceHasilLaporanRepairStatus" :paginator="true" :rows="10"
+              :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm" filterDisplay="menu"
+              paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+              responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
+              <Column field="no" header="No" />
+              <Column field="bagianalat" header="Penanganan" />
+              <Column field="kondisi" header="Status" />
+              <Column header="Dokumentasi" style="text-align:center; min-width: 150px" row-clickable>
+                <template #body="slotProps">
+                  <div
+                    :style="'background-image:url(' + 'https://ulabumro.id:8000/berkas-laporan-repair/' + slotProps.data.fotoalatstatus + ')'"
+                    style="text-align: center; background-position: center; width: 400px; height: 300px;">
+                  </div>
+                </template>
+              </Column>
+              <Column field="created_at" header="Tanggal Isi Status" />
+              <Column field="petugasisistatus" header="Pengisi" />
+              <Column header="Aksi" style="text-align:center; min-width: 150px" row-clickable>
+                <template #body="slotProps">
+                  <VIconButton color="danger" outlined circle icon="fas fa-trash" @click="hapusStatus(slotProps.data)"
+                    :loading="isLoadingSave" />
+                </template>
+              </Column>
+            </DataTable>
+          </div>
+        </VCard>
+        <hr>
+        <VCard>
+          <div class="column is-12">
+            <div class="columns is-multiline" style="text-align:center">
+              <div class="column is-12">
+                <h3 class="title is-5 mb-2 mr-1">Data Tindakan Teknis Repair </h3>
               </div>
             </div>
             <DataTable :value="dataSourceHasilLaporanRepair" :paginator="true" :rows="10"
@@ -74,6 +109,7 @@
                 </div>
               </template>
               <Column field="no" header="No" />
+              <Column field="bagianalatlaporan" header="Bagian Alat" />
               <Column field="penanganan" header="Penanganan" />
               <Column field="status" header="Status" />
               <Column field="sparepart" header="Sparepart" />
@@ -89,8 +125,8 @@
               <Column field="petugasrepair" header="Pengisi" />
               <Column header="Aksi" style="text-align:center; min-width: 150px" row-clickable>
                 <template #body="slotProps">
-                  <VIconButton color="danger" outlined circle icon="fas fa-trash" @click="hapusLaporan(slotProps.data.fotoalatrepair)"
-                    :loading="isLoadingSave" />
+                  <VIconButton color="danger" outlined circle icon="fas fa-trash"
+                    @click="hapusLaporan(slotProps.data.fotoalatrepair)" :loading="isLoadingSave" />
                 </template>
               </Column>
             </DataTable>
@@ -127,6 +163,7 @@ const isLoadingSave = ref(false)
 let loadSearch: any = ref(false)
 const dataSource: any = ref([])
 const dataSourceHasilLaporanRepair: any = ref([])
+const dataSourceHasilLaporanRepairStatus: any = ref([])
 const item: any = ref({
   tglkalibrasi: new Date(),
   detailLaporanRepair: [{
@@ -140,6 +177,20 @@ const hapusLaporan = async (e: any) => {
   isLoadingSave.value = true;
   try {
     await useApi().post(`manager/hapus-laporan-repair`, { norec: norec });
+    fetchData()
+    isLoadingSave.value = false;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  } finally {
+    isLoadingSave.value = false;
+  }
+}
+
+const hapusStatus = async (e: any) => {
+  let norec = e.norec;
+  isLoadingSave.value = true;
+  try {
+    await useApi().post(`manager/hapus-status-repair`, { norec: norec });
     fetchData()
     isLoadingSave.value = false;
   } catch (error) {
@@ -184,12 +235,17 @@ const toDashboard = () => {
 const fetchData = async () => {
   loadSearch.value = true
   await useApi().get(`manager/get-laporan-repair?norecdetail=${NOREC_DETAIL}`).then((response: any) => {
-    response.forEach((element: any, i: any) => {
+    response.data.forEach((element: any, i: any) => {
       element.no = i + 1
     });
-    dataSourceHasilLaporanRepair.value = response
+    response.datastatus.forEach((element: any, i: any) => {
+      element.no = i + 1
+    });
+    dataSourceHasilLaporanRepair.value = response.data
+    dataSourceHasilLaporanRepairStatus.value = response.datastatus
   }).catch((err) => {
     dataSourceHasilLaporanRepair.value = []
+    dataSourceHasilLaporanRepairStatus.value = []
   })
   loadSearch.value = false
 }

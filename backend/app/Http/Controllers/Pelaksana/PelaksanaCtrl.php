@@ -13,6 +13,7 @@ use App\Models\Transaksi\LembarKerja;
 use App\Models\Transaksi\DaftarAlatStandar;
 use App\Models\Transaksi\DaftarInstruksiKerja;
 use App\Models\Transaksi\LaporanRepair;
+use App\Models\Transaksi\StatusAlatRepair;
 use Illuminate\Support\Facades\App;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Barryvdh\Snappy\Facades\SnappyPdf;
@@ -1183,50 +1184,80 @@ class PelaksanaCtrl extends Controller
     {
         DB::beginTransaction();
         try {
-            $daftar = $request->input('daftarlaporanrepair');
-            $norecDetail = $request->input('norec_detail');
-            $kesimpulan = $request->input('kesimpulan');
+        $daftarStatus = $request->input('daftarstatusrepair');
+        $daftar = $request->input('daftarlaporanrepair');
+        $norecDetail = $request->input('norec_detail');
+        $kesimpulan = $request->input('kesimpulan');
 
-            DB::table('mitraregistrasidetail_t')
-                ->where('norec', $norecDetail)
-                ->update([
-                    'pelaksanaisilaporanrepairfk' => $this->getPegawaiId(),
-                    'tglisilaporanrepairpelaksana' => now(),
-                    'kesimpulanrepair' => $kesimpulan,
-                ]);
+        DB::table('mitraregistrasidetail_t')
+            ->where('norec', $norecDetail)
+            ->update([
+                'pelaksanaisilaporanrepairfk' => $this->getPegawaiId(),
+                'tglisilaporanrepairpelaksana' => now(),
+                'kesimpulanrepair' => $kesimpulan,
+            ]);
 
-            $result = [];
+        $resultStatus = [];
+        foreach ($daftarStatus as $index => $status) {
+            $filePathStatus = null;
+            if ($request->hasFile("daftarstatusrepair.$index.fileMitraStatus")) {
+                $fileStatus = $request->file("daftarstatusrepair.$index.fileMitraStatus");
+                $allowedExtensions = ['jpg', 'jpeg', 'png'];
+                $extension = strtolower($fileStatus->getClientOriginalExtension());
 
-            foreach ($daftar as $index => $repair) {
-                $filePath = null;
-                if ($request->hasFile("daftarlaporanrepair.$index.fileMitra")) {
-                    $file = $request->file("daftarlaporanrepair.$index.fileMitra");
-                    $allowedExtensions = ['jpg', 'jpeg', 'png'];
-                    $extension = strtolower($file->getClientOriginalExtension());
-
-                    if (!in_array($extension, $allowedExtensions)) {
-                        throw new \Exception("File harus berupa gambar (jpg, jpeg, atau png).");
-                    }
-
-                    $filename = time() . "_row{$index}_" . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-                    $file->move(public_path('berkas-laporan-repair'), $filename);
-                    $filePath = $filename;
+                if (!in_array($extension, $allowedExtensions)) {
+                    throw new \Exception("File harus berupa gambar (jpg, jpeg, atau png).");
                 }
 
-                $model_Repair = new LaporanRepair;
-                $model_Repair->norec = $model_Repair->generateNewId();
-                $model_Repair->statusenabled = true;
-                $model_Repair->penanganan = $repair['penanganan'] ?? null;
-                $model_Repair->status = $repair['status'] ?? null;
-                $model_Repair->sparepart = $repair['sparepart'] ?? null;
-                $model_Repair->detailregistrasifk = $norecDetail;
-                $model_Repair->fotoalatrepair = $filePath;
-                $model_Repair->petugas = $this->getPegawaiId();
-                $model_Repair->save();
-                $result[] = $model_Repair;
+                $filenameStatus = time() . "statusalat_row{$index}_" . preg_replace('/\s+/', '_', $fileStatus->getClientOriginalName());
+                $fileStatus->move(public_path('berkas-laporan-repair'), $filenameStatus);
+                $filePathStatus = $filenameStatus;
             }
 
-            $transStatus = 'true';
+            $model_Status = new StatusAlatRepair;
+            $model_Status->norec = $model_Status->generateNewId();
+            $model_Status->statusenabled = true;
+            $model_Status->bagianalat = $status['bagianalatstatus'] ?? null;
+            $model_Status->kondisi = $status['kondisistatus'] ?? null;
+            $model_Status->detailregistrasifk = $norecDetail;
+            $model_Status->fotoalatstatus = $filePathStatus;
+            $model_Status->petugas = $this->getPegawaiId();
+            $model_Status->save();
+            $resultStatus[] = $model_Status;
+        }
+
+        $result = [];
+        foreach ($daftar as $index => $repair) {
+            $filePath = null;
+            if ($request->hasFile("daftarlaporanrepair.$index.fileMitra")) {
+                $file = $request->file("daftarlaporanrepair.$index.fileMitra");
+                $allowedExtensions = ['jpg', 'jpeg', 'png'];
+                $extension = strtolower($file->getClientOriginalExtension());
+
+                if (!in_array($extension, $allowedExtensions)) {
+                    throw new \Exception("File harus berupa gambar (jpg, jpeg, atau png).");
+                }
+
+                $filename = time() . "_row{$index}_" . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+                $file->move(public_path('berkas-laporan-repair'), $filename);
+                $filePath = $filename;
+            }
+
+            $model_Repair = new LaporanRepair;
+            $model_Repair->norec = $model_Repair->generateNewId();
+            $model_Repair->statusenabled = true;
+            $model_Repair->bagianalatlaporan = $repair['bagianalatlaporan'] ?? null;
+            $model_Repair->penanganan = $repair['penanganan'] ?? null;
+            $model_Repair->status = $repair['status'] ?? null;
+            $model_Repair->sparepart = $repair['sparepart'] ?? null;
+            $model_Repair->detailregistrasifk = $norecDetail;
+            $model_Repair->fotoalatrepair = $filePath;
+            $model_Repair->petugas = $this->getPegawaiId();
+            $model_Repair->save();
+            $result[] = $model_Repair;
+        }
+
+        $transStatus = 'true';
         } catch (Exception $e) {
             $transStatus = 'false';
         }
@@ -1266,7 +1297,24 @@ class PelaksanaCtrl extends Controller
             ->where('lp.statusenabled', true)
             ->get();
 
-        return $this->respond($data);
+        $dataStatus = DB::table('statusalatrepair_t as sp')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'sp.detailregistrasifk')
+            ->join('mitraregistrasi_t as mtr', 'mtr.norec', '=', 'mtrd.noregistrasifk')
+            ->join('pegawai_m as pg', 'pg.id', '=', 'sp.petugas')
+            ->select(
+                'sp.*',
+                'mtr.norec as norecregis',
+                'pg.namalengkap as petugasisistatus'
+            )
+            ->where('mtrd.norec', $request->norecdetail)
+            ->where('sp.statusenabled', true)
+            ->get();
+
+        $result['data'] = $data;
+        $result['datastatus'] = $dataStatus;
+        $result['as'] = '@adit';
+
+        return $this->respond($result);
     }
 
     public function detailAlatRepair(Request $r)
@@ -1377,6 +1425,46 @@ class PelaksanaCtrl extends Controller
         return $this->respond($result['result'], $result['status'], $transMessage);
     }
 
+    public function hapusLaporanStatus(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $status = DB::table('statusalatrepair_t')
+                ->where('norec', $r['norec'])
+                ->first();
+
+            if ($status && $status->fotoalatstatus) {
+                $filePath = public_path('berkas-laporan-repair/' . $status->fotoalatstatus);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            DB::table('statusalatrepair_t')
+                ->where('norec', $r['norec'])
+                ->delete();
+
+            $transMessage = "Hapus Status Alat Repair Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Hapus Status ALat Repair Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
     public function cetakLaporanRepair(Request $r)
     {
 
@@ -1413,14 +1501,18 @@ class PelaksanaCtrl extends Controller
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lp.detailregistrasifk')
             ->select(
                 'lp.*',
-                'mtrd.tglkalibrasilembarkerja',
-                'mtrd.tempatKalibrasilembarkerja',
-                'mtrd.kondisiRuanganlembarkerja',
-                'mtrd.suhulembarkerja',
-                'mtrd.kelembabanRelatiflembarkerja'
             )
             ->where('mtrd.norec', $r['norec_detail'])
             ->where('lp.statusenabled', true)
+            ->get();
+
+        $res['statusRepair'] = DB::table('statusalatrepair_t as sp')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'sp.detailregistrasifk')
+            ->select(
+                'sp.*',
+            )
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->where('sp.statusenabled', true)
             ->get();
 
         $res['alat'] =  $data = DB::table('mitraregistrasi_t as mtr')

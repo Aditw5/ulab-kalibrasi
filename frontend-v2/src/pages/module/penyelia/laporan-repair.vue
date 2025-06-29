@@ -68,7 +68,81 @@
             </div>
             <div class="columns is-multiline">
               <div class="column is-12">
-                <Fieldset legend="- " :toggleable="true">
+                <Fieldset legend="- STATUS ALAT" :toggleable="true">
+                  <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
+                    <table width="100%">
+                      <thead>
+                        <tr class="tr-po">
+                          <th class="th-po" width="20%" style="vertical-align:inherit;text-align: center;">
+                            Bagian Alat
+                          </th>
+                          <th class="th-po" width="20%" style="vertical-align:inherit;text-align: center;">
+                            Dokumentasi
+                          </th>
+                          <th class="th-po" width="20%" style="vertical-align:inherit;text-align: center;">
+                            Kondisi
+                          </th>
+                          <th class="th-po" width="15%" style="vertical-align:inherit;text-align: center;">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody v-for="(items, index) in item.detailLaporanStatus" :key="index">
+                        <tr class="tr-po">
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <VTextarea v-model="items.bagianalatstatus" rows="2" placeholder="Bagian Alat">
+                                  </VTextarea>
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <FileUpload v-model="fileMitraStatus[index]" mode="advanced" name="demo"
+                                accept="image/jpeg,image/jpg" :maxFileSize="10000000" @upload="onUpload" outlined
+                                :invalidFileTypeMessage="'{0}: File yang diupload harus JPEG/JPG.'"
+                                :invalidFileSizeMessage="'Ukuran maksimal berkas adalah {1}'"
+                                style="background-color: transparent; color: var(--danger); border: 1px solid;"
+                                :chooseLabel="fileMitraStatus[index] ? fileMitraStatus[index].name : 'Unggah'"
+                                @select="onSelectStatus($event, index)" class="is-rounded w-100" /><br>
+                              <button class="button is-primary" @click="openCameraModalStatus(index)">Buka
+                                Kamera</button>
+                              <button class="button is-link" v-if="fileMitraListStatus[index]"
+                                @click="previewFileStatus(index)">Lihat
+                                File</button>
+                            </div>
+                          </td>
+                          <td class="td-po">
+                            <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl>
+                                  <VTextarea v-model="items.kondisistatus" rows="3" placeholder="Kondisi">
+                                  </VTextarea>
+                                </VControl>
+                              </VField>
+                            </div>
+                          </td>
+                          <td class="td-po" style="vertical-align: inherit;">
+                            <div class="column is-12 pl-0 pr-0">
+                              <VButtons style="justify-content: space-around;">
+                                <VIconButton type="button" raised circle icon="feather:plus"
+                                  v-tooltip-prime.bottom="'Tambah'" @click="addNewLaporanStatus(items)" outlined
+                                  color="info">
+                                </VIconButton>
+                                <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Hapus'" outlined
+                                  icon="feather:trash" @click="removeLaporanStatus(items)" color="danger">
+                                </VIconButton>
+                              </VButtons>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </Fieldset>
+                <br>
+                <Fieldset legend="- TINDAKAN TEKNIS" :toggleable="true">
                   <div style="overflow-y:auto;" class="mt-5 form-section-inner is-horizontal">
                     <table width="100%">
                       <thead>
@@ -92,6 +166,11 @@
                         <tr class="tr-po">
                           <td class="td-po">
                             <div class="column pt-3 pb-0">
+                              <VField>
+                                <VControl icon="feather:map" fullwidth>
+                                  <VInput v-model="items.bagianalatlaporan" />
+                                </VControl>
+                              </VField>
                               <FileUpload v-model="fileMitra[index]" mode="advanced" name="demo"
                                 accept="image/jpeg,image/jpg" :maxFileSize="10000000" @upload="onUpload" outlined
                                 :invalidFileTypeMessage="'{0}: File yang diupload harus JPEG/JPG.'"
@@ -172,12 +251,47 @@
             </div>
           </div>
         </VCard>
+        <VCard>
+          <div class="column is-12">
+            <div class="columns is-multiline" style="text-align:center">
+              <div class="column is-12">
+                <h3 class="title is-5 mb-2 mr-1">Data Status Alat Repair </h3>
+              </div>
+            </div>
+            <DataTable :value="dataSourceHasilLaporanRepairStatus" :paginator="true" :rows="10"
+              :rowsPerPageOptions="[5, 10, 25]" class="p-datatable-customers p-datatable-sm" filterDisplay="menu"
+              paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+              responsiveLayout="stack" breakpoint="960px" sortMode="multiple" showGridlines
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" :loading="isLoading">
+              <Column field="no" header="No" />
+              <Column field="bagianalat" header="Penanganan" />
+              <Column field="kondisi" header="Status" />
+              <Column header="Dokumentasi" style="text-align:center; min-width: 150px" row-clickable>
+                <template #body="slotProps">
+                  <div
+                    :style="'background-image:url(' + 'https://ulabumro.id:8000/berkas-laporan-repair/' + slotProps.data.fotoalatstatus + ')'"
+                    style="text-align: center; background-position: center; width: 400px; height: 300px;">
+                  </div>
+                </template>
+              </Column>
+              <Column field="created_at" header="Tanggal Isi Status" />
+              <Column field="petugasisistatus" header="Pengisi" />
+              <Column header="Aksi" style="text-align:center; min-width: 150px" row-clickable>
+                <template #body="slotProps">
+                  <VIconButton color="danger" outlined circle icon="fas fa-trash" @click="hapusStatus(slotProps.data)"
+                    :loading="isLoadingSave" />
+                </template>
+              </Column>
+            </DataTable>
+          </div>
+        </VCard>
+        <hr>
         <hr>
         <VCard>
           <div class="column is-12">
             <div class="columns is-multiline" style="text-align:center">
               <div class="column is-12">
-                <h3 class="title is-5 mb-2 mr-1">Data Laporan Repair </h3>
+                <h3 class="title is-5 mb-2 mr-1">Data Tindakan Teknis Repair</h3>
               </div>
             </div>
             <DataTable :value="dataSourceHasilLaporanRepair" :paginator="true" :rows="10"
@@ -203,6 +317,7 @@
                 </div>
               </template>
               <Column field="no" header="No" />
+              <Column field="bagianalatlaporan" header="Bagian Alat" />
               <Column field="penanganan" header="Penanganan" />
               <Column field="status" header="Status" />
               <Column field="sparepart" header="Sparepart" />
@@ -250,6 +365,29 @@
     <template #action>
     </template>
   </VModal>
+  <VModal :open="modalFotoStatus" title="Masukan Foto Status Alat" :noclose="false" size="big" actions="right"
+    @close="closeCameraModalStatus">
+    <template #content>
+      <form class="modal-form">
+        <div class="columns is-multiline">
+          <div class="column is-12 has-text-centered">
+            <div class="is-flex is-flex-direction-column is-align-items-center">
+              <video ref="video" width="500" height="300" autoplay style="display: none;"></video>
+              <canvas ref="canvas" style="display: none;"></canvas>
+              <div class="buttons mt-4">
+                <button type="button" class="button is-success" v-if="isCameraActiveStatus"
+                  @click="takePhotoStatus">Ambil
+                  Foto</button>
+                <button type="button" class="button is-light" @click="closeCameraModalStatus">Tutup Kamera</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </template>
+    <template #action>
+    </template>
+  </VModal>
 </template>
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
@@ -284,9 +422,13 @@ const isLoadingSave = ref(false)
 let loadSearch: any = ref(false)
 const dataSource: any = ref([])
 const dataSourceHasilLaporanRepair: any = ref([])
+const dataSourceHasilLaporanRepairStatus: any = ref([])
 const item: any = ref({
   tglkalibrasi: new Date(),
   detailLaporanRepair: [{
+    no: 1
+  }],
+  detailLaporanStatus: [{
     no: 1
   }]
 })
@@ -298,6 +440,12 @@ const isCameraActive = ref(false);
 const modalFotoRepair = ref(false)
 const fileMitraList = ref<File[]>([])
 const currentRowIndex = ref<number | null>(null)
+
+const fileMitraStatus: any = ref([])
+const modalFotoStatus = ref(false)
+const fileMitraListStatus = ref<File[]>([])
+const isCameraActiveStatus = ref(false);
+const currentRowIndexStatus = ref<number | null>(null)
 
 
 const openCameraModal = (index: number) => {
@@ -339,8 +487,70 @@ const openCameraModal = (index: number) => {
   }
 };
 
+const openCameraModalStatus = (index: number) => {
+  currentRowIndexStatus.value = index;
+
+  if (isMobileDevice()) {
+    const videoInput = document.createElement('input');
+    videoInput.type = 'file';
+    videoInput.accept = 'image/*';
+    videoInput.capture = 'environment';
+    videoInput.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const imageFileName = `status_repair_foto-row${index}_${Date.now()}_${NOREC_DETAIL}.jpeg`;
+        const renamedFile = new File([file], imageFileName, { type: "image/jpeg" });
+
+        fileMitraStatus.value[index] = renamedFile;
+        console.log("📱 Mobile: Gambar berhasil diambil dari kamera:", renamedFile.name);
+      }
+    };
+    videoInput.click();
+  } else {
+    modalFotoStatus.value = true;
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } }
+      })
+        .then((stream) => {
+          if (video.value) {
+            video.value.srcObject = stream;
+            video.value.style.display = 'block';
+            isCameraActiveStatus.value = true;
+          }
+        })
+        .catch((err) => {
+          console.error("Gagal mengakses kamera:", err);
+        });
+    }
+  }
+};
+
 const isMobileDevice = () => {
   return /Mobi|Android/i.test(navigator.userAgent);
+};
+
+const takePhotoStatus = () => {
+  if (!video.value || currentRowIndexStatus.value === null) return;
+
+  const canvasEl = document.createElement('canvas');
+  canvasEl.width = video.value.videoWidth;
+  canvasEl.height = video.value.videoHeight;
+  const context = canvasEl.getContext('2d');
+  if (context) {
+    context.drawImage(video.value, 0, 0, canvasEl.width, canvasEl.height);
+    canvasEl.toBlob((blob) => {
+      if (blob) {
+        const imageFileName = `status_repair_foto-${currentRowIndexStatus.value}_${Date.now()}_${NOREC_DETAIL}.jpeg`;
+
+        const imageFileStatus = new File([blob], imageFileName, { type: "image/jpeg" });
+        fileMitraListStatus.value[currentRowIndexStatus.value!] = imageFileStatus;
+        fileMitraStatus.value[currentRowIndexStatus.value!] = imageFileStatus;
+        console.log("Foto Status disimpan di index", currentRowIndexStatus.value);
+      }
+      closeCameraModalStatus();
+    }, 'image/jpeg');
+  }
 };
 
 const takePhoto = () => {
@@ -376,6 +586,15 @@ const previewFile = (index: number) => {
   }
 };
 
+const previewFileStatus = (index: number) => {
+  const fileStatus = fileMitraStatus.value[index];
+  if (fileStatus) {
+    const urlStatus = URL.createObjectURL(fileStatus);
+    window.open(urlStatus, '_blank');
+  } else {
+    alert('Tidak ada file yang bisa dilihat.');
+  }
+};
 
 const closeCameraModal = () => {
   if (video.value && video.value.srcObject) {
@@ -388,6 +607,19 @@ const closeCameraModal = () => {
   isCameraActive.value = false;
   modalFotoRepair.value = false;
   currentRowIndex.value = null;
+};
+
+const closeCameraModalStatus = () => {
+  if (video.value && video.value.srcObject) {
+    const stream = video.value.srcObject as MediaStream;
+    stream.getTracks().forEach((track) => track.stop());
+    video.value.srcObject = null;
+    video.value.style.display = 'none';
+  }
+
+  isCameraActiveStatus.value = false;
+  modalFotoStatus.value = false;
+  currentRowIndexStatus.value = null;
 };
 
 const onSelect = async (event: any, index: number) => {
@@ -406,6 +638,36 @@ const onSelect = async (event: any, index: number) => {
   fileMitra.value[index] = file;
 };
 
+const onSelectStatus = async (event: any, index: number) => {
+  const fileStatus = event.files[0];
+
+  if (fileStatus.size > 10000000) {
+    alert('Maksimal file size adalah 10 MB');
+    return;
+  }
+
+  if (!fileStatus.type.startsWith("image/")) {
+    alert('File harus berupa gambar (JPEG)');
+    return;
+  }
+
+  fileMitraStatus.value[index] = fileStatus;
+};
+
+const addNewLaporanStatus = () => {
+  item.value.detailLaporanStatus.push({
+    no: item.value.detailLaporanStatus[item.value.detailLaporanStatus.length - 1].no + 1
+  });
+}
+
+const removeLaporanStatus = (index: any) => {
+  item.value.detailLaporanStatus.splice(index, 1)
+  if (item.value.detailLaporanStatus.length == 0) {
+    item.value.detailLaporanStatus.push({
+      no: 1
+    });
+  }
+}
 
 const addNewLaporanRepair = () => {
   item.value.detailLaporanRepair.push({
@@ -419,6 +681,21 @@ const removeLaporanRepair = (index: any) => {
     item.value.detailLaporanRepair.push({
       no: 1
     });
+  }
+}
+
+const hapusStatus = async (e: any) => {
+  let norec = e.norec;
+  isLoadingSave.value = true;
+  try {
+    await useApi().post(`penyelia/hapus-status-repair`, { norec: norec });
+    clear()
+    fetchData()
+    isLoadingSave.value = false;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  } finally {
+    isLoadingSave.value = false;
   }
 }
 
@@ -470,27 +747,41 @@ const toDashboard = () => {
 }
 
 const clear = () => {
+  fileMitraStatus.value = []
+  fileMitraListStatus.value = []
   fileMitra.value = []
   fileMitraList.value = []
   item.value.kesimpulan = ''
   item.value.detailLaporanRepair = [
     {
+      bagianalatlaporan: '',
       penanganan: '',
       status: '',
       sparepart: ''
     }
-  ]
+  ],
+    item.value.detailLaporanStatus = [
+      {
+        bagianalatstatus: '',
+        kondisistatus: ''
+      }
+    ]
 }
 
 const fetchData = async () => {
   loadSearch.value = true
   await useApi().get(`penyelia/get-laporan-repair?norecdetail=${NOREC_DETAIL}`).then((response: any) => {
-    response.forEach((element: any, i: any) => {
+    response.data.forEach((element: any, i: any) => {
       element.no = i + 1
     });
-    dataSourceHasilLaporanRepair.value = response
+    response.datastatus.forEach((element: any, i: any) => {
+      element.no = i + 1
+    });
+    dataSourceHasilLaporanRepair.value = response.data
+    dataSourceHasilLaporanRepairStatus.value = response.datastatus
   }).catch((err) => {
     dataSourceHasilLaporanRepair.value = []
+    dataSourceHasilLaporanRepairStatus.value = []
   })
   loadSearch.value = false
 }
@@ -513,18 +804,29 @@ const detailOrder = async () => {
 }
 
 const Save = async () => {
+  if (!item.value.detailLaporanStatus || item.value.detailLaporanStatus.length === 0) { H.alert('warning', 'Status Alat harus diisi'); return; }
   if (!item.value.detailLaporanRepair || item.value.detailLaporanRepair.length === 0) { H.alert('warning', 'Laporan harus diisi'); return; }
 
   const formData = new FormData();
   formData.append('norec_detail', NOREC_DETAIL);
   formData.append('kesimpulan', item.value.kesimpulan || '');
   item.value.detailLaporanRepair.forEach((items: any, index: number) => {
+    formData.append(`daftarlaporanrepair[${index}][bagianalatlaporan]`, items.bagianalatlaporan || '');
     formData.append(`daftarlaporanrepair[${index}][penanganan]`, items.penanganan || '');
     formData.append(`daftarlaporanrepair[${index}][status]`, items.status || '');
     formData.append(`daftarlaporanrepair[${index}][sparepart]`, items.sparepart || '');
 
     if (fileMitra.value[index]) {
       formData.append(`daftarlaporanrepair[${index}][fileMitra]`, fileMitra.value[index]);
+    }
+  });
+
+  item.value.detailLaporanStatus.forEach((itemsStatus: any, index: number) => {
+    formData.append(`daftarstatusrepair[${index}][bagianalatstatus]`, itemsStatus.bagianalatstatus || '');
+    formData.append(`daftarstatusrepair[${index}][kondisistatus]`, itemsStatus.kondisistatus || '');
+
+    if (fileMitraStatus.value[index]) {
+      formData.append(`daftarstatusrepair[${index}][fileMitraStatus]`, fileMitraStatus.value[index]);
     }
   });
 

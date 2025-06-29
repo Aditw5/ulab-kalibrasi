@@ -112,12 +112,13 @@
     </div>
 
 
-    <div style="margin-top: 50px; margin-bottom: 5px; margin-left: 25px">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td style="line-height: 1;">
-                    <div
-                        style="
+    @if ($res['halamanPertama'] == true)
+        <div style="margin-top: 50px; margin-bottom: 5px; margin-left: 25px">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td style="line-height: 1;">
+                        <div
+                            style="
                     font-size: 10pt;
                     font-weight: bold;
                     color: #000000;
@@ -126,96 +127,96 @@
                     padding-bottom: 1px;
                     font-family: 'Arial', sans-serif;
                 ">
-                        IDENTITAS ALAT
-                    </div>
-                    <br>
-                    <span
-                        style="
+                            IDENTITAS ALAT
+                        </div>
+                        <br>
+                        <span
+                            style="
                     font-style: italic;
                     font-size: 10pt;
                     font-family: 'Courier New', monospace;
                     color: #000000;
                 ">
-                        INSTRUMENT DETAILS
-                    </span>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div style="margin-top: 5px; margin-bottom: 5px; margin-left: 50px">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td width="25%" style="line-height: 1.4;">
-                    <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                        Nama Alat Ukur
-                    </div>
-                    <div
-                        style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
-                        Instrument
-                    </div>
-                </td>
-                <td width="3%">:</td>
-                <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                    {{ $res['alat']->namaproduk }}
-                </td>
-            </tr>
+                            INSTRUMENT DETAILS
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="margin-top: 5px; margin-bottom: 5px; margin-left: 50px">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="25%" style="line-height: 1.4;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                            Nama Alat Ukur
+                        </div>
+                        <div
+                            style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
+                            Instrument
+                        </div>
+                    </td>
+                    <td width="3%">:</td>
+                    <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                        {{ $res['alat']->namaproduk }}
+                    </td>
+                </tr>
 
-            <tr>
-                <td style="line-height: 1.4;">
-                    <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                        Merek/Tipe
-                    </div>
-                    <div
-                        style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
-                        Manufacture
-                    </div>
-                </td>
-                <td>:</td>
-                <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                    {{ $res['alat']->namamerk }} / {{ $res['alat']->namatipe }}
-                </td>
-            </tr>
+                <tr>
+                    <td style="line-height: 1.4;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                            Merek/Tipe
+                        </div>
+                        <div
+                            style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
+                            Manufacture
+                        </div>
+                    </td>
+                    <td>:</td>
+                    <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                        {{ $res['alat']->namamerk }} / {{ $res['alat']->namatipe }}
+                    </td>
+                </tr>
 
-            <tr>
-                <td style="line-height: 1.4;">
-                    <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                        Nomor Seri
-                    </div>
-                    <div
-                        style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
-                        Serial Number
-                    </div>
-                </td>
-                <td>:</td>
-                <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                    {{ $res['alat']->namaserialnumber }}
-                </td>
-            </tr>
+                <tr>
+                    <td style="line-height: 1.4;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                            Nomor Seri
+                        </div>
+                        <div
+                            style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
+                            Serial Number
+                        </div>
+                    </td>
+                    <td>:</td>
+                    <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                        {{ $res['alat']->namaserialnumber }}
+                    </td>
+                </tr>
 
-            <tr>
-                <td style="line-height: 1.4;">
-                    <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                        Tempat Repair
-                    </div>
-                    <div
-                        style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
-                        Reparation Place
-                    </div>
-                </td>
-                <td>:</td>
-                <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                    {{ $res['alat']->lokasirepair }}
-                </td>
-            </tr>
-        </table>
+                <tr>
+                    <td style="line-height: 1.4;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                            Tempat Repair
+                        </div>
+                        <div
+                            style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
+                            Reparation Place
+                        </div>
+                    </td>
+                    <td>:</td>
+                    <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                        {{ $res['alat']->lokasirepair }}
+                    </td>
+                </tr>
+            </table>
 
-    </div>
-    <div style="margin-top: 10px; margin-bottom: 5px; margin-left: 25px">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td style="line-height: 1;">
-                    <div
-                        style="
+        </div>
+        <div style="margin-top: 10px; margin-bottom: 5px; margin-left: 25px">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td style="line-height: 1;">
+                        <div
+                            style="
                     font-size: 10pt;
                     font-weight: bold;
                     color: #000000;
@@ -224,96 +225,96 @@
                     padding-bottom: 1px;
                     font-family: 'Arial', sans-serif;
                 ">
-                        IDENTITAS PEMILIK
-                    </div>
-                    <br>
-                    <span
-                        style="
+                            IDENTITAS PEMILIK
+                        </div>
+                        <br>
+                        <span
+                            style="
                     font-style: italic;
                     font-size: 10pt;
                     font-family: 'Courier New', monospace;
                     color: #000000;
                 ">
-                        OWNER IDENTIFICATION
-                    </span>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div style="margin-top: 5px; margin-bottom: 5px; margin-left: 50px">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td width="25%" style="line-height: 1.4;">
-                    <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                        Nama
-                    </div>
-                    <div
-                        style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
-                        Designation
-                    </div>
-                </td>
-                <td width="3%">:</td>
-                <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                    {{ $res['identitas']->namaperusahaan }}
-                </td>
-            </tr>
+                            OWNER IDENTIFICATION
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="margin-top: 5px; margin-bottom: 5px; margin-left: 50px">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="25%" style="line-height: 1.4;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                            Nama
+                        </div>
+                        <div
+                            style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
+                            Designation
+                        </div>
+                    </td>
+                    <td width="3%">:</td>
+                    <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                        {{ $res['identitas']->namaperusahaan }}
+                    </td>
+                </tr>
 
-            <tr>
-                <td style="line-height: 1.4;">
-                    <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                        Alamat
-                    </div>
-                    <div
-                        style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
-                        Address
-                    </div>
-                </td>
-                <td>:</td>
-                <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                    {{ $res['identitas']->alamatktr }}
-                </td>
-            </tr>
+                <tr>
+                    <td style="line-height: 1.4;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                            Alamat
+                        </div>
+                        <div
+                            style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
+                            Address
+                        </div>
+                    </td>
+                    <td>:</td>
+                    <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                        {{ $res['identitas']->alamatktr }}
+                    </td>
+                </tr>
 
-            <tr>
-                <td style="line-height: 1.4;">
-                    <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                        Tanggal Order
-                    </div>
-                    <div
-                        style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
-                        Order Date
-                    </div>
-                </td>
-                <td>:</td>
-                <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                    {{ $res['identitas']->tglregistrasi }}
-                </td>
-            </tr>
+                <tr>
+                    <td style="line-height: 1.4;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                            Tanggal Order
+                        </div>
+                        <div
+                            style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
+                            Order Date
+                        </div>
+                    </td>
+                    <td>:</td>
+                    <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                        {{ $res['identitas']->tglregistrasi }}
+                    </td>
+                </tr>
 
-            <tr>
-                <td style="line-height: 1.4;">
-                    <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                        Nomor Order
-                    </div>
-                    <div
-                        style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
-                        Order Number
-                    </div>
-                </td>
-                <td>:</td>
-                <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
-                    {{ $res['alat']->noorderalat }}
-                </td>
-            </tr>
-        </table>
+                <tr>
+                    <td style="line-height: 1.4;">
+                        <div style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                            Nomor Order
+                        </div>
+                        <div
+                            style="font-size: 8pt; font-style: italic; font-family: 'Courier New', monospace; color: #000;">
+                            Order Number
+                        </div>
+                    </td>
+                    <td>:</td>
+                    <td style="font-size: 9pt; font-weight: bold; color: #000; font-family: Arial, sans-serif;">
+                        {{ $res['alat']->noorderalat }}
+                    </td>
+                </tr>
+            </table>
 
-    </div>
-    <div style="margin-top: 40px; margin-bottom: 5px; margin-left: 25px">
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td style="line-height: 1;">
-                    <div
-                        style="
+        </div>
+        <div style="margin-top: 40px; margin-bottom: 5px; margin-left: 25px">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td style="line-height: 1;">
+                        <div
+                            style="
                     font-size: 10pt;
                     font-weight: bold;
                     color: #000000;
@@ -322,129 +323,130 @@
                     padding-bottom: 1px;
                     font-family: 'Arial', sans-serif;
                 ">
-                        PENGESAHAN
-                    </div>
-                    <br>
-                    <span
-                        style="
+                            PENGESAHAN
+                        </div>
+                        <br>
+                        <span
+                            style="
                     font-style: italic;
                     font-size: 10pt;
                     font-family: 'Courier New', monospace;
                     color: #000000;
                 ">
-                        Authorization
-                    </span>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div style="margin-top: 20px; margin-bottom: 5px; margin-left: 25px">
-        <table width="100%" style="margin-top: -10px;">
-            <tr>
-                <td width="40%" align="center">
-                    <table cellspacing="0" cellpadding="0" style="line-height: 1.1;">
-                        <tr>
-                            <td style="font-size: 10pt; font-weight: bold; color:#000000;">
-                                Laporan ini terdiri dari
-                            </td>
-                            <td style="font-size: 10pt; font-weight: bold; color:#000000;" align="center"
-                                width="30">
-                                {{ $jumlahHalaman ?? '...' }}
-                            </td>
-                            <td style="font-size: 10pt; font-weight: bold; color:#000000;">
-                                Halaman
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-size: 10pt; font-style: italic; color:#000000;">
-                                This report consist of
-                            </td>
-                            <td style="font-size: 10pt; font-style: italic; color:#000000;" align="center">
-                                {{ $jumlahHalaman ?? '...' }}
-                            </td>
-                            <td style="font-size: 10pt; font-style: italic; color:#000000;">
-                                Pages
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-size: 10pt; font-weight: bold; color:#000000;">
-                                Diterbitkan tanggal
-                            </td>
-                            <td></td>
-                            <td style="font-size: 10pt; color:#000000;">
-                                {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-size: 10pt; font-style: italic; color:#000000;">
-                                Date of Issue
-                            </td>
-                            <td></td>
-                            <td style="font-size: 10pt; color:#000000;">
-                                {{ \Carbon\Carbon::now()->format('F d, Y') }}
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-                <td width="60%" valign="top" style="padding-left: 15px;">
-                    <!-- Bisa isi Pengesahan jika diperlukan -->
-                </td>
-            </tr>
-        </table>
-    </div>
-    <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 30px">
-        <tbody style="font-size: 11pt">
-            <tr>
-                <td align="center" width="40%" class="text-center">
-                    <span style="font-size: 10pt;color:#000000"><b>
-                            Penyelia Repair Lab.Jakarta  </b>
-                    </span><br>
-                    <span style="font-size: 10pt;color:#000000; font-style: italic;">
-                        Repair Supervisor Lab.Jakarta 
+                            Authorization
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="margin-top: 20px; margin-bottom: 5px; margin-left: 25px">
+            <table width="100%" style="margin-top: -10px;">
+                <tr>
+                    <td width="40%" align="center">
+                        <table cellspacing="0" cellpadding="0" style="line-height: 1.1;">
+                            <tr>
+                                <td style="font-size: 10pt; font-weight: bold; color:#000000;">
+                                    Laporan ini terdiri dari
+                                </td>
+                                <td style="font-size: 10pt; font-weight: bold; color:#000000;" align="center"
+                                    width="30">
+                                    {{ $jumlahHalaman ?? '...' }}
+                                </td>
+                                <td style="font-size: 10pt; font-weight: bold; color:#000000;">
+                                    Halaman
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 10pt; font-style: italic; color:#000000;">
+                                    This report consist of
+                                </td>
+                                <td style="font-size: 10pt; font-style: italic; color:#000000;" align="center">
+                                    {{ $jumlahHalaman ?? '...' }}
+                                </td>
+                                <td style="font-size: 10pt; font-style: italic; color:#000000;">
+                                    Pages
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 10pt; font-weight: bold; color:#000000;">
+                                    Diterbitkan tanggal
+                                </td>
+                                <td></td>
+                                <td style="font-size: 10pt; color:#000000;">
+                                    {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM Y') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 10pt; font-style: italic; color:#000000;">
+                                    Date of Issue
+                                </td>
+                                <td></td>
+                                <td style="font-size: 10pt; color:#000000;">
+                                    {{ \Carbon\Carbon::now()->format('F d, Y') }}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="60%" valign="top" style="padding-left: 15px;">
+                        <!-- Bisa isi Pengesahan jika diperlukan -->
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table border="0" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 30px">
+            <tbody style="font-size: 11pt">
+                <tr>
+                    <td align="center" width="40%" class="text-center">
+                        <span style="font-size: 10pt;color:#000000"><b>
+                                Penyelia Repair Lab.Jakarta </b>
+                        </span><br>
+                        <span style="font-size: 10pt;color:#000000; font-style: italic;">
+                            Repair Supervisor Lab.Jakarta
 
-                    </span>
-                </td>
-                <td align="center" width="40%" class="text-center">
-                    <span style="font-size: 9pt;color:#000000"><b>
-                            Kepala Laboratorium  </b>
-                    </span><br>
-                    <span style="font-size: 8pt;color:#000000; font-style: italic;">
-                        Head of The Laboratory 
-                    </span>
-                </td>
-                <td width="20%">
-                </td>
-            </tr>
-            <tr>
-                <td align="center">
-                    <img src="data:image/png;base64, {!! $res['ttdPenyelia'] !!}"
-                        style="margin-top: 5px; margin-bottom: 5px">
-                </td>
-                <td align="center">
-                    <img src="data:image/png;base64, {!! $res['ttdAsman'] !!}"
-                        style="margin-top: 5px; margin-bottom: 5px">
-                </td>
-                <td>
-                </td>
-            </tr>
-            <tr>
-                <td align="center" height="10" valign="bottom" height="100" width="15%"
-                    class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa">
-                        <b> {{ $res['alat']->penyeliateknik }}</span></b>
-                </td>
-                <td align="center" height="10" valign="bottom" height="100" width="15%"
-                    class="text-center">
-                    <span style="font-size: 10pt;" class="text-biasa">
-                        <b> {{ $res['alat']->asamanverifikasi }}</span></b>
-                </td>
-                 <td>
-                </td>
-            </tr>
-        <tbody>
-    </table>
+                        </span>
+                    </td>
+                    <td align="center" width="40%" class="text-center">
+                        <span style="font-size: 9pt;color:#000000"><b>
+                                Kepala Laboratorium </b>
+                        </span><br>
+                        <span style="font-size: 8pt;color:#000000; font-style: italic;">
+                            Head of The Laboratory
+                        </span>
+                    </td>
+                    <td width="20%">
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">
+                        <img src="data:image/png;base64, {!! $res['ttdPenyelia'] !!}"
+                            style="margin-top: 5px; margin-bottom: 5px">
+                    </td>
+                    <td align="center">
+                        <img src="data:image/png;base64, {!! $res['ttdAsman'] !!}"
+                            style="margin-top: 5px; margin-bottom: 5px">
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" height="10" valign="bottom" height="100" width="15%"
+                        class="text-center">
+                        <span style="font-size: 10pt;" class="text-biasa">
+                            <b> {{ $res['alat']->penyeliateknik }}</span></b>
+                    </td>
+                    <td align="center" height="10" valign="bottom" height="100" width="15%"
+                        class="text-center">
+                        <span style="font-size: 10pt;" class="text-biasa">
+                            <b> {{ $res['alat']->asamanverifikasi }}</span></b>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+            <tbody>
+        </table>
 
-    <div class="page-break"></div>
+        <div class="page-break"></div>
+    @endif
 
 
 
@@ -474,21 +476,21 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td width="25%">
-                        <span style="font-size: 9pt;" class="text-biasa">
-                            {{ $res['alat']->namaproduk }}
-                        </span>
-                    </td>
-                    <td align="center">
-                        <span style="font-size: 9pt;" class="text-biasa">
-                            <img src="{{ 'berkas-mitra/' . $res['alat']->namafile }}" width="170px"
-                                style="margin-top:50px ;">
-                        </span>
-                    </td>
-                    <td> <span style="font-size: 9pt;" class="text-biasa">{{ $res['alat']->keterangan }}</span>
-                    </td>
-                </tr>
+                @foreach ($res['statusRepair'] as $index => $status)
+                    <tr>
+                        <td width="25%">
+                            <span style="font-size: 9pt;" class="text-biasa">
+                                {{ $status->bagianalat }}
+                            </span>
+                        </td>
+                        <td align="center">
+                            <img src="{{ 'berkas-laporan-repair/' . $status->fotoalatstatus }}" width="170px"
+                                style="margin:2px 0;">
+                        </td>
+                        <td> <span style="font-size: 9pt;" class="text-biasa">{{ $status->kondisi }}</span>
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
         <table width="100%" style="margin-top: 30px;" border="0">
@@ -523,6 +525,9 @@
                             </span>
                         </td>
                         <td width="25%">
+                            <span style="font-size: 9pt;" class="text-biasa">
+                                {{ $alat->bagianalatlaporan }}
+                            </span><br>
                             <img src="{{ 'berkas-laporan-repair/' . $alat->fotoalatrepair }}" width="170px"
                                 style="margin:2px 0;">
                         </td>

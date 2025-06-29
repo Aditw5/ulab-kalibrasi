@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Support\Facades\File;
 use App\Models\Transaksi\LembarKerja;
 use App\Models\Transaksi\LaporanRepair;
+use App\Models\Transaksi\StatusAlatRepair;
 use Illuminate\Support\Facades\App;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Stichoza\GoogleTranslate\GoogleTranslate;
@@ -1045,6 +1046,7 @@ class PenyeliaCtrl extends Controller
     {
         DB::beginTransaction();
         try {
+            $daftarStatus = $request->input('daftarstatusrepair');
             $daftar = $request->input('daftarlaporanrepair');
             $norecDetail = $request->input('norec_detail');
             $kesimpulan = $request->input('kesimpulan');
@@ -1057,8 +1059,36 @@ class PenyeliaCtrl extends Controller
                     'kesimpulanrepair' => $kesimpulan,
                 ]);
 
-            $result = [];
+            $resultStatus = [];
+            foreach ($daftarStatus as $index => $status) {
+                $filePathStatus = null;
+                if ($request->hasFile("daftarstatusrepair.$index.fileMitraStatus")) {
+                    $fileStatus = $request->file("daftarstatusrepair.$index.fileMitraStatus");
+                    $allowedExtensions = ['jpg', 'jpeg', 'png'];
+                    $extension = strtolower($fileStatus->getClientOriginalExtension());
 
+                    if (!in_array($extension, $allowedExtensions)) {
+                        throw new \Exception("File harus berupa gambar (jpg, jpeg, atau png).");
+                    }
+
+                    $filenameStatus = time() . "statusalat_row{$index}_" . preg_replace('/\s+/', '_', $fileStatus->getClientOriginalName());
+                    $fileStatus->move(public_path('berkas-laporan-repair'), $filenameStatus);
+                    $filePathStatus = $filenameStatus;
+                }
+
+                $model_Status = new StatusAlatRepair;
+                $model_Status->norec = $model_Status->generateNewId();
+                $model_Status->statusenabled = true;
+                $model_Status->bagianalat = $status['bagianalatstatus'] ?? null;
+                $model_Status->kondisi = $status['kondisistatus'] ?? null;
+                $model_Status->detailregistrasifk = $norecDetail;
+                $model_Status->fotoalatstatus = $filePathStatus;
+                $model_Status->petugas = $this->getPegawaiId();
+                $model_Status->save();
+                $resultStatus[] = $model_Status;
+            }
+
+            $result = [];
             foreach ($daftar as $index => $repair) {
                 $filePath = null;
                 if ($request->hasFile("daftarlaporanrepair.$index.fileMitra")) {
@@ -1128,7 +1158,24 @@ class PenyeliaCtrl extends Controller
             ->where('lp.statusenabled', true)
             ->get();
 
-        return $this->respond($data);
+        $dataStatus = DB::table('statusalatrepair_t as sp')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'sp.detailregistrasifk')
+            ->join('mitraregistrasi_t as mtr', 'mtr.norec', '=', 'mtrd.noregistrasifk')
+            ->join('pegawai_m as pg', 'pg.id', '=', 'sp.petugas')
+            ->select(
+                'sp.*',
+                'mtr.norec as norecregis',
+                'pg.namalengkap as petugasisistatus'
+            )
+            ->where('mtrd.norec', $request->norecdetail)
+            ->where('sp.statusenabled', true)
+            ->get();
+
+        $result['data'] = $data;
+        $result['datastatus'] = $dataStatus;
+        $result['as'] = '@adit';
+
+        return $this->respond($result);
     }
 
     public function detailAlatRepairPenyelia(Request $r)
@@ -1210,7 +1257,7 @@ class PenyeliaCtrl extends Controller
             if ($laporan && $laporan->fotoalatrepair) {
                 $filePath = public_path('berkas-laporan-repair/' . $laporan->fotoalatrepair);
                 if (file_exists($filePath)) {
-                    unlink($filePath); 
+                    unlink($filePath);
                 }
             }
 
@@ -1239,7 +1286,7 @@ class PenyeliaCtrl extends Controller
         return $this->respond($result['result'], $result['status'], $transMessage);
     }
 
-     public function setujuiLaporanRepair(Request $r)
+    public function setujuiLaporanRepair(Request $r)
     {
         DB::beginTransaction();
         try {
@@ -1325,14 +1372,18 @@ class PenyeliaCtrl extends Controller
             ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'lp.detailregistrasifk')
             ->select(
                 'lp.*',
-                'mtrd.tglkalibrasilembarkerja',
-                'mtrd.tempatKalibrasilembarkerja',
-                'mtrd.kondisiRuanganlembarkerja',
-                'mtrd.suhulembarkerja',
-                'mtrd.kelembabanRelatiflembarkerja'
             )
             ->where('mtrd.norec', $r['norec_detail'])
             ->where('lp.statusenabled', true)
+            ->get();
+
+        $res['statusRepair'] = DB::table('statusalatrepair_t as sp')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.norec', '=', 'sp.detailregistrasifk')
+            ->select(
+                'sp.*',
+            )
+            ->where('mtrd.norec', $r['norec_detail'])
+            ->where('sp.statusenabled', true)
             ->get();
 
         $res['alat'] =  $data = DB::table('mitraregistrasi_t as mtr')
@@ -1344,6 +1395,7 @@ class PenyeliaCtrl extends Controller
             ->leftJoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
             ->leftJoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
             ->leftJoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasirepair')
             ->select(
                 'pg.id as penyeliateknikfk',
                 'pg.namalengkap as penyeliateknik',
@@ -1363,6 +1415,7 @@ class PenyeliaCtrl extends Controller
                 'mrk.namamerk',
                 'tp.namatipe',
                 'sn.namaserialnumber',
+                'lk.lokasi as lokasirepair',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -1370,7 +1423,7 @@ class PenyeliaCtrl extends Controller
             ->where('mtrd.norec', $r['norec_detail'])
             ->first();
 
-        $tr = new GoogleTranslate('en'); 
+        $tr = new GoogleTranslate('en');
         $translated = $tr->translate($data->kesimpulanrepair);
         $res['alat']->kesimpulanrepair_en = $translated;
         $res['pdf']  = $r['pdf'];
@@ -1441,5 +1494,45 @@ class PenyeliaCtrl extends Controller
             $blade,
             compact('profile', 'pageWidth', 'print', 'res')
         );
+    }
+
+    public function hapusLaporanStatus(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $status = DB::table('statusalatrepair_t')
+                ->where('norec', $r['norec'])
+                ->first();
+
+            if ($status && $status->fotoalatstatus) {
+                $filePath = public_path('berkas-laporan-repair/' . $status->fotoalatstatus);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            DB::table('statusalatrepair_t')
+                ->where('norec', $r['norec'])
+                ->delete();
+
+            $transMessage = "Hapus Status Alat Repair Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Hapus Status ALat Repair Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
     }
 }

@@ -250,6 +250,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('asman/hapus-laporan-repair', 'hapusLaporanRepairAsman');
         Route::post('asman/save-setujui-laporan-repair', 'setujuiLaporanRepairAsman');
         Route::get('asman/cetak-laporan-repair', 'cetakLaporanRepairAsman');
+        Route::post('asman/hapus-status-repair', 'hapusLaporanStatus');
     });
 
     Route::controller(ManagerCtrl::class)->group(function () {
@@ -269,6 +270,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('manager/hapus-laporan-repair', 'hapusLaporanRepairManager');
         Route::post('manager/save-setujui-laporan-repair', 'setujuiLaporanRepairManager');
         Route::get('manager/cetak-laporan-repair', 'cetakLaporanRepairManager');
+        Route::post('manager/hapus-status-repair', 'hapusLaporanStatus');
     });
 
     Route::controller(PenyeliaCtrl::class)->group(function () {
@@ -292,6 +294,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('penyelia/detail-alat-repair', 'detailAlatRepairPenyelia');
         Route::post('penyelia/hapus-laporan-repair', 'hapusLaporanRepairPenyelia');
         Route::post('penyelia/save-setujui-laporan-repair', 'setujuiLaporanRepair');
+        Route::post('penyelia/hapus-status-repair', 'hapusLaporanStatus');
         Route::get('penyelia/cetak-laporan-repair', 'cetakLaporanRepairPenyelia');
     });
 
@@ -316,6 +319,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('pelaksana/get-laporan-repair', 'getLaporanRepair');
         Route::get('pelaksana/detail-alat-repair', 'detailAlatRepair');
         Route::post('pelaksana/hapus-laporan-repair', 'hapusLaporanRepair');
+        Route::post('pelaksana/hapus-status-repair', 'hapusLaporanStatus');
         Route::get('pelaksana/cetak-laporan-repair', 'cetakLaporanRepair');
     });
 
