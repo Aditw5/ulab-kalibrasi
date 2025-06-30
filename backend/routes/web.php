@@ -158,6 +158,10 @@ Route::middleware(['log'])->group(function () {
             Route::get('/list-menu', 'listMenu');
         });
     });
+
+    Route::controller(SysAdminCtrl::class)->group(function () {
+        Route::get('/get-time-server', 'getTimeServer');
+    });
    
     Route::controller(DashboardPegawaiCtrl::class)->group(function () {
         Route::get('dashboard/data-pegawai', 'dashboardPegawai');

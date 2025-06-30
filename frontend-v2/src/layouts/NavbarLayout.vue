@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, reactive } from 'vue'
+import { computed, ref, watch, onUnmounted, reactive, nextTick, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { VAvatarProps, VAvatarColor } from '/@src/components/base/avatar/VAvatar.vue'
 import type { UserPopover } from '/@src/models/users'
@@ -58,33 +58,6 @@ const filteredPasiens: any = ref([])
 const namaProfile = useUserSession().getProfile().namaexternal
 const router = useRouter()
 
-const asyncPasien = async (q: any) => {
-  isLoading.value = true
-  const response = await useApi().get(`/general/pasien-registrasi?query=${q}`)
-  let datas = []
-  if (response.length > 0) {
-    let i = 0
-    for (let x = 0; x < response.length; x++) {
-      const element = response[x];
-      let ini = element.namapasien.split(' ')
-      let init = element.namapasien.substr(0, 1)
-      if (ini.length > 1) {
-        init = init + ini[1].substr(0, 1)
-      }
-      element.initials = init
-      element.avatar = ''
-      element.color = avatarColor[i]
-      i++
-      if (i >= 11) {
-        i = 0
-      }
-      datas.push(element)
-    }
-  }
-  isLoading.value = false
-  return datas
-}
-
 const toggleSubnav = (subnav: SubnavId) => {
   if (activeSubnav.value === subnav) {
     activeSubnav.value = 'closed'
@@ -100,7 +73,6 @@ const getAvatarData = (user: any): VAvatarProps => {
     color: user.color as VAvatarColor,
   }
 }
-
 
 const gotoLink = (name: any) => {
   router.push({
@@ -140,44 +112,6 @@ const toggleDashboard = () => {
   }
 
 }
-watch(
-  () => filter.value,
-  (newValue, oldValue) => {
-    if (newValue != oldValue) {
-      if (!newValue) {
-        return []
-      }
-      if (newValue.length <= 3) return
-      isLoading.value = true
-      useApi().get(`/general/pasien-registrasi?query=${newValue}`).then((response: any) => {
-        let datas = []
-        if (response.length > 0) {
-          let i = 0
-          for (let x = 0; x < response.length; x++) {
-            const element = response[x];
-            let ini = element.namapasien.split(' ')
-            let init = element.namapasien.substr(0, 1)
-            if (ini.length > 1) {
-              init = init + ini[1].substr(0, 1)
-            }
-            element.initials = init
-            element.avatar = ''
-            element.color = avatarColor[i]
-            i++
-            if (i >= 11) {
-              i = 0
-            }
-            datas.push(element)
-          }
-        }
-        isLoading.value = false
-        filteredPasiens.value = datas
-      }).catch((e: any) => {
-        isLoading.value = false
-      })
-    }
-  }
-)
 
 watch(
   () => route.fullPath,
@@ -187,6 +121,32 @@ watch(
   }
 )
 
+const waktusekarang = ref('00:00:00 WIB');
+let worker: Worker | null = null;
+
+const getTimeInServer = async () => {
+  const response = await useApi().get('/get-time-server');
+  const { date, time, second } = response;
+  const serverTime = new Date(`${date}T${time}:${second}`).getTime();
+  if (worker) {
+    worker.postMessage({ timeServer: serverTime });
+  }
+};
+
+onMounted(() => {
+  worker = new Worker('/workers/timeWorker.js');
+  worker.onmessage = (event) => {
+    waktusekarang.value = event.data;
+  };
+  getTimeInServer();
+});
+
+onUnmounted(() => {
+  if (worker) {
+    worker.terminate();
+    worker = null;
+  }
+});
 
 let listMenu = useStorage('list_menu', [])
 const api = useApi()
@@ -297,18 +257,24 @@ await api.get(
       </template>
 
       <template #toolbar>
-        <Toolbar class="desktop-toolbar">
-          <ToolbarNotification />
+        <div style="display: flex; align-items: center;">
+          <div style="font-size: 18px; font-weight: bold; margin-right: 16px;">
+            {{ waktusekarang }}
+          </div>
+          <Toolbar class="desktop-toolbar">
+            <ToolbarNotification />
 
-          <a class="toolbar-link right-panel-trigger" tabindex="0" @keydown.space.prevent="panels.setActive('activity')"
-            @click="panels.setActive('activity')">
-            <i aria-hidden="true" class="iconify" data-icon="feather:grid"></i>
-          </a>
-        </Toolbar>
+            <a class="toolbar-link right-panel-trigger" tabindex="0"
+              @keydown.space.prevent="panels.setActive('activity')" @click="panels.setActive('activity')">
+              <i aria-hidden="true" class="iconify" data-icon="feather:grid"></i>
+            </a>
+          </Toolbar>
+        </div>
 
         <LayoutSwitcher />
         <UserProfileDropdown right />
       </template>
+
 
 
       <template #links>
@@ -339,62 +305,11 @@ await api.get(
             <i aria-hidden="true" class="iconify" data-icon="feather:grid"></i>
             <span>Navigation</span>
           </a>
-          <!-- <a
-            :class="[activeSubnav === 'elements' && 'is-active']"
-            class="centered-link centered-link-toggle"
-            tabindex="0"
-            @keydown.space.prevent="toggleSubnav('elements')"
-            @click="toggleSubnav('elements')"
-          >
-            <i aria-hidden="true" class="iconify" data-icon="feather:box"></i>
-            <span>Elements</span>
-          </a>-->
-          <!-- <a :class="[activeSubnav === 'components' && 'is-active']" class="centered-link centered-link-toggle"
-            tabindex="0">
-            <RouterLink :to="{ name: 'module-registrasi-pasien-lama' }">
-              <i aria-hidden="true" class="iconify" data-icon="feather:cpu"></i>
-              <span>Components</span>
-            </RouterLink>
-
-          </a> -->
-          <a class="centered-link centered-link-search" tabindex="0" @keydown.space.prevent="toggleSubnav('search')"
-            @click="toggleSubnav('search')">
-            <i aria-hidden="true" class="iconify" data-icon="feather:search"></i>
-            <span>Search</span>
-          </a>
         </div>
 
         <div class="centered-search" :class="[activeSubnav !== 'search' && 'is-hidden']">
           <div class="field">
-            <div class="control has-icon">
-              <VField>
-                <VControl>
-                  <VInput v-model="filter" type="text" class="input is-rounded search-input"
-                    placeholder="Search pasien..." :loading="isLoading" @keydown.enter.prevent="toggleEnter(filter)" />
-                </VControl>
-              </VField>
 
-              <div class="form-icon">
-
-                <i aria-hidden="true" class="iconify" data-icon="feather:search"></i>
-              </div>
-              <div class="form-icon is-right" tabindex="0" @keydown.space.prevent="toggleSubnav('search')"
-                @click="toggleSubnav('search')">
-                <div class="loader is-loading" v-if="isLoading"></div>
-                <i aria-hidden="true" class="iconify" data-icon="feather:x"></i>
-              </div>
-              <div v-if="filteredPasiens.length > 0" class="search-results has-slimscroll is-active">
-                <div v-for="pasien in filteredPasiens" :key="pasien.id" class="search-result is-clickable"
-                  @click="showForm(pasien)">
-                  <!-- <VAvatar v-bind="getAvatarData(pasien)" /> -->
-                  <VAvatar size="small" :color="pasien.color" :initials="pasien.initials" />
-                  <div class="meta">
-                    <span>{{ pasien.namapasien }}</span>
-                    <span>{{ pasien.nocm }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </template>

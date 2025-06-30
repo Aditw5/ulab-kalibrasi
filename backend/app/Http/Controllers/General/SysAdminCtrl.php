@@ -142,4 +142,20 @@ class SysAdminCtrl extends Controller
 
         return $this->respond($data);
     }
+
+    public function getTimeServer(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+
+        $date = date('Y-m-d');
+        $time = date('H:i');
+
+        $result = array(
+            'date' => $date,
+            'time' => $time,
+            'second' => date('s')
+        );
+
+        return $this->respond($result);
+    }
 }
