@@ -34,40 +34,25 @@
                                 <div class="current-user">
                                   
                                     <VAvatar size="medium"
-                                        :picture="pasien.jeniskelamin ==
+                                        :picture="mitra.jeniskelamin ==
                                         'PEREMPUAN' ? '/images/avatars/svg/vuero-4.svg' : '/images/avatars/svg/vuero-1.svg'" squared />
-                                    <h3>{{ pasien.namapasien }}</h3>
+                                    <h3>{{ mitra.namaperusahaan }}</h3>
                            
                                 </div>
                             </div>
                             <div class="center">
                                 <div class="columns">
                                     <div class="column">
-                                        <h4 class="block-heading">No RM</h4>
-                                        <p class="block-text"> {{ pasien.nocm }}</p>
-                                        <h4 class="block-heading">Tgl Lahir </h4>
-                                        <p class="block-text"> {{ pasien.tgllahir }}</p>
-                                    </div>
-                                    <div class="column">
-                                        <h4 class="block-heading">NIK </h4>
-                                        <p class="block-text"> {{ pasien.noidentitas }}</p>
-                                        <h4 class="block-heading">Kelamin</h4>
-                                        <p class="block-text"> {{ pasien.jeniskelamin }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="right">
-                                <div class="columns">
-                                    <div class="column">
                                         <h4 class="block-heading">No HP</h4>
-                                        <p class="block-text">{{ pasien.nohp }}</p>
-                                        <h4 class="block-heading">Alamat</h4>
-                                        <p class="block-text">{{ pasien.alamatlengkap }}
-                                        </p>
+                                        <p style="color: white;"> {{ mitra.nohp }}</p>
+                                        <h4 class="block-heading">Tgl Daftar </h4>
+                                        <p style="color: white;"> {{ mitra.tgldaftar }}</p>
                                     </div>
                                     <div class="column">
-                                        <h4 class="block-heading">Umur</h4>
-                                        <VTag color="orange" :label="pasien.umur" />
+                                        <h4 class="block-heading">Alamat </h4>
+                                        <p style="color: white;"> {{ mitra.alamatktr }}</p>
+                                        <h4 class="block-heading">Email</h4>
+                                        <p style="color: white;"> {{ mitra.email }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -118,22 +103,14 @@
                     <div class="content-wrap">
                         <div class="content-box">
                             <div class="status"></div>
-                            <VAvatar
-                                :picture="'/images/ruang/' + (items.nocounter != null ? items.nocounter : 1) + '.png'" />
                             <div class="box-text">
                                 <div class="meta-text">
                                     <p>
-                                        <span>{{ items.namaruangan }}</span> dengan Dokter <a>{{ items.namadokter ?
-                                                items.namadokter : '-'
-                                        }}</a>
-                                        Tipe pembayaran
-                                        <VTag :label="items.kelompokpasien" color="purple" rounded />.
+                                        <span>{{ items.jenisorder }}</span> dengan jumlah alat <a>{{ items.jumlah_detailalat ?items.jumlah_detailalat : '-'}}</a>
                                     </p>
-                                    <span>Pulang : {{ H.formatDateIndo(items.tglpulang) }}</span>
+                                    <span>No Pendaftaran : {{ items.nopendaftaran }}</span><br>
+                                    <span>Tanggal Selesai : </span>
                                 </div>
-                            </div>
-                            <div class="box-end">
-                                <a> {{ items.lamarawat != '0thn 0bln 0hr' ? 'lama rawat ' + items.lamarawat : '' }}</a>
                             </div>
                         </div>
                     </div>
@@ -169,15 +146,15 @@ useHead({
     title: 'Riwayat Registrasi - ' + import.meta.env.VITE_PROJECT,
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
-let ID_PASIEN = useRoute().query.nocmfk as string
-let pasien: any = ref({})
+let ID_MITRA = useRoute().query.nomitrafk as string
+let mitra: any = ref({})
 let isLoadingPasien: any = ref(false)
 const dataSourceRiwayat: any = ref([])
 let listColor: any = ref(Object.keys(useThemeColors()))
 function headerPasien() {
     isLoadingPasien.value = true
-    useApi().get(`/registrasi/pasien-lama?id=${ID_PASIEN}`).then((response: any) => {
-        pasien.value = response.data[0]
+    useApi().get(`/registrasi/mitra-registrasi?id=${ID_MITRA}`).then((response: any) => {
+        mitra.value = response.mitra
         isLoadingPasien.value = false
     }).catch((e: any) => {
         isLoadingPasien.value = false
@@ -186,7 +163,7 @@ function headerPasien() {
 function riwayatPasien() {
     dataSourceRiwayat.value.loading = true
     useApi().get(
-        `/registrasi/riwayat-registrasi?id=${ID_PASIEN}`).then((response: any) => {
+        `/registrasi/riwayat-registrasi?id=${ID_MITRA}`).then((response: any) => {
             for (let x = 0; x < response.length; x++) {
                 const element = response[x];
                 element.no = x + 1

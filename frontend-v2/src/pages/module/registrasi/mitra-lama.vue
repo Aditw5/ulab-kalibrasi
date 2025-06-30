@@ -17,7 +17,7 @@
           </a>
         </div>
         <div class="column is-9">
-          <div class="flex-list-inner mb-4" v-if="ds_PASIEN.loading">
+          <div class="flex-list-inner mb-4" v-if="ds_MITRA.loading">
             <div class="flex-table-item grid-item mb-4" v-for="key in 5" :key="key">
               <VFlexTableCell :column="{ grow: true, media: true }">
                 <VPlaceloadAvatar size="medium" />
@@ -37,7 +37,7 @@
               </VFlexTableCell>
             </div>
           </div>
-          <div class="flex-list-inner" v-else-if="ds_PASIEN.length === 0">
+          <div class="flex-list-inner" v-else-if="ds_MITRA.length === 0">
             <VPlaceholderSection title="Not found" subtitle="There is no data that match your query." class="my-6">
               <template #image>
                 <img class="light-image" src="/@src/assets/illustrations/placeholders/search-4.svg" alt="" />
@@ -45,24 +45,10 @@
               </template>
             </VPlaceholderSection>
           </div>
-          <div v-else-if="ds_PASIEN.length > 0">
-
-
-            <div class="grid-item mb-4" v-for="(items, i) in ds_PASIEN" :key="items.id">
+          <div v-else-if="ds_MITRA.length > 0">
+            <div class="grid-item mb-4" v-for="(items, i) in ds_MITRA" :key="items.id">
               <div class="top-section">
                 <div class="head">
-                  <!-- <div class="title-wrap">
-                    <div class="columns">
-                      <div class="column is-3">
-                        <VAvatar :picture="items.foto" size="small" v-if="items.isfoto" />
-                        <VAvatar size="small" :color="listColor[i]" :initials="items.initials" v-if="!items.isfoto" />
-                      </div>
-                      <div class="column is-12 mr-3">
-                        <h3>{{ items.namapasien }}</h3>
-                        <p>{{ items.nocm + (items.jeniskelamin == 'Perempuan' ? ' (P)' : ' (L)') }}</p>
-                      </div>
-                    </div>
-                  </div> -->
                   <div class="title-wrap">
                     <div class="columns">
                       <div class="column is-3">
@@ -78,8 +64,6 @@
                   </div>
                   <VDropdown icon="feather:more-vertical" spaced right v-tooltip.bubble="'AKSI'">
                     <template #content>
-
-                      <!-- <a role="menuitem" href="#" class="dropdown-item is-media"> -->
                       <a role="menuitem" href="#" class="dropdown-item is-media" @click="editMitra(items)">
                         <div class="icon">
                           <i aria-hidden="true" class="lnil lnil-pencil"></i>
@@ -89,9 +73,7 @@
                           <span>ubah data ini</span>
                         </div>
                       </a>
-
-                      <!-- <a role="menuitem" href="#" class="dropdown-item is-media" @click="dialogConfirm(items)"> -->
-                      <a role="menuitem" href="#" class="dropdown-item is-media">
+                      <a role="menuitem" href="#" class="dropdown-item is-media" @click="dialogConfirm(items)">
                         <div class="icon">
                           <i aria-hidden="true" class="lnil lnil-trash"></i>
                         </div>
@@ -100,9 +82,7 @@
                           <span>hapus data ini</span>
                         </div>
                       </a>
-
-                      <!-- <a role="menuitem" href="#" class="dropdown-item is-media" @click="riwayatPasien(items)"> -->
-                      <a role="menuitem" href="#" class="dropdown-item is-media">
+                      <a role="menuitem" href="#" class="dropdown-item is-media" @click="riwayatMitra(items)">
                         <div class="icon">
                           <i aria-hidden="true" class="lnil lnil-archive"></i>
                         </div>
@@ -114,7 +94,6 @@
                       <hr class="dropdown-divider" />
                     </template>
                   </VDropdown>
-
                 </div>
                 <div class="body">
                   <div class="columns is-multiline">
@@ -132,18 +111,12 @@
                         <VProgress :color="items.class_proggress" size="tiny" :value="items.progress" />
                       </div>
                     </div>
-
                   </div>
                 </div>
               </div>
-
               <div class="bottom-section is-custom">
                 <div class="foot-block" style="margin-top: 10px;">
-                  <!-- <h4 class="heading">Action</h4> -->
                   <div class="developers">
-                    <!-- <VButton type="button" icon="feather:eye" class="is-fullwidth mr-3" color="success" outlined raised
-                      @click="detailPasien(items)">
-                      Details </VButton> -->
                     <VButton type="button" icon="feather:edit" class="is-fullwidth mr-3" color="info" outlined raised
                       @click="editMitra(items)">
                       Edit </VButton>
@@ -151,7 +124,7 @@
                       @click="dialogConfirm(items)">
                       Delete </VButton>
                     <VButton type="button" icon="fa fa-history" class="is-fullwidth mr-3" color="warning" outlined
-                      raised @click="riwayatPasien(items)">
+                      raised @click="riwayatMitra(items)">
                       Riwayat </VButton>
                     <VButton type="button" icon="feather:arrow-right-circle" class="is-fullwidth mr-3" color="purple"
                       outlined raised @click="registrasi(items)" :loading="items.isLoading">
@@ -159,8 +132,6 @@
                     <VButton type="button" icon="feather:arrow-right-circle" class="is-fullwidth mr-3" color="warning"
                       outlined raised @click="registrasiReapir(items)" :loading="items.isLoading">
                       Registrasi Repair</VButton>
-
-
                   </div>
                 </div>
               </div>
@@ -200,9 +171,6 @@
               </template>
             </VFlexPagination>
           </div>
-          <!-- <VFlexPagination v-model:current-page="currentPage.page" class="mt-6" :item-per-page="currentPage.limit"
-            :total-items="currentPage.rows" :max-links-displayed="10" /> -->
-
         </div>
         <div class="column is-3">
           <div class="columns is-multiline">
@@ -220,14 +188,6 @@
             <div class="column is-6">
               <a @click="clearFilter()" type="button" class="is-pulled-right mr-3" color="info" outlined raised> Clear
                 All </a>
-            </div>
-            <div class="column is-12">
-              <VField>
-                <VLabel>No Serial Number</VLabel>
-                <VControl icon="feather:user">
-                  <VInput type="text" v-model="item.qnocm" v-on:keyup.enter="filter()" placeholder="No Serial Number" />
-                </VControl>
-              </VField>
             </div>
             <div class="column is-12">
               <VDatePicker v-model="item.tgldaftar" color="green" trim-weeks :input="'YYYY-MM-DD'" mode="date">
@@ -250,126 +210,16 @@
                 </VControl>
               </VField>
             </div>
-            <!-- <div class="column is-12">
-              <VField>
-                <VLabel>Alamat</VLabel>
-                <VControl icon="feather:map">
-                  <VInput type="text" v-model="item.qalamat" v-on:keyup.enter="filter()" placeholder="Alamat" />
-                </VControl>
-              </VField>
-            </div> -->
             <div class="column is-12">
-              <VButton @click="filter()" :loading="ds_PASIEN.loading" type="button" icon="feather:search"
+              <VButton @click="filter()" :loading="ds_MITRA.loading" type="button" icon="feather:search"
                 class="is-fullwidth mr-3" color="info" raised> Apply Filters
               </VButton>
             </div>
           </div>
-
         </div>
       </div>
     </div>
-
   </VCard>
-  <VModal :open="modalRiw" title="Riwayat Registrasi" size="big" actions="right" @close="modalRiw = false"
-    cancelLabel="Tutup">
-    <template #content>
-      <form class="modal-form">
-        <div class="business-dashboard hr-dashboard">
-          <div class="columns is-multiline">
-            <div class="column is-12">
-              <div class="block-header">
-                <div class="left">
-                  <div class="current-user">
-                    <VAvatar size="medium" picture="/images/avatars/svg/vuero-1.svg" squared />
-                    <h3>{{ dataSelect.namapasien }}</h3>
-                    <!-- <p class="block-text">
-                      {{ 'No RM : ' + dataSelect.nocm + (dataSelect.jeniskelamin ==
-                          'PEREMPUAN' ? ' (P)'
-                          :
-                          ' (L)')
-                      }}</p> -->
-                  </div>
-                </div>
-                <div class="center">
-                  <div class="columns">
-                    <div class="column">
-                      <h4 class="block-heading">No RM</h4>
-                      <p class="block-text"> {{ dataSelect.nocm }}</p>
-                      <h4 class="block-heading">Tgl Lahir </h4>
-                      <p class="block-text"> {{ dataSelect.tgllahir }}</p>
-                    </div>
-                    <div class="column">
-                      <h4 class="block-heading">NIK </h4>
-                      <p class="block-text"> {{ dataSelect.noidentitas }}</p>
-                      <h4 class="block-heading">Jenis Kelamin</h4>
-                      <p class="block-text"> {{ dataSelect.jeniskelamin }}</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="right">
-                  <div class="columns">
-                    <div class="column">
-                      <h4 class="block-heading">No HP</h4>
-                      <p class="block-text">{{ dataSelect.nohp }}</p>
-                      <h4 class="block-heading">Nama Ibu</h4>
-                      <p class="block-text">{{ dataSelect.namaibu ? dataSelect.namaibu : '-' }}</p>
-                    </div>
-                    <div class="column">
-                      <h4 class="block-heading">Umur</h4>
-                      <VTag color="orange" :label="dataSelect.umur" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="columns is-multiline">
-          <div class="column is-12">
-            <DataTable :value="dataSourceRiwayat" :paginator="true" :rows="5" :rowsPerPageOptions="[5, 10, 25]"
-              class="p-datatable-customers" filterDisplay="menu"
-              paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-              responsiveLayout="stack" breakpoint="960px" sortMode="multiple"
-              currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-              :loading="dataSourceRiwayat.loading"
-              :globalFilterFields="['namaruangan', 'namadokter', 'kelompokpasien']">
-              <!-- <Column :exportable="false" header="#" style="width:8rem">
-            <template #body="slotProps">
-              <VIconButton type="button" icon="pi pi-arrow-right" class="mr-3" color="danger" circle outlined raised
-                v-tooltip.top="'Input Resep'" @click="gotoResep(slotProps.data)">
-              </VIconButton>
-            </template>
-  </Column> -->
-              <template #header>
-                <div class="flex justify-content-between  align-items-center">
-                  <VField>
-                    <VControl icon="feather:search">
-                      <VInput type="text" v-model="filters['global'].value" placeholder="Filter" class="is-rounded" />
-                    </VControl>
-                  </VField>
-
-                </div>
-              </template>
-              <template #empty>
-                <span style="text-align:center"> No data found.</span>
-              </template>
-              <!-- <template #loading>
-            Loading customers data. Please wait.
-          </template> -->
-              <Column field="no" header="No"></Column>
-              <Column field="tglregistrasi" header="Tgl Registrasi" style="width:150px"></Column>
-              <Column field="noregistrasi" header="No Registrasi" :sortable="true" style="width:150px"></Column>
-              <Column field="namaruangan" header="Ruang" :sortable="true" style="width:200px"></Column>
-              <Column field="namadokter" header="Dokter" style="width:200px"></Column>
-              <Column field="kelompokpasien" header="Tipe" style="width:150px"></Column>
-              <Column field="tglpulang" header="Tgl Pulang" style="width:150px"></Column>
-              <Column field="lamarawat" header="Lama Rawat" style="width:150px"></Column>
-            </DataTable>
-          </div>
-        </div>
-      </form>
-    </template>
-  </VModal>
 </template>
 <route lang="yaml">
 meta:
@@ -392,31 +242,20 @@ import Column from 'primevue/column';
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 import { useUserSession } from '/@src/stores/userSession'
 useHead({
-  title: 'Mitra - ' + import.meta.env.VITE_PROJECT,
+  title: 'Mitra Lama- ' + import.meta.env.VITE_PROJECT,
 })
-useViewWrapper().setPageTitle('Pasien Lama')
+useViewWrapper().setPageTitle('Mitra Lama')
 useViewWrapper().setFullWidth(false)
 const confirm = useConfirm();
 const total = ref(0)
 const date = ref(new Date())
 const item: any = reactive({})
 const totalData: any = ref(0)
-let listJK: any = ref([])
-let listAgama: any = ref([])
-let listGolonganDarah: any = ref([])
-let listStatusPerkawinan: any = ref([])
-let listPendidikan: any = ref([])
-let listPekerjaan: any = ref([])
-let listEtnis: any = ref([])
-let listKebangsaan: any = ref([])
-let listNegara: any = ref([])
-let ds_PASIEN: any = ref([])
+let ds_MITRA: any = ref([])
 let listColor: any = ref(Object.keys(useThemeColors()))
 let dataSelect: any = ref({})
-const modalRiw = ref(false)
 const dataSourceRiwayat: any = ref([])
 const route = useRoute()
-const isbayi = ref(false)
 const router = useRouter()
 const { y } = useWindowScroll()
 const kelompokUser = useUserSession().getUser().kelompokUser.kelompokUser
@@ -463,13 +302,12 @@ watch(
 
 
 async function fetchMitra() {
-  ds_PASIEN.value.loading = true
+  ds_MITRA.value.loading = true
 
   let searchQuery = `&q=`
   let limit: any = currentPage.value.limit
   let offset: any = route.query.page ? route.query.page : 1
   offset = (parseInt(offset) - 1) * limit
-  // let offset=''
   let page: any = route.query.page ? route.query.page : 1
   let namaperusahaan = ''
   let tgldaftar = ''
@@ -477,10 +315,10 @@ async function fetchMitra() {
   if (item.tgldaftar) tgldaftar = `&tgldaftar=${H.formatDate(item.tgldaftar, 'YYYY-MM-DD')}`
   totalData.value = 0
   const response = await useApi().get(`/registrasi/mitra-lama?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPage.value.rows}${namaperusahaan}${tgldaftar}`)
-  let pasien = response.data
+  let mitra = response.data
   totalData.value = response.total
-  for (let x = 0; x < pasien.length; x++) {
-    const element = pasien[x];
+  for (let x = 0; x < mitra.length; x++) {
+    const element = mitra[x];
     let ini = element.namaperusahaan.split(' ')
     let init = element.namaperusahaan.substr(0, 1)
     if (ini.length > 1) {
@@ -488,49 +326,10 @@ async function fetchMitra() {
     }
     element.initials = init
   }
-  ds_PASIEN.value.loading = false
-  ds_PASIEN.value = pasien
-  // ds_PASIEN.value.total = pasien.length
+  ds_MITRA.value.loading = false
+  ds_MITRA.value = mitra
 }
 
-
-// async function listDropdown() {
-//   const response = await useApi().get(
-//     `/registrasi/list-dropdown`)
-//   listJK.value = []
-//   for (let x = 0; x < response.jk.length; x++) {
-//     const element = response.jk[x];
-//     if (element.jeniskelamin != '-') {
-//       listJK.value.push(element)
-//     }
-//   }
-//   listAgama.value = response.agama.map((e: any) => { return { label: e.agama, value: e.id } })
-//   listGolonganDarah.value = response.golongandarah.map((e: any) => { return { label: e.golongandarah, value: e.id } })
-//   listStatusPerkawinan.value = response.statusperkawinan.map((e: any) => { return { label: e.statusperkawinan, value: e.id } })
-//   listPendidikan.value = response.pendidikan.map((e: any) => { return { label: e.pendidikan, value: e.id } })
-//   listPekerjaan.value = response.pekerjaan.map((e: any) => { return { label: e.pekerjaan, value: e.id } })
-//   listEtnis.value = response.etnis.map((e: any) => { return { label: e.suku, value: e.id } })
-//   listKebangsaan.value = response.kebangsaan.map((e: any) => { return { label: e.name, value: e.id } })
-//   listNegara.value = response.negara.map((e: any) => { return { label: e.namanegara, value: e.id } })
-
-// }
-function savePasien() {
-  if (!item.nik) {
-    useToaster().error('NIK harus di isi')
-    return
-  }
-  if (!item.nobpjs) {
-    useToaster().error('No BPJS harus di isi')
-    return
-  }
-  if (!item.namapasien) {
-    useToaster().error('Nama harus di isi')
-    return
-  }
-}
-function resetForm() {
-
-}
 function editMitra(e: any) {
   router.push({
     name: 'module-registrasi-mitra-baru',
@@ -547,45 +346,31 @@ const dialogConfirm = (e: any) => {
     icon: 'pi pi-info-circle',
     acceptClass: 'p-button-danger',
     accept: () => {
-      hapusPasien(e)
+      hapusMitra(e)
     },
     reject: () => { },
   })
 }
 
-function hapusPasien(e: any) {
+function hapusMitra(e: any) {
   useApi().post(
-    `/registrasi/delete-pasien`, { 'id': e.id }).then((response: any) => {
+    `/registrasi/delete-mitra`, { 'id': e.id }).then((response: any) => {
       fetchMitra()
     }).catch((e: any) => {
 
     })
 }
-function riwayatPasien(e: any) {
+function riwayatMitra(e: any) {
+  console.log(e)
   dataSelect.value = e
   router.push({
     name: 'module-registrasi-riwayat-registrasi',
     query: {
-      nocmfk: e.id,
+      nomitrafk: e.id,
     },
   })
-  // modalRiw.value = true
-  // dataSourceRiwayat.value.loading = true
-  // useApi().get(
-  //   `/registrasi/riwayat-registrasi?id=${e.id}`).then((response: any) => {
-  //     for (let x = 0; x < response.length; x++) {
-  //       const element = response[x];
-  //       element.no = x + 1
-  //     }
-  //     dataSourceRiwayat.value = response
-  //     dataSourceRiwayat.value.loading = false
-  //   }).catch((e: any) => {
-
-  //   })
 }
-function detailPasien(e: any) {
 
-}
 const registrasi = async (e: any) => {
   router.push({
     name: 'module-registrasi-registrasi-mitra',
@@ -606,27 +391,14 @@ const registrasiReapir = async (e: any) => {
 }
 function clearFilter() {
   delete item.qnama
-  delete item.qnocm
-  delete item.qnik
-  delete item.qbpjs
-  delete item.qalamat
-  delete item.tglLahir
   fetchMitra()
 }
 function filter() {
   fetchMitra()
 }
 
-watch(
-  () => item.isbayi,
-  () => {
-    fetchMitra()
-  }
-)
 
 fetchMitra()
-// listDropdown()
-
 </script>
 <style lang="scss">
 @import '/@src/scss/abstracts/all';

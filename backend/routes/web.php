@@ -187,7 +187,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('registrasi/mitra-lama', 'mitraLama');
         Route::get('registrasi/cek-pasien-pulang', 'cekPulangpasien');
         Route::get('registrasi/cek-sep', 'cekSEPpasien');
-        Route::post('registrasi/delete-pasien', 'deletePasien');
+        Route::post('registrasi/delete-mitra', 'deleteMitra');
     });
 
     Route::controller(MitraBaruCtrl::class)->group(function () {

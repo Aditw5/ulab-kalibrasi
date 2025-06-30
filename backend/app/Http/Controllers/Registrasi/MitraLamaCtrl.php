@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Registrasi;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\Pasien;
 use App\Models\Master\Mitra;
-use App\Models\Transaksi\PasienDaftar;
 use App\Traits\Valet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -88,11 +86,11 @@ class MitraLamaCtrl extends Controller
         return $this->respond($data);
     }
 
-    public function deletePasien(Request $r)
+    public function deleteMitra(Request $r)
     {
         DB::beginTransaction();
         try {
-            $dataPS = Pasien::where('id', $r['id'])->update(['statusenabled' => false]);
+            $dataPS = Mitra::where('id', $r['id'])->update(['statusenabled' => false]);
             DB::commit();
 
             $result = [
@@ -115,26 +113,5 @@ class MitraLamaCtrl extends Controller
 
         return $this->respond($result['result'], $result['statusCode'], $result['message']);
     }
-    public function cekPulangpasien(Request $r)
-    {
-        $cekRI = PasienDaftar::where('nocmfk', $r['id'])
-            ->whereNull('tglpulang')
-            ->where('statusenabled', true)
-            ->first();
-
-        return $this->respond($cekRI);
-    }
-    public function cekSEPpasien(Request $r)
-    {
-        $cekRI = DB::table('pasiendaftar_t as pd')
-            ->join('pemakaianasuransi_t as pa', 'pa.noregistrasifk', 'pd.norec')
-            ->join('ruangan_m as ru', 'ru.id', 'pd.objectruanganlastfk')
-            ->select('pa.nosep','pd.noregistrasi', 'ru.namaruangan')
-            ->where('pd.nocmfk', $r['id'])
-            ->where('pd.statusenabled', true)
-            ->whereBetween('pd.tglregistrasi', [now()->startOfDay(), now()->endOfDay()])
-            ->first();
-
-        return $this->respond($cekRI);
-    }
+  
 }

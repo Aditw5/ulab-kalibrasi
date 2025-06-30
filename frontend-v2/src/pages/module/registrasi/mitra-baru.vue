@@ -11,19 +11,12 @@
                             <div class="right">
                                 <div class="buttons">
                                     <VButton type="button" icon="feather:save" :loading="isLoading" color="primary"
-                                        raised @click="savePasien()" v-if="!isRegistrasi"> Save
+                                        raised @click="saveMitra()" v-if="!isRegistrasi"> Save
                                     </VButton>
                                     <VButton type="button" icon="feather:arrow-right-circle" :loading="isLoading"
-                                        color="info" raised @click="registrasiPasien()"
-                                        v-if="isRegistrasi && (kelompokUser != 'laboratorium' && kelompokUser != 'radiologi')">
+                                        color="info" raised @click="registrasi()" v-if="isRegistrasi">
                                         Registrasi
                                     </VButton>
-                                    <VButton type="button" icon="feather:arrow-right-circle" :loading="isLoading"
-                                        color="info" raised @click="registrasiLab()"
-                                        v-if="isRegistrasi && (kelompokUser == 'laboratorium' || kelompokUser == 'radiologi')">
-                                        Registrasi
-                                    </VButton>
-
                                 </div>
                             </div>
                         </div>
@@ -35,7 +28,7 @@
                                 <h4>Informasi Mitra</h4>
                             </div>
                             <div class="columns is-multiline">
-                                <div class="column is-12 text-center">
+                                <!-- <div class="column is-12 text-center">
                                     <VField>
                                         <VControl>
                                             <VFilePond v-if="files.length" v-bind:files="files" class="profile-filepond"
@@ -64,13 +57,13 @@
                                                 @removefile="onRemoveFile" />
                                         </VControl>
                                     </VField>
-                                </div>
+                                </div> -->
                                 <div class="column is-12">
                                     <VField>
                                         <VLabel class="required-field">Nama Perusahaan</VLabel>
                                         <VControl icon="feather:user">
-                                            <VInput type="text" v-model="item.namaperusahaan" placeholder="Nama Pasien"
-                                                class="is-rounded_Z" />
+                                            <VInput type="text" v-model="item.namaperusahaan"
+                                                placeholder="Nama Perusahaan" class="is-rounded_Z" />
                                         </VControl>
                                     </VField>
                                 </div>
@@ -78,7 +71,7 @@
                                     <VField>
                                         <VLabel>No HP/Ponsel Penanggung Jawab</VLabel>
                                         <VControl icon="feather:phone">
-                                            <VInput type="text" v-model="item.nohp" placeholder="No HP"
+                                            <VInput type="text" v-model="item.nohp" placeholder="No HP Penanggung Jawab"
                                                 class="is-rounded_Z" />
                                         </VControl>
                                     </VField>
@@ -199,10 +192,6 @@ let ID_MITRA = useRoute().query.id as string
 let ID_MITRA_SET = ref()
 const date = ref(new Date())
 const item: any = reactive({})
-let d_Agama: any = ref([])
-let d_StatusPerkawinan: any = ref([])
-let d_Pendidikan: any = ref([])
-let d_Pekerjaan: any = ref([])
 let d_Negara: any = ref([])
 let d_Kelurahan: any = ref([])
 let d_Kecamatan: any = ref([])
@@ -221,28 +210,22 @@ const isStuck = computed(() => {
 })
 const kelompokUser = useUserSession().getUser().kelompokUser.kelompokUser
 
-
 async function fetchMitra() {
-    const response = await useApi().get(`/registrasi/mitra?&id=${ID_MITRA}`)
+    if (ID_MITRA != undefined) {
+        const response = await useApi().get(`/registrasi/mitra?&id=${ID_MITRA}`)
+        item.namaperusahaan = response.data.namaperusahaan
+        item.nohp = response.data.nohp
+        item.alamat = response.data.alamatktr
+        item.rtrw = response.data.rtrw
 
-    item.namaperusahaan = response.data.namaperusahaan
-    item.nohp = response.data.nohp
-    item.alamat = response.data.alamatktr
-    item.rtrw = response.data.rtrw
+        item.provinsi = d_Provinsi.value.find(p => p.value === response.data.objectpropinsifk) || null
+        item.kotaKabupaten = d_KotaKabupaten.value.find(k => k.value === response.data.objectkotakabupatenfk) || null
+    }
 
-    item.provinsi = d_Provinsi.value.find(p => p.value === response.data.objectpropinsifk) || null
-    item.kotaKabupaten = d_KotaKabupaten.value.find(k => k.value === response.data.objectkotakabupatenfk) || null
 }
 
-
 async function listDropdown() {
-
     const response = await useApi().get(`/registrasi/list-mitra-dropdown`)
-
-    d_Agama.value = response.agama.map((e: any) => { return { label: e.agama, value: e.id, default: e } })
-    d_StatusPerkawinan.value = response.statusperkawinan.map((e: any) => { return { label: e.statusperkawinan, value: e.id, default: e } })
-    d_Pendidikan.value = response.pendidikan.map((e: any) => { return { label: e.pendidikan, value: e.id, default: e } })
-    d_Pekerjaan.value = response.pekerjaan.map((e: any) => { return { label: e.pekerjaan, value: e.id, default: e } })
     d_Negara.value = response.negara.map((e: any) => { return { label: e.namanegara, value: e.id, default: e } })
     d_Provinsi.value = response.provinsi.map((e: any) => { return { label: e.namapropinsi, value: e.id, default: e } })
 
@@ -255,7 +238,8 @@ const blobToBase64 = (blob: any) => {
         reader.readAsDataURL(blob);
     });
 }
-async function savePasien() {
+
+async function saveMitra() {
     if (!item.namaperusahaan) { H.alert('warning', 'Nama Perusahaan harus di isi'); return }
     if (!item.nohp) { H.alert('warning', 'No.Hp harus di isi'); return }
     if (!item.alamat) { H.alert('warning', 'Alamat harus di isi'); return }
@@ -286,18 +270,12 @@ async function savePasien() {
     await useApi().post(
         `/registrasi/save-mitra`, json).then(async (response: any) => {
 
-            // if (fileFoto.value != null) {
-            //     const formData = new FormData()
-            //     formData.append('id', response.data.id)
-            //     formData.append('file', fileFoto.value)
-            //     useApi().postNoMessage('/registrasi/save-pasien-foto', formData)
-            // }
             isLoading.value = false
             ID_MITRA = response.data.id
             ID_MITRA_SET.value = response.data.id
             isRegistrasi.value = true
             if (!ID_MITRA) {
-                registrasiPasien()
+                registrasi()
             }
 
         }).catch((e: any) => {
@@ -343,9 +321,11 @@ async function changeKecamatan(event: any) {
     d_Kelurahan.value = response.desa.map((e: any) => { return { label: e.namadesakelurahan, value: e.id, default: e } })
 
 }
+
 function changeDesa(event: any) {
     item.kodePos = event.kodepos
 }
+
 function cekProggress() {
     var countALL = 0
     var data = 0
@@ -368,73 +348,19 @@ function cekProggress() {
     if (item.desaKelurahan) { data = data + 1 }
     countALL = countALL + 1
     if (item.kodePos) { data = data + 1 }
-
-
     return data / countALL * 100
 }
-function resetForm() {
 
-}
-function registrasiPasien() {
-    if (route.query.noreservasi) {
-        router.push({
-            name: 'module-registrasi-registrasi-ruangan',
-            query: {
-                nocmfk: ID_MITRA_SET.value,
-                noreservasi: route.query.noreservasi,
-                norec_online: route.query.norec_online,
-                tanggalreservasi: route.query.tanggalreservasi,
-                ruangan: route.query.ruangan,
-                dokter: route.query.dokter,
-                dokter_name: route.query.dokter_name,
-                kelompok: route.query.kelompok,
-                statuspasien: "BARU",
-            },
-        })
-    } else {
-        router.push({
-            name: 'module-registrasi-registrasi-ruangan',
-            query: {
-                nocmfk: ID_MITRA_SET.value,
-                statuspasien: "BARU",
-            },
-        })
-    }
-
-}
-
-
-function registrasiLab() {
+const registrasi = async () => {
     router.push({
-        name: 'module-registrasi-registrasi-ruangan-lab',
+        name: 'module-registrasi-registrasi-mitra',
         query: {
-            nocmfk: ID_MITRA_SET.value,
+            nomitrafk: ID_MITRA_SET.value,
+            statusmitra: "BARU",
         },
     })
 }
 
-const onAddFile = (error: any, fileInfo: any) => {
-    if (error) {
-        console.error(error)
-        return
-    }
-
-    const _file = fileInfo.file as File
-    if (_file) {
-        fileFoto.value = _file
-    }
-}
-
-const onRemoveFile = (error: any, fileInfo: any) => {
-    if (error) {
-        console.error(error)
-        return
-    }
-
-    console.log(fileInfo)
-
-    fileFoto.value = null
-}
 listDropdown()
 fetchMitra()
 

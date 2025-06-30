@@ -27,8 +27,7 @@
           <div class="block-header">
             <div class="left">
               <div class="current-user">
-                <!-- <VAvatar size="medium" :picture="mitra.jeniskelamin ==
-                  'PEREMPUAN' ? '/images/avatars/svg/vuero-4.svg' : '/images/avatars/svg/vuero-1.svg'" squared /> -->
+                <VAvatar size="medium" :picture="'/images/avatars/svg/vuero-1.svg'" squared />
                 <h3>{{ mitra.namaperusahaan }}</h3>
               </div>
             </div>
@@ -44,7 +43,7 @@
                 <div class="column">
                   <h4 class="block-heading">Email </h4>
                   <p class="block-text"> {{ mitra.email }}</p>
-                  <h4 class="block-heading">Tanggal</h4>
+                  <h4 class="block-heading">Tanggal Daftar</h4>
                   <p class="block-text"> {{ mitra.tgldaftar }}</p>
                 </div>
               </div>
@@ -293,12 +292,11 @@ useHead({
   title: 'Registrasi - ' + import.meta.env.VITE_PROJECT,
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
-useViewWrapper().setFullWidth(false)
+useViewWrapper().setFullWidth(true)
 
 let ID_MITRA = useRoute().query.nomitrafk as string
 let NOREC_PD = useRoute().query.norec_pd as string
 let NOREC_APD = useRoute().query.norec_apd as string
-let NOREC_RESERVASI = useRoute().query.norec_online as string
 let STATUSMITRA = useRoute().query.statusmitra as string
 let NOREGISTRASI = "";
 
@@ -513,16 +511,12 @@ mitraByID(ID_MITRA)
 .table-po,
 .tr-po,
 .th-po,
-.td-po {
-  border: 0.5px solid black !important;
-}
 
 .th-po,
 .td-po {
   padding: 8px !important;
 }
 
-/* wrapper untuk scroll horizontal */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -530,7 +524,7 @@ mitraByID(ID_MITRA)
 }
 
 .table-responsive .table-po {
-  min-width: 600px;
+  min-width: 900px;
   /* sesuaikan jika perlu */
 }
 

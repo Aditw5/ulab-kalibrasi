@@ -198,7 +198,7 @@
                   </TabPanel>
                   <TabPanel>
                     <template #header>
-                      <i class="fas fa-users mr-2" aria-hidden="true"></i>
+                      <i class="fas fa-tools mr-2" aria-hidden="true"></i>
                       <span>Daftar Alat</span>
                       <Badge :value="dataAlatKalibrasi.length" v-if="dataAlatKalibrasi.length > 0" severity="danger"
                         class="ml-2" />
@@ -291,7 +291,7 @@
                                   <div class="meta-right flex justify-center items-center">
                                     <div class="buttons">
                                       <VIconButton
-                                        v-if="item.asmansetujulaporanrepairfk != null && item.jenisorder == 'kalibrasi'"
+                                        v-if="item.asmansetujulembarkerjafk != null && item.jenisorder == 'kalibrasi'"
                                         v-tooltip.bottom.left="'Cetak Sertifikat'" icon="feather:printer"
                                         @click="cetakSertifikatLembarKerja(item)" color="info" raised circle
                                         class="mr-2">
