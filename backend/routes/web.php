@@ -978,7 +978,7 @@ Route::controller(AuthCtrl::class)->group(function () {
     Route::post('service/auth/register', 'registerUser');
 });
 
-Route::get('https://ulabumro.id:8000/service/auth/verify-email/{id}/{hash}', function (Request $request, $id, $hash) {
+Route::get('/service/auth/verify-email/{id}/{hash}', function (Request $request, $id, $hash) {
     if (! $request->hasValidSignature()) {
         abort(403, 'Tautan verifikasi tidak valid atau sudah kadaluarsa.');
     }
