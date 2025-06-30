@@ -58,13 +58,18 @@
                                       <td>:</td>
                                       <td>{{ items.lingkupkalibrasi }} </td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="items.jenisorder == 'kalibrasi'">
                                       <td>Lokasi</td>
                                       <td>:</td>
                                       <td>{{ items.lokasi }} </td>
                                     </tr>
+                                    <tr v-if="items.jenisorder == 'repair'">
+                                      <td>Lokasi Repair</td>
+                                      <td>:</td>
+                                      <td>{{ items.lokasirepair }} </td>
+                                    </tr>
                                     <tr>
-                                      <td>Penyelias Teknik </td>
+                                      <td>Penyelia Teknik </td>
                                       <td>:</td>
                                       <td class="font-values">{{ items.penyeliateknik }}</td>
                                     </tr>
@@ -73,7 +78,7 @@
                                       <td>:</td>
                                       <td>{{ items.pelaksanateknik }} </td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="items.jenisorder == 'kalibrasi'">
                                       <td>Durasi</td>
                                       <td>:</td>
                                       <td>
@@ -270,7 +275,7 @@ const detailOrder = async (e) => {
 const cetakSpk = (e) => {
   console.log(e.pelaksanateknikfk)
 
-  H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&pelaksanateknikfk=${e.pelaksanateknikfk}`);
+  H.printBlade(`asman/cetak-spk?pdf=true&norec=${e.norec}&penyeliateknikfk=${e.penyeliateknikfk}`);
 }
 
 

@@ -58,10 +58,15 @@
                                       <td>:</td>
                                       <td>{{ items.lingkupkalibrasi }} </td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="item.jenisorder == 'kalibrasi'">
                                       <td>Lokasi</td>
                                       <td>:</td>
                                       <td>{{ items.lokasi }} </td>
+                                    </tr>
+                                    <tr v-if="item.jenisorder == 'repair'">
+                                      <td>Lokasi Repair</td>
+                                      <td>:</td>
+                                      <td>{{ items.lokasirepair }} </td>
                                     </tr>
                                     <tr>
                                       <td>Penyelias Teknik </td>
@@ -73,7 +78,7 @@
                                       <td>:</td>
                                       <td>{{ items.pelaksanateknik }} </td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="item.jenisorder == 'kalibrasi'">
                                       <td>Durasi</td>
                                       <td>:</td>
                                       <td>

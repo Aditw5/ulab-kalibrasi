@@ -374,6 +374,11 @@ class ManagerCtrl extends Controller
             ->leftJoin('pegawai_m as pg5', 'pg5.id', '=', 'mtrd.penyeliasetujulembarkerjafk')
             ->leftJoin('pegawai_m as pg6', 'pg6.id', '=', 'mtrd.asmansetujulembarkerjafk')
             ->leftJoin('pegawai_m as pg7', 'pg7.id', '=', 'mtrd.managersetujulembarkerjafk')
+            ->leftJoin('pegawai_m as pg8', 'pg8.id', '=', 'mtrd.pelaksanaisilaporanrepairfk')
+            ->leftJoin('pegawai_m as pg9', 'pg9.id', '=', 'mtrd.penyeliaisilaporanrepairfk')
+            ->leftJoin('pegawai_m as pg10', 'pg10.id', '=', 'mtrd.penyeliasetujulaporanrepairfk')
+            ->leftJoin('pegawai_m as pg11', 'pg11.id', '=', 'mtrd.asmansetujulaporanrepairfk')
+            ->leftJoin('pegawai_m as pg12', 'pg12.id', '=', 'mtrd.managersetujulaporanrepairfk')
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
             ->select(
@@ -422,6 +427,12 @@ class ManagerCtrl extends Controller
                 'mtrd.setujuilembarkerjaasman',
                 'mtrd.tglsetujuasmanlembarkerja',
                 'mtrd.asmansetujulembarkerjafk',
+                'mtrd.tglisilaporanrepairpelaksana',
+                'mtrd.managersetujulembarkerjafk',
+                'mtrd.tglisilaporanrepairpenyelia',
+                'mtrd.tglsetujupenyelialaporanrepair',
+                'mtrd.tglsetujuasmanlaporanrepair',
+                'mtrd.tglsetujumanagerlaporanrepair',
                 'pg5.id as penyeliasetujuilembarkerjafk',
                 'pg5.namalengkap as penyeliasetujuilembarkerja',
                 'pg6.id as asmansetujuilembarkerjafk',
@@ -431,6 +442,16 @@ class ManagerCtrl extends Controller
                 'mtrd.managersetujulembarkerjafk',
                 'pg7.id as managersetujuilembarkerjafk',
                 'pg7.namalengkap as managersetujuilembarkerja',
+                'pg8.id as pelaksanaisilaporanrepairfk',
+                'pg8.namalengkap as pelaksanaisilaporanrepair',
+                'pg9.id as penyeliaisilaporanrepairfk',
+                'pg9.namalengkap as penyeliaisilaporanrepair',
+                'pg10.id as penyeliasetujulaporanrepairfk',
+                'pg10.namalengkap as penyeliasetujulaporanrepair',
+                'pg11.id as asmansetujulaporanrepairfk',
+                'pg11.namalengkap as asmansetujulaporanrepair',
+                'pg12.id as managersetujulaporanrepairfk',
+                'pg12.namalengkap as managersetujulaporanrepair',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -442,6 +463,41 @@ class ManagerCtrl extends Controller
         $timeline = [];
 
         foreach ($data as $item) {
+            if (!is_null($item->tglsetujumanagerlaporanrepair)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujumanagerlaporanrepair,
+                    'type' => 'Laporan Repair Disetujui Oleh Manager',
+                    'nama' => $item->managersetujulaporanrepair ?? '-',
+                ];
+            }
+            if (!is_null($item->tglsetujuasmanlaporanrepair)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujuasmanlaporanrepair,
+                    'type' => 'Laporan Repair Disetujui Oleh Asman',
+                    'nama' => $item->asmansetujulaporanrepair ?? '-',
+                ];
+            }
+            if (!is_null($item->tglsetujupenyelialaporanrepair)) {
+                $timeline[] = [
+                    'date' => $item->tglsetujupenyelialaporanrepair,
+                    'type' => 'Laporan Repair Disetujui Oleh Penyelia',
+                    'nama' => $item->penyeliasetujulaporanrepair ?? '-',
+                ];
+            }
+            if (!is_null($item->tglisilaporanrepairpenyelia)) {
+                $timeline[] = [
+                    'date' => $item->tglisilaporanrepairpenyelia,
+                    'type' => 'Diisi Laporan Repair Oleh Penyelia',
+                    'nama' => $item->penyeliaisilaporanrepair ?? '-',
+                ];
+            }
+            if (!is_null($item->tglisilaporanrepairpelaksana)) {
+                $timeline[] = [
+                    'date' => $item->tglisilaporanrepairpelaksana,
+                    'type' => 'Diisi Laporan Repair Oleh Pelaksana',
+                    'nama' => $item->pelaksanaisilaporanrepair ?? '-',
+                ];
+            }
             if (!is_null($item->tglsetujumanagerlembarkerja)) {
                 $timeline[] = [
                     'date' => $item->tglsetujumanagerlembarkerja,

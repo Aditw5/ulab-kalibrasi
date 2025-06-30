@@ -297,8 +297,8 @@
                     <div>
                       <h4 class="block-heading">S/N</h4>
                       <p class="block-hext">{{ item.namaserialnumber }}</p>
-                      <h4 class="block-heading">Durasi</h4>
-                      <p class="block-hext">{{ item.durasikalbrasi }}</p>
+                      <h4 class="block-heading" v-if="item.jenisorder == 'kalibrasi'" >Durasi</h4>
+                      <p class="block-hext" v-if="item.jenisorder == 'kalibrasi'" >{{ item.durasikalbrasi }}</p>
                     </div>
                   </div>
                 </div>
@@ -491,12 +491,14 @@ const orderVerify = async (e: any) => {
 
 
 const detailOrder = async (e) => {
+  console.log(e)
   modalRiwayat.value = true
   item.value.namaproduk = e.namaproduk
   item.value.namamerk = e.namamerk
   item.value.namatipe = e.namatipe
   item.value.namaserialnumber = e.namaserialnumber
   item.value.durasikalbrasi = e.durasikalbrasi
+  item.value.jenisorder = e.jenisorder
   isLoadDataDeatilOrder.value = true
   const response = await useApi().get(`/pelaksana/detail-produk?norec_pd=${e.norec_detail}`)
   timelineItems.value = response.timeline
