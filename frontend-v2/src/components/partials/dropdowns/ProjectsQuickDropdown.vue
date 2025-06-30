@@ -15,7 +15,7 @@ const projects: {
       subtitle: 'Food For Good',
     },
     {
-      initials: 'JMT',
+      initials: 'ULAB',
       color: 'h-orange',
       name: 'Health and Fitness Dashboard',
       subtitle: "Fit'n'Dance",
@@ -37,7 +37,7 @@ const selectedProject = ref(projects[1])
 </script>
 
 <template>
-  <VAvatar size="small" :color="'h-orange'" :initials="'JMT'" class="mr-2" />
+  <VAvatar size="small" :color="'h-orange'" :initials="'ULAB'" class="mr-2" />
   <!-- <VDropdown class="project-dropdown" spaced>
     <template #button="{ toggle }">
       <VAvatar size="small" :color="selectedProject.color" :initials="selectedProject.initials" tabindex="0"

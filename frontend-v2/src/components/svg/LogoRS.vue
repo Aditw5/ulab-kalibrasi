@@ -16,7 +16,7 @@
       img {
         display: block !important;
         width: 100% !important;
-        max-width: 120px !important;
+        max-width: 200px !important;
         margin: 0 auto !important;
       }
     }

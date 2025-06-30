@@ -288,7 +288,7 @@ await api.get(
         <!-- </RouterLink> -->
 
         <div class="separator"></div>
-        <LogoRS width="38" height="38" class="mr-3" />
+        <LogoRS width="90" height="90" class="mr-3" />
         <!-- <ProjectsQuickDropdown /> -->
         <div>
           <h1 class="title is-5 mt-0 ml-3 mb-0">{{ namaProfile }}</h1>

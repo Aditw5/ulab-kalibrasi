@@ -22,7 +22,7 @@ router.afterEach(() => {
 </script>
 
 <template>
-  <img src="/images/simrs/ulab.png"  />
+  <img src="/UMRO.png"  />
 </template>
 
 <style lang="scss" scoped>

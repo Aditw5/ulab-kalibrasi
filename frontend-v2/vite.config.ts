@@ -230,7 +230,7 @@ export default defineConfig({
      */
     VitePWA({
       base: '/',
-      includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['UMRO.svg', 'UMRO.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
         name: 'ULAB - Apps',
         short_name: 'ulab',
@@ -240,17 +240,17 @@ export default defineConfig({
         background_color: '#ffffff',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'UMRO.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'UMRO.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'UMRO.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',

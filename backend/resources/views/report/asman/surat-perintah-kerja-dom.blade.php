@@ -56,7 +56,7 @@
                             </b></span>
                     </td>
                     <td rowspan="5">
-                        <img src="img/ulab.png" width="80px" border="0" style="margin-top:-20px">
+                        <img src="img/UMRO.png" width="80px" border="0" style="margin-top:-20px">
                     </td>
                 </tr>
 
