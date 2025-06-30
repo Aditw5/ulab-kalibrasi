@@ -128,7 +128,9 @@ use App\Http\Controllers\Sysadmin\MasterKonversiSatuanCtrl;
 use App\Http\Controllers\Sysadmin\MasterSediaanCtrl;
 use App\Http\Controllers\EMR\EMRCtrl;
 use App\Http\Controllers\EMR\ReportEMRCtrl;
+use App\Http\Controllers\Laporan\LaporanPelaksanaCtrl;
 use App\Http\Controllers\Laporan\LaporanPengunjungCtrl;
+use App\Http\Controllers\Laporan\LaporanPelaksanCtrl;
 use App\Http\Controllers\Report\ReportCtrl;
 use App\Http\Controllers\Sysadmin\MasterAlergiCtrl;
 use App\Http\Controllers\Sysadmin\MapAdministrasiCtrl;
@@ -327,50 +329,6 @@ Route::middleware(['log'])->group(function () {
         Route::get('pelaksana/cetak-laporan-repair', 'cetakLaporanRepair');
     });
 
-    Route::controller(DaftarRegistrasiCtrl::class)->group(function () {
-        Route::get('registrasi/daftar-registrasi-grid', 'listRegistrasi');
-        Route::get('registrasi/daftar-registrasi-dropdown', 'listRegistrasiDropdown');
-        Route::post('registrasi/cancel-registration', 'batalRegistrasi');
-        Route::post('registrasi/change-dokter-registration', 'ubahDokter');
-        Route::get('registrasi/get-detail-registrasi', 'detailRegistrasi');
-        Route::get('registrasi/get-detail-registrasi-pasien', 'detailRegistrasiPasien');
-        Route::get('registrasi/get-data-combo-detail-registrasi', 'getDataComboDetailRegis');
-        Route::post('registrasi/simpan-pasien-konsul', 'simpanKonsul');
-        Route::post('registrasi/change-dokter-apd', 'ubahDokterAPD');
-        Route::post('registrasi/change-dokter-dpjp', 'ubahDokterDPJP');
-        Route::post('registrasi/penanda-pasien', 'penandaPasien');
-        Route::post('registrasi/pesan-ruangan', 'pesanRuangan');
-        Route::post('registrasi/change-tglpulang', 'ubahTglPulang');
-        Route::post('registrasi/merge-pasien', 'mergePasien');
-        Route::post('registrasi/hapus-apd', 'hapusAPD');
-        Route::post('registrasi/ubah-tanggal', 'ubahTanggalDetailRegis');
-        Route::get('registrasi/get-daftar-pasien-meninggal2', 'getDaftarPasienMeningga2');
-        Route::get('registrasi/get-daftar-konsultasi', 'getDaftarKonsulFromOrder');
-        Route::get('registrasi/get-order-konsul', 'getOrderKonsul');
-        Route::get('registrasi/get-order-sitb', 'getOrderSITB');
-        Route::get('registrasi/get-ruangan', 'getRuangan');
-        Route::get('registrasi/get-daftar-waiting-list', 'getDaftarWaitingList');
-        Route::post('registrasi/get-save-konsul-order', 'saveKonsulFromOrder');
-        Route::post('registrasi/get-save-sitb-order', 'saveSITBOrder');
-        Route::post('registrasi/save-pilih-dokter-konsul', 'updateDokterAntrian');
-        Route::post('registrasi/tetapkan-perawat', 'tetapkanPerawat');
-    });
-    Route::controller(ProfilePasienCtrl::class)->group(function () {
-        Route::get('emr/header-pasien', 'headerPasien');
-        Route::get('emr/detail-pelayanan', 'detailPelayanan');
-        Route::get('emr/list-pasien-rj', 'listPasienRJ');
-        Route::get('emr/total-biliing', 'getTotalBilling');
-        Route::get('emr/info-pasien', 'infoPasien');
-        Route::get('emr/history-sim-lama', 'detailPelayananSIMRSLama');
-        Route::get('dokter/get-catatan', 'getCatatanDokter');
-        Route::get('emr/hasil-lab', 'getHasilLab');
-        Route::get('emr/hasil-lab-pa', 'hasilLabPA');
-        Route::get('emr/count-dialisis', 'countDialisis');
-
-        Route::post('emr/simpan-alergi-pasien', 'simpanAlergiPasien');
-        Route::post('emr/closing-pasien', 'changeClosing');
-        Route::post('dokter/save-catatan', 'saveCatatanDokter');
-    });
     Route::controller(EMRCtrl::class)->group(function () {
         Route::get('emr/dropdown/{table}', 'dropdownEMR');
         Route::post('emr/kirim-wa-resume', 'kirimResumeMedis');
@@ -378,27 +336,10 @@ Route::middleware(['log'])->group(function () {
 
     Route::controller(LaporanPengunjungCtrl::class)->group(function () {
         Route::get('pelayanan/get-laporan-pengunjung', 'getLaporanPengunjungPemeriksaan');
-        Route::get('pelayanan/get-laporan-pengunjung-status', 'getLaporanPengunjungStatus');
-        Route::get('pelayanan/get-laporan-pengunjung-status-kelompok', 'getLaporanPengunjungStatusKelompok');
-        Route::get('pelayanan/get-laporan-pengunjung-tindakan', 'getLaporanPengunjungTindakan');
-        Route::get('pelayanan/get-laporan-penyerahan-obat', 'getLaporanPenyerahanObat');
-        Route::get('pelayanan/get-laporan-retur-suplier', 'getDaftarReturPenerimaanSuplierDetail');
-        Route::get('pelayanan/get-laporan-retur-obat', 'getDaftarReturObatDetail');
-        Route::get('pelayanan/get-laporan-sensus-rawat-inap', 'getLaporanSesusRawatInap');
-        Route::get('pelayanan/get-laporan-antrian-kuota-poli', 'getLaporanAntrianKuotaPoli');
-        Route::get('pelayanan/get-laporan-antrian-online', 'informasiAntrianPasienAntrol');
-        Route::get('pelayanan/get-ruangan-poli', 'getRuanganPoli');
-        Route::get('pelayanan/get-laporan-indexing-ri', 'getLaporanIndexingRI');
-        Route::get('pelayanan/get-laporan-infeksi-ppi', 'getLaporanInfeksiPPI');
-        Route::get('pelayanan/get-laporan-tindakan-ri', 'getLaporanTindakanRI');
-        Route::get('pelayanan/get-laporan-ri', 'getLaporanRI');
-        Route::get('pelayanan/get-laporan-indexing-gd', 'getLaporanIndexingGD');
-        Route::get('pelayanan/get-laporan-penanda-pasien-igd', 'getPenandaPasien');
-        Route::get('pelayanan/get-laporan-indexing-rj', 'getLaporanIndexingRJ');
-        Route::get('pelayanan/get-laporan-Antrol', 'getlaporanAntol');
-        Route::get('pelayanan/get-laporan-data-rehab-medik', 'getLaporanDataPasienRehabMedik');
-        Route::get('pelayanan/get-laporan-penyakit-tidak-menular', 'getLaporanPenyakitTidakMenular');
-        Route::get('pelayanan/get-laporan-insidensi-pegawai-sakit', 'getLaporanInsidensiPegawaiSakit');
+    });
+
+    Route::controller(LaporanPelaksanaCtrl::class)->group(function () {
+        Route::get('laporan/get-laporan-alat-pelaksana', 'getLaporanAlatPelaksana');
     });
 
     Route::controller(LaporanTindakanPasienCtrl::class)->group(function () {
