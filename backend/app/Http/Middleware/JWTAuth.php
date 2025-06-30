@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Namshi\JOSE\JWS;
 use App\Http\Controllers\Controller;
+use App\Models\Master\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +52,7 @@ class JWTAuth
                 $token = $arr[0] . '.' . $arr[1] . '.' . $arr[2];
                 $kdProfile = base64_decode($arr[3]);
             }
-            if(empty($kdProfile)){
+            if (empty($kdProfile)) {
                 $data = array(
                     "metaData" => array(
                         "message" => "Token Tidak Valid .",
@@ -168,6 +169,16 @@ class JWTAuth
             ->where('kdprofile', $kdProfile)
             ->where('statusenabled', true)
             ->first();
+
+        $isUserLogin = false;
+
+        if (!$user) {
+            $user = User::where('email', $dataToken->sub)
+                ->where('kdprofile', $kdProfile)
+                ->where('statusenabled', true)
+                ->first();
+            $isUserLogin = true;
+        }
         if (!$user) {
             return false;
         }
@@ -178,13 +189,20 @@ class JWTAuth
             }
         }
 
-        $filterUser = array(
-            'id'    => $user->id,
-            "namauser" => $user->namauser,
-            "kdprofile" => $user->kdprofile,
-            "exp" => $time['exp']
-        );
-        $peg = Pegawai::where('id',  $user->objectpegawaifk)->where('kdprofile', $user->kdprofile)->first();
+        $filterUser = [
+            'id' => $user->id,
+            'namauser' => $isUserLogin ? $user->email : $user->namauser,
+            'kdprofile' => $user->kdprofile,
+            'exp' => $time['exp']
+        ];
+        $peg = null;
+        if (!$isUserLogin) {
+            $peg = Pegawai::where('id', $user->objectpegawaifk)
+                ->where('kdprofile', $user->kdprofile)
+                ->first();
+        } else {
+            $peg = $user;
+        }
         $profile = Profile::where('id',  $user->kdprofile)->first();
         $this->setUserData($filterUser);
 

@@ -165,19 +165,10 @@ class AuthCtrl extends Controller
                 ->where('id', '=', 11)
                 ->where('statusenabled', true)
                 ->first();
-            $pegawai = Pegawai::where('id', 16)
+            $pegawai = User::where('id', $user->id)
                 ->where('statusenabled', true)
                 ->first();
-            if (empty($pegawai)) {
-                $response = array(
-                    'metaData' => array(
-                        "code" => 400,
-                        "message" => 'Pegawai tidak aktif',
-                    ),
-                    'response' => null,
-                );
-                return response()->json($response, $response['metaData']['code']);
-            }
+           
             $profile =  Profile::where('id', '=', $user->kdprofile)
                 ->select(
                     'id',
@@ -195,10 +186,7 @@ class AuthCtrl extends Controller
                 ->first();
             $resPegawai = array(
                 'id' => $pegawai->id,
-                'namaLengkap' => $pegawai->namalengkap,
-                'tempatLahir' => $pegawai->tempatlahir,
-                'tglLahir' => $pegawai->tgllahir,
-                'noIdentitas' => $pegawai->noidentitas,
+                'namaLengkap' => $pegawai->name,
                 'statusEnabled' => $pegawai->statusenabled,
             );
 
@@ -218,7 +206,7 @@ class AuthCtrl extends Controller
                     "message" => 'Sukses',
                 ),
                 'response' => array(
-                    'token' =>  $this->createToken($user->name) . '' . '.' . base64_encode((string)$user->kdprofile),
+                    'token' =>  $this->createToken($user->email) . '' . '.' . base64_encode((string)$user->kdprofile),
                     'expired' => $expired,
                     'data' => $dataLogin,
                 ),
@@ -246,7 +234,7 @@ class AuthCtrl extends Controller
             }
 
             $user  = new User();
-            $user->id = $this->Uuid4();
+            $user->id = $this->SEQUENCE_MASTER(new User(), 'id', $this->kdProfile);
             $user->kdprofile = (int)$this->kdProfile;
             $user->statusenabled = true;
             $user->name = $PSN['name'];
@@ -254,7 +242,6 @@ class AuthCtrl extends Controller
             $user->email = $PSN['email'];
             $user->nowa = $PSN['nowa'];
             $user->save();
-
             $user->sendEmailVerificationNotification();
 
             $transStatus = 'true';
