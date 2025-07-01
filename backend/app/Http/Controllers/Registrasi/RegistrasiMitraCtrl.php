@@ -674,8 +674,7 @@ class RegistrasiMitraCtrl extends Controller
                 CONCAT_WS(
                     ' - ', 
                     COALESCE(pk.namapaket, '-'), 
-                    COALESCE(pk.hari::text || ' hari', '-'),
-                    COALESCE('Rp '|| replace(to_char( (pk.harga::numeric), 'FM999,999,999' ),',', '.'),'-')
+                    COALESCE(pk.hari::text || ' hari', '-')
                 )
             ";
 

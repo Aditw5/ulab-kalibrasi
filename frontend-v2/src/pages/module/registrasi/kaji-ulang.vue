@@ -58,7 +58,7 @@
                     </div>
                     <div class="column is-12" v-if="dataNamaPaket != null">
                       <div class="columns is-multiline">
-                        <div class="ml-5 column is-3">
+                        <div class="ml-5 column is-5">
                           <div class="meta-container">
                             <div class="meta-content">
                               <h4>Paket Kalibrasi {{ dataNamaPaket }}</h4>
@@ -66,10 +66,10 @@
                                 <span>Estimaasi Tanggal selesai</span>
                               </p>
                               <p>
-                                <span><b>{{ dataPaketTanggal }}</b></span>
+                                <span><b>'Menunggu Verifikasi Asman'</b></span>
                               </p>
                             </div>
-                            <div class="timer ml-3">
+                            <div class="timer ml-4">
                               <div>
                                 <span>{{ dataPaket }}</span>
                                 <span>Hari</span>

@@ -241,6 +241,7 @@ Route::middleware(['log'])->group(function () {
         Route::get('asman/layanan-verif', 'LayananVerif');
         Route::get('asman/detail-produk', 'detailProduk');
         Route::post('asman/save-verif-item', 'saveVerifItem');
+        Route::post('asman/save-update-paket', 'updatePaket');
         Route::post('asman/save-verif', 'saveVerif');
         Route::post('asman/save-penolakan', 'savePenolakanAsman');
         Route::get('asman/header-mitra', 'HeaderMitra');

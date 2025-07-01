@@ -109,10 +109,10 @@
                                                                     <span>{{ items.tglregistrasi }}</span>
                                                                 </span>
                                                                 <br>
-                                                                <VTag v-if="items.jenisorder == 'repair'" color="warning"
-                                                                    rounded>Repair</VTag>
-                                                                <VTag v-if="items.jenisorder == 'kalibrasi'" color="info"
-                                                                    rounded>Kalibrasi</VTag>
+                                                                <VTag v-if="items.jenisorder == 'repair'"
+                                                                    color="warning" rounded>Repair</VTag>
+                                                                <VTag v-if="items.jenisorder == 'kalibrasi'"
+                                                                    color="info" rounded>Kalibrasi</VTag>
                                                             </div>
                                                             <div class="meta-right">
                                                                 <VIconButton v-tooltip.bottom.left="'Verifikasi'"
@@ -245,7 +245,8 @@
 
                                                                     </span>
                                                                     <div>
-                                                                        <VTag v-if="item.statusPengerjaan == null && item.jenisorder == 'kalibrasi'"
+                                                                        <VTag
+                                                                            v-if="item.statusPengerjaan == null && item.jenisorder == 'kalibrasi'"
                                                                             :label="'Durasi Kalibrasi : ' + item.durasikalbrasi"
                                                                             :color="'warning'" class="ml-2" />
                                                                         <VTag v-if="item.statusPengerjaan != null"
@@ -360,9 +361,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                }}</span>
+                                                                    }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                }}</span>
+                                                                    }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -395,9 +396,9 @@
                                                                 color="primary" bordered />
                                                             <div class="meta">
                                                                 <span class="dark-inverted">{{ item.namalengkap
-                                                                }}</span>
+                                                                    }}</span>
                                                                 <span class="dark-inverted">{{ item.namajabatanulab
-                                                                }}</span>
+                                                                    }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -539,6 +540,9 @@
                                         <VField label="Durasi Hari">
                                             <VControl icon="lnir lnir-repeat-one">
                                                 <VInput type="number" v-model="item.durasikalbrasiUpdate"
+                                                    v-if="dataNamaPaket != null" placeholder="Jumlah" class="is-rounded"
+                                                    disabled />
+                                                <VInput type="number" v-model="item.durasikalbrasiUpdate" v-else
                                                     placeholder="Jumlah" class="is-rounded" />
                                             </VControl>
                                         </VField>
@@ -557,6 +561,49 @@
                         </div>
 
                     </Fieldset>
+                </div>
+                <div class="column is-12" v-if="dataNamaPaket != null">
+                    <div class="columns is-multiline">
+                        <div class="ml-4 column is-5">
+                            <div class="meta-container">
+                                <div class="meta-content">
+                                    <h4>Paket Kalibrasi {{ dataNamaPaket }}</h4>
+                                    <p>
+                                        <span>Estimaasi Tanggal selesai</span>
+                                    </p>
+                                    <p>
+                                        <span><b>{{ dataPaketTanggal }}</b></span>
+                                    </p>
+                                </div>
+                                <div class="timer ml-4">
+                                    <div>
+                                        <span>{{ dataPaket }}</span>
+                                        <span>Hari</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <VField>
+                                <VLabel>Paket Kalibrasi</VLabel>
+                                <VControl fullwidth class="prime-auto ">
+                                    <AutoComplete v-model="item.paketkalibrasiUpdate" :suggestions="d_paketkalibrasi"
+                                        @complete="fetchpaketKalibrasi($event)" :optionLabel="'label'" :dropdown="true"
+                                        :minLength="3" class="is-input" :appendTo="'body'"
+                                        :loadingIcon="'pi pi-spinner'" :field="'label'"
+                                        placeholder="ketik untuk mencari..." />
+                                </VControl>
+                            </VField>
+                        </div>
+                        <div class="columns mt-2" style="margin-left:40px">
+                            <VButtons>
+                                <VButton color="success" raised icon="feather:edit" v-if="item.paketkalibrasiUpdate"
+                                    @click="updatePaket(item)" :loading="isLoadingSave"> Update Paket
+                                </VButton>
+                                <VButton raised @click="clear()"> Batal </VButton>
+                            </VButtons>
+                        </div>
+                    </div>
                 </div>
                 <div class="column is-12">
                     <Fieldset legend="Data Alat" :toggleable="true">
@@ -993,6 +1040,10 @@ const d_GolonganDarah = ref([])
 const d_Ruangan = ref([])
 const modalHistori = ref(false)
 const activeTab = ref(0)
+const d_paketkalibrasi = ref([])
+const dataNamaPaket: any = ref()
+const dataPaket: any = ref()
+const dataPaketTanggal: any = ref()
 let modalRiwayat: any = ref(false)
 let isLoadDataDeatilOrder: any = ref(false)
 const timelineItems = ref([])
@@ -1218,6 +1269,15 @@ const fetchDataOrder = async (q: any) => {
     isLoading.value = false
 }
 
+const fetchpaketKalibrasi = async (filter: any) => {
+    await useApi().get(
+        `registrasi/dropdown-paket-kalibrasi?query=${filter.query}&limit=10`
+    ).then((response) => {
+        d_paketkalibrasi.value = response
+        console.log(response)
+    })
+}
+
 const fetchDetail = async () => {
     dataPegawaiJakarta.value = []
     dataPegawaiGresik.value = []
@@ -1284,6 +1344,13 @@ const orderVerify = async (e: any) => {
     response.detail.forEach((element: any, i: any) => {
         element.no = i + 1
     });
+    dataNamaPaket.value = response.detail[0].namapaket
+    dataPaket.value = response.detail[0].totalDurasi
+    dataPaketTanggal.value = response.detail[0].tanggalSelesai
+    item.value.paketkalibrasiUpdate = {
+        value: response.detail[0].idpaket ?? '',
+        label: response.detail[0].namapaket ?? ''
+    };
     isLoadDataOrder.value = false
     detailOrderLayanan.value = response.detail
 }
@@ -1373,10 +1440,40 @@ const update = async (e: any) => {
             'penyeliateknik': e.penyeliateknikUpdate.value,
             'pelaksana': e.pelaksanaUpdate.value,
             'durasikalbrasi': e.durasikalbrasiUpdate,
+            'paketkalibrasi': e.paketkalibrasiUpdate.value,
         }
     }
     isLoadingSave.value = true
     await useApi().post('/asman/save-verif-item', json).then((r) => {
+        isLoadingSave.value = false
+        reloadItemVerify(e.norec)
+        clear()
+    }).catch((error: any) => {
+        isLoadingSave.value = false
+        console.error('Error saat menyimpan berkas mitra:', error);
+
+        if (error.response) {
+
+            H.alert('error', `Kesalahan: ${error.response.status} - ${error.response.data.message || 'Gagal menyimpan berkas mitra'}`);
+        } else if (error.request) {
+
+            H.alert('error', 'Tidak ada respons dari server. Silakan coba lagi.');
+        } else {
+
+            H.alert('error', `Terjadi kesalahan: ${error.message}`);
+        }
+    })
+}
+
+const updatePaket = async (e: any) => {
+    let json = {
+        'updatePaket': {
+            'norec': e.norec ? e.norec : '',
+            'paketkalibrasi': e.paketkalibrasiUpdate.value,
+        }
+    }
+    isLoadingSave.value = true
+    await useApi().post('/asman/save-update-paket', json).then((r) => {
         isLoadingSave.value = false
         reloadItemVerify(e.norec)
         clear()
@@ -1436,7 +1533,7 @@ const cetakSpk = (e) => {
 }
 
 const cetakLaporanRepair = (e) => {
-  H.printBlade(`asman/cetak-laporan-repair?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
+    H.printBlade(`asman/cetak-laporan-repair?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
 
 const lembarKerja = (e: any) => {
@@ -1450,13 +1547,13 @@ const lembarKerja = (e: any) => {
 }
 
 const laporanRepair = (e: any) => {
-  router.push({
-    name: 'module-asman-laporan-repair',
-    query: {
-      norec: e.norec,
-      norec_detail: e.norec_detail,
-    }
-  })
+    router.push({
+        name: 'module-asman-laporan-repair',
+        query: {
+            norec: e.norec,
+            norec_detail: e.norec_detail,
+        }
+    })
 }
 
 const reloadItemVerify = async (e: any) => {
@@ -1464,6 +1561,13 @@ const reloadItemVerify = async (e: any) => {
     response.detail.forEach((element: any, i: any) => {
         element.no = i + 1
     });
+    dataNamaPaket.value = response.detail[0].namapaket
+    dataPaket.value = response.detail[0].totalDurasi
+    dataPaketTanggal.value = response.detail[0].tanggalSelesai
+    item.value.paketkalibrasiUpdate = {
+        value: response.detail[0].idpaket ?? '',
+        label: response.detail[0].namapaket ?? ''
+    };
     detailOrderLayanan.value = response.detail
 }
 
@@ -1495,6 +1599,7 @@ const clear = () => {
     item.value.penyeliateknikUpdate = ''
     item.value.durasikalbrasiUpdate = ''
     item.value.lokasiRepairUpdate = ''
+    item.value.paketkalibrasiUpdate = ''
 }
 
 const showModalFilter = () => {
@@ -1824,5 +1929,97 @@ fetchDetail()
     border-radius: 16px;
     border: 1px solid var(--fade-grey-dark-3);
     transition: all 0.3s;
+}
+
+.timer {
+
+    bottom: 10px;
+    left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    width: 50px;
+    border-radius: 12px;
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    font-family: var(--font);
+    text-align: center;
+
+    span {
+        display: block;
+
+        &:first-child {
+            font-size: 1.3rem;
+            color: var(--smoke-white);
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        &:nth-child(2) {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--primary-light-40);
+        }
+    }
+}
+
+.meta-container {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+
+    .meta-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 46px;
+        min-width: 46px;
+        height: 46px;
+        max-height: 46px;
+        background: var(--white);
+        border: 1px solid var(--fade-grey-dark-3);
+        border-radius: 500px;
+
+        img {
+            display: flex;
+            height: 22px;
+            width: 22px;
+        }
+    }
+
+    .meta-content {
+        margin-left: 8px;
+        font-family: var(--font);
+        line-height: 1.3;
+
+        h4 {
+            font-family: var(--font-alt);
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--dark-text);
+        }
+
+        p {
+            display: flex;
+            align-items: center;
+
+            .fa-circle {
+                font-size: 5px;
+                margin: 0 10px;
+            }
+
+            .fa-star {
+                position: relative;
+                top: -1px;
+                font-size: 12px;
+                color: #fab82a;
+
+                +span {
+                    color: var(--dark-text);
+                }
+            }
+        }
+    }
 }
 </style>

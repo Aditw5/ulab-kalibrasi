@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Asman;
 
 use App\Http\Controllers\Controller;
+use App\Models\Master\PaketKalibrasi;
 use App\Traits\Valet;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -309,6 +310,7 @@ class AsmanCtrl extends Controller
             ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftjoin('lokasikalibrasi_m as lk1', 'lk1.id', '=', 'mtrd.lokasirepairfk')
             ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->leftjoin('paketkalibrasi_m as pk', 'pk.id', '=', 'mtr.paketkalibrasi')
             ->select(
                 'mtr.norec',
                 'mtrd.norec as norec_detail',
@@ -340,18 +342,50 @@ class AsmanCtrl extends Controller
                 'lk1.lokasi as lokasirepair',
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
+                'pk.id as idpaket',
+                'pk.namapaket',
+                'pk.hari as hari_paket'
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
-            // ->where('mtrd.statusenabled', true)
             ->where('mtr.norec', $r['norec_pd']);
 
         if (isset($r['norecdetail']) && $r['norecdetail'] != "" && $r['norecdetail'] != "undefined") {
             $data = $data->where('mtrd.norec', '=', $r['norecdetail']);
-        };
+        }
 
         $data = $data->orderByDesc('prd.namaproduk')->get();
 
+        $alatPerRegistrasi = [];
+        foreach ($data as $item) {
+            $alatPerRegistrasi[$item->norec][] = $item;
+        }
+
+        foreach ($data as $d) {
+            $alatList = isset($alatPerRegistrasi[$d->norec]) ? $alatPerRegistrasi[$d->norec] : [];
+            $countPerLingkup = [];
+            foreach ($alatList as $alat) {
+                $lingkup = $alat->lingkupfk;
+                if (!$lingkup) continue;
+                if (!isset($countPerLingkup[$lingkup])) {
+                    $countPerLingkup[$lingkup] = 0;
+                }
+                $countPerLingkup[$lingkup]++;
+            }
+            $maxAlat = 0;
+            foreach ($countPerLingkup as $total) {
+                if ($total > $maxAlat) $maxAlat = $total;
+            }
+            $hariPaket = $d->hari_paket ?? 0;
+            $totalDurasi = $maxAlat * $hariPaket;
+            $d->totalDurasi = $totalDurasi;
+            $d->tanggalSelesai = null;
+            if ($d->tglregistrasi && $totalDurasi > 0) {
+                $d->tanggalSelesai = \Carbon\Carbon::parse($d->tglregistrasi)
+                    ->addDays($totalDurasi)
+                    ->format('d-m-Y');
+            }
+        }
 
         $result['length'] = count($data);
         $result['detail'] = $data;
@@ -359,6 +393,7 @@ class AsmanCtrl extends Controller
 
         return $this->respond($result);
     }
+
 
     public function detailProduk(Request $r)
     {
@@ -605,6 +640,53 @@ class AsmanCtrl extends Controller
             }
 
             $transMessage = "Simpan Verif Item Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function updatePaket(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $VI = $r['updatePaket'];
+
+            DB::table('mitraregistrasi_t')
+                ->where('norec', $VI['norec'])
+                ->update([
+                    'paketkalibrasi' =>  $VI['paketkalibrasi'],
+                ]);
+
+            $durasikalibrasi = null;
+            $paket = PaketKalibrasi::find($VI['paketkalibrasi']);
+            if ($paket) {
+                $durasikalibrasi = $paket->hari;
+            }
+
+            if ($durasikalibrasi !== null) {
+                DB::table('mitraregistrasidetail_t')
+                    ->where('noregistrasifk', $VI['norec'])
+                    ->update([
+                        'durasikalbrasi' => $durasikalibrasi
+                    ]);
+            }
+
+            $transMessage = "Simpan Update Paket Sukses";
             DB::commit();
 
             $result = [
