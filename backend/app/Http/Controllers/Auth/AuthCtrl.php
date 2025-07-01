@@ -163,7 +163,7 @@ class AuthCtrl extends Controller
         }
         if (!empty($user) && $this->checkHashEncypt($r->input('kataSandi'), $user->password)) {
             $kelompokUser = KelompokUser::select('id', 'kelompokuser as kelompokUser', 'menu')
-                ->where('id', '=', 11)
+                ->where('id', '=', 46)
                 ->where('statusenabled', true)
                 ->first();
             $pegawai = User::where('id', $user->id)

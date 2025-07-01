@@ -17,6 +17,7 @@ use App\Http\Controllers\General\GeneralCtrl;
 use App\Http\Controllers\General\SysAdminCtrl;
 use App\Http\Controllers\EMR\ProfilePasienCtrl;
 use App\Http\Controllers\Registrasi\MitraCtrl;
+use App\Http\Controllers\Customer\CustomerCtrl;
 use App\Http\Controllers\Asman\AsmanCtrl;
 use App\Http\Controllers\Manager\ManagerCtrl;
 use App\Http\Controllers\Penyelia\PenyeliaCtrl;
@@ -217,6 +218,10 @@ Route::middleware(['log'])->group(function () {
         Route::get('registrasi/dropdown-paket-kalibrasi', 'dropdownPaketKalibrasi');
     });
 
+    Route::controller(CustomerCtrl::class)->group(function () {
+        Route::get('customer/get-alat-customer', 'getAlatCustomer');
+    });
+    
     Route::controller(MitraCtrl::class)->group(function () {
         Route::get('registrasi/list-mitra-grid', 'listMitraGrid');
         Route::get('registrasi/get-alat-registrasi', 'getAlatRegistrasi');
