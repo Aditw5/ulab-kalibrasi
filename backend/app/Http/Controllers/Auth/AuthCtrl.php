@@ -21,6 +21,7 @@ use Lcobucci\JWT\Signer\Hmac\Sha512;
 use Lcobucci\JWT\Builder;
 use Illuminate\Auth\Events\Registered;
 use App\Traits\Valet;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Str;
 
 
@@ -168,7 +169,7 @@ class AuthCtrl extends Controller
             $pegawai = User::where('id', $user->id)
                 ->where('statusenabled', true)
                 ->first();
-           
+
             $profile =  Profile::where('id', '=', $user->kdprofile)
                 ->select(
                     'id',
@@ -292,5 +293,34 @@ class AuthCtrl extends Controller
             ->sign($signer, config('app.JWT_KEY'))
             ->getToken();
         return $token;
+    }
+
+    public function verifyEmail(Request $request, $id, $hash)
+    {
+        if (! $request->hasValidSignature()) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'Tautan verifikasi tidak valid atau sudah kedaluwarsa.',
+            ], 403);
+        }
+
+        $user = User::findOrFail($id);
+
+        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'Hash verifikasi tidak cocok.',
+            ], 403);
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            event(new Verified($user));
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Email berhasil diverifikasi.',
+        ]);
     }
 }

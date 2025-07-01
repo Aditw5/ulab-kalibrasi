@@ -90,10 +90,26 @@ useHead({
   title: 'Auth Signup - ' + import.meta.env.VITE_PROJECT,
 })
 
-onMounted(() => {
-  if (route.query.verified === '1') {
-    isVerified.value = true
+onMounted(async () => {
+  const verified = route.query.verified
+  const id = route.query.id
+  const hash = route.query.hash
+  const expires = route.query.expires
+  const signature = route.query.signature
+
+  if (verified === '1' && id && hash && signature && expires) {
+    try {
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}auth/verify-email/${id}/${hash}`, {
+        params: { signature, expires },
+      })
+
+      isVerified.value = true
+    } catch (error) {
+      notif.error('Verifikasi gagal atau tautan sudah kadaluarsa.')
+      isVerified.value = false
+    }
   }
+
   if (sliderElement.value) {
     slider = tns({
       container: sliderElement.value,

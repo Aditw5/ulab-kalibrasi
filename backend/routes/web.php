@@ -978,23 +978,9 @@ Route::controller(AuthCtrl::class)->group(function () {
     Route::post('service/auth/register', 'registerUser');
 });
 
-Route::get('/service/auth/verify-email/{id}/{hash}', function (Request $request, $id, $hash) {
-    if (! $request->hasValidSignature()) {
-        abort(403, 'Tautan verifikasi tidak valid atau sudah kadaluarsa.');
-    }
-    $user = User::findOrFail($id);
-    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-        abort(403, 'Tautan verifikasi tidak cocok.');
-    }
-    if (! $user->hasVerifiedEmail()) {
-        $user->markEmailAsVerified();
-        event(new Verified($user));
-    }
-    return redirect()->away('https://ulabumro.id/auth/signup-1?verified=1');
-    //  return redirect()->away('https://localhost:5173/auth/signup-1?verified=1');
-})
-->middleware('signed')
-->name('verification.verify');
+Route::get('/service/auth/verify-email/{id}/{hash}', [AuthCtrl::class, 'verifyEmail'])
+    ->middleware(['signed'])
+    ->name('verification.verify');
 
 Route::get('/', function () {
     return view('welcome');
