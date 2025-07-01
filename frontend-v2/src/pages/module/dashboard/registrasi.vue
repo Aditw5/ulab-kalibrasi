@@ -254,7 +254,8 @@
 
                                     </span>
                                     <div>
-                                      <VTag v-if="item.statusPengerjaan == null && item.iskaji == true && item.jenisorder == 'kalibrasi'"
+                                      <VTag
+                                        v-if="item.statusPengerjaan == null && item.iskaji == true && item.jenisorder == 'kalibrasi'"
                                         :label="'Durasi Kalibrasi : ' + item.durasikalbrasi" :color="'warning'"
                                         class="ml-2" />
                                       <VTag v-if="item.statusPengerjaan != null" :label="item.statusPengerjaan"
@@ -507,6 +508,29 @@
             </VControl>
           </VField>
         </div>
+        <div class="column is-12" v-if="dataNamaPaket != null">
+          <div class="columns is-multiline">
+            <div class="ml-4 column is-5">
+              <div class="meta-container">
+                <div class="meta-content">
+                  <h4>Paket Kalibrasi {{ dataNamaPaket }}</h4>
+                  <p>
+                    <span>Estimaasi Tanggal selesai</span>
+                  </p>
+                  <p>
+                    <span><b>{{ dataPaketTanggal }}</b></span>
+                  </p>
+                </div>
+                <div class="timer ml-4">
+                  <div>
+                    <span>{{ dataPaket }}</span>
+                    <span>Hari</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="column is-12">
           <Fieldset legend="Data Alat" :toggleable="true">
             <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataOrder">
@@ -658,6 +682,9 @@ const selectView: any = ref()
 let modalRiwayat: any = ref(false)
 selectView.value = 'grid'
 const activeTab = ref(0)
+const dataNamaPaket: any = ref()
+const dataPaket: any = ref()
+const dataPaketTanggal: any = ref()
 const currentPage: any = ref({
   limit: 6,
   rows: 50,
@@ -906,6 +933,9 @@ const konfirmaasiPendaftaran = async (e: any) => {
   response.detail.forEach((element: any, i: any) => {
     element.no = i + 1
   });
+  dataNamaPaket.value = response.detail[0].namapaket
+  dataPaket.value = response.detail[0].totalDurasi
+  dataPaketTanggal.value = response.detail[0].tanggalSelesai
   isLoadDataOrder.value = false
   detailOrderLayanan.value = response.detail
 }
@@ -1054,6 +1084,98 @@ fetchAlatKalibrasi(0)
 @import '/@src/scss/module/dashboard/penyelia.scss';
 @import '/@src/scss/module/registrasi/list-pasien';
 @import '/@src/scss/module/dashboard/bedah.scss';
+
+.timer {
+
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 50px;
+  border-radius: 12px;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+    font-family: var(--font);
+    text-align: center;
+
+    span {
+        display: block;
+
+        &:first-child {
+            font-size: 1.3rem;
+            color: var(--smoke-white);
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        &:nth-child(2) {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--primary-light-40);
+        }
+    }
+}
+
+.meta-container {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+
+    .meta-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 46px;
+        min-width: 46px;
+        height: 46px;
+        max-height: 46px;
+        background: var(--white);
+        border: 1px solid var(--fade-grey-dark-3);
+        border-radius: 500px;
+
+        img {
+            display: flex;
+            height: 22px;
+            width: 22px;
+        }
+    }
+
+    .meta-content {
+        margin-left: 8px;
+        font-family: var(--font);
+        line-height: 1.3;
+
+        h4 {
+            font-family: var(--font-alt);
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--dark-text);
+        }
+
+        p {
+            display: flex;
+            align-items: center;
+
+            .fa-circle {
+                font-size: 5px;
+                margin: 0 10px;
+            }
+
+            .fa-star {
+                position: relative;
+                top: -1px;
+                font-size: 12px;
+                color: #fab82a;
+
+                +span {
+                    color: var(--dark-text);
+                }
+            }
+        }
+    }
+}
 
 .c-title {
   border-top-left-radius: 11px;

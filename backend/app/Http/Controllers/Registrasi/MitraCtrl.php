@@ -770,6 +770,8 @@ class MitraCtrl extends Controller
             ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
             ->leftJoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtrd.lokasikajifk')
             ->leftJoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->leftjoin('paketkalibrasi_m as pk', 'pk.id', '=', 'mtr.paketkalibrasi')
+            ->leftJoin('pegawai_m as pg', 'pg.id', '=', 'mtr.asmanveriffk')
             ->select(
                 'mtr.norec',
                 'mtrd.norec as norec_detail',
@@ -789,7 +791,12 @@ class MitraCtrl extends Controller
                 'lk.id as lokasikalibrasifk',
                 'lk.lokasi',
                 'lp.id as lingkupfk',
-                'lp.lingkupkalibrasi'
+                'lp.lingkupkalibrasi',
+                'pk.id as idpaket',
+                'pk.namapaket',
+                'pk.hari as hari_paket',
+                'pg.id as asmanfk',
+                'pg.namalengkap as asamanverifikasi',
             )
             ->where('mtr.statusenabled', true)
             ->where('mtr.iskaji', true)
@@ -798,9 +805,43 @@ class MitraCtrl extends Controller
             ->orderByDesc('prd.namaproduk')
             ->get();
 
+        $alatPerRegistrasi = [];
+        foreach ($data as $item) {
+            $alatPerRegistrasi[$item->norec][] = $item;
+        }
+
+        foreach ($data as $d) {
+            $alatList = isset($alatPerRegistrasi[$d->norec]) ? $alatPerRegistrasi[$d->norec] : [];
+            $countPerLingkup = [];
+            foreach ($alatList as $alat) {
+                $lingkup = $alat->lingkupfk;
+                if (!$lingkup) continue;
+                if (!isset($countPerLingkup[$lingkup])) {
+                    $countPerLingkup[$lingkup] = 0;
+                }
+                $countPerLingkup[$lingkup]++;
+            }
+            $maxAlat = 0;
+            foreach ($countPerLingkup as $total) {
+                if ($total > $maxAlat) $maxAlat = $total;
+            }
+            $hariPaket = $d->hari_paket ?? 0;
+            $totalDurasi = $maxAlat * $hariPaket;
+            $d->totalDurasi = $totalDurasi;
+            $tglDasar = $d->tglverifasman ?? \Carbon\Carbon::now()->format('Y-m-d');
+            if ($totalDurasi > 0) {
+                $d->tanggalSelesai = \Carbon\Carbon::parse($tglDasar)
+                    ->addDays($totalDurasi)
+                    ->format('d-m-Y');
+            } else {
+                $d->tanggalSelesai = null;
+            }
+        }
+
         $res['pdf']  = $r['pdf'];
         $res['ttdPetugas'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['identitas']->namapetugaskaji));
         $res['ttdPelanggan'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['identitas']->namapenanggungjawab));
+        $res['ttdAsman'] = base64_encode(QrCode::format('svg')->size(75)->generate($res['alat'][0]->asamanverifikasi));
 
 
         $blade = 'report.registrasi.permintaan-kalibrasi';

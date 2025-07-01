@@ -379,11 +379,13 @@ class AsmanCtrl extends Controller
             $hariPaket = $d->hari_paket ?? 0;
             $totalDurasi = $maxAlat * $hariPaket;
             $d->totalDurasi = $totalDurasi;
-            $d->tanggalSelesai = null;
-            if ($d->tglregistrasi && $totalDurasi > 0) {
-                $d->tanggalSelesai = \Carbon\Carbon::parse($d->tglregistrasi)
+            $tglDasar = $d->tglverifasman ?? \Carbon\Carbon::now()->format('Y-m-d');
+            if ($totalDurasi > 0) {
+                $d->tanggalSelesai = \Carbon\Carbon::parse($tglDasar)
                     ->addDays($totalDurasi)
                     ->format('d-m-Y');
+            } else {
+                $d->tanggalSelesai = null;
             }
         }
 

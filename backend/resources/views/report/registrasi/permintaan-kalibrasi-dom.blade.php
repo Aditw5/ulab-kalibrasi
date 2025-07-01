@@ -495,7 +495,7 @@
                             </td>
                             <td>
                                 <span style="font-size: 9pt;color:#000000">
-                                   
+
                                 </span>
                             </td>
                         </tr>
@@ -529,7 +529,7 @@
                 </td>
                 <td>
                     <span style="font-size: 9pt;color:#000000">
-                       
+                        {{ $res['identitas']->tglregistrasi ?? '-' }}
                     </span>
                 </td>
             </tr>
@@ -546,14 +546,14 @@
                 </td>
                 <td>
                     <span style="font-size: 9pt;color:#000000">
-                       
+                        {{ $res['alat'][0]->tanggalSelesai ?? '-' }}
                     </span>
                 </td>
             </tr>
             <tr>
                 <td width="15%">
                     <span style="font-size: 9pt;color:#000000">
-                       Durasi Pekerjaan
+                        Durasi Pekerjaan
                     </span>
                 </td>
                 <td width="2%">
@@ -563,19 +563,69 @@
                 </td>
                 <td>
                     <span style="font-size: 9pt;;color:#000000">
-                        
+                        {{ $res['alat'][0]->totalDurasi ?? '-' }} Hari Kerja
                     </span>
                 </td>
             </tr>
         </table>
-         <table border="0" width="100%" style="margin-top: 0px; ">
+        <table border="0" width="100%" style="margin-top: 0px; ">
             <tr>
                 <td>
                     <span style="font-size: 9pt;color:#000000">
-                        Kontrak kesepakatan telah disepakati oleh kedua belah pihak, apabila ada perubahan dalam kontrak akan diberitahukan sebelumnya.
+                        Kontrak kesepakatan telah disepakati oleh kedua belah pihak, apabila ada perubahan dalam kontrak
+                        akan diberitahukan sebelumnya.
                     </span>
                 </td>
             </tr>
+        </table>
+        <table border="0" width="100%" cellspacing="0" cellpadding="0" style="padding-top: -30px">
+            <tbody style="font-size: 11pt">
+                @php
+                    $ttdData = json_decode($res['identitas']->ttdpenanggungjawab);
+                @endphp
+                <tr>
+                    <td width="50%" align="center">
+                      
+                    </td>
+                    <td width="50%" align="center">
+                           <span style="font-size: 10pt;" class="text-biasa">{{ $res['identitas']->lokasi }},
+                            {{ \Carbon\Carbon::parse(date('Y-m-d H:i'))->isoFormat('DD MMMM Y') }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="50%" align="center">
+                        <span style="font-size: 10pt;" class="text-biasa">
+                            <b> Pelanggan</span></b>
+                    </td>
+                    <td width="50%" align="center">
+                          <span style="font-size: 10pt;" class="text-biasa">
+                            <b> Asman</span></b>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="50%" align="center">
+                        @if (!empty($ttdData->ttdPenanggungJawab))
+                            <img src="{{ $ttdData->ttdPenanggungJawab }}"
+                                style="margin-top: 5px; margin-bottom: 5px; max-height: 80px;" />
+                        @endif
+                    </td>
+                    <td width="50%" align="center">
+                        <img src="data:image/png;base64, {!! $res['ttdAsman'] !!}"
+                                    style="margin-top: 5px; margin-bottom: 5px">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="50%" align="center" height="8" valign="bottom" height="100" width="15%"
+                        class="text-center">
+                        <span style="font-size: 10pt;" class="text-biasa">
+                            <b> ({{ $res['identitas']->namapenanggungjawab }})</span></b>
+                    </td>
+                    <td width="50%" align="center">
+                         <span style="font-size: 10pt;" class="text-biasa">
+                            <b> ({{ $res['alat'][0]->asamanverifikasi }})</span></b>
+                    </td>
+                </tr>
+            <tbody>
         </table>
         {{-- <table width="100%" style="margin-top: 5px; ">
             <tr>
