@@ -50,7 +50,7 @@ class CustomVerifyEmailNotification extends Notification
         $parsed = parse_url($verificationUrl);
         parse_str($parsed['query'], $queryParams);
 
-        $frontendLink = "{$frontendUrl}/auth/signup-1?" . http_build_query([
+        $frontendLink = "https://ulabumro.id/auth/signup-1?" . http_build_query([
             'verified' => '1',
             'id' => $notifiable->getKey(),
             'hash' => sha1($notifiable->getEmailForVerification()),
