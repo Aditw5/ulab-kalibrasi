@@ -35,7 +35,7 @@
             <div class="columns is-multiline">
               <div v-for="(items, index) in dataOrder" :key="items.norec" class="column is-4">
                 <div class="restaurants-list-item">
-                  <img :src="'http://127.0.0.1:8000/produk/' + items.fotoproduk"
+                  <img :src="'https://ulabumro.id:8000/produk/' + items.fotoproduk"
                     style="width: 300px; height: auto; max-height: 200px; object-fit: contain; border-radius: 8px; background: #f3f3f3;"
                     alt="Produk" @error.once="(event) => onceImageErrored(event, '300x200')" />
                   <div class="meta-container">
