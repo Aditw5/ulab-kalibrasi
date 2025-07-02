@@ -16,16 +16,13 @@
         </div>
       </div>
 
-      <div class="left-body">
+      <div class="left-body" v-if="activeSection === 'cart' && 'is-active'">
         <div class="restaurants">
           <div class="restaurants-toolbar">
             <div class="left">
-              <h3>Restaurants</h3>
+              <h3>Order Alat</h3>
             </div>
-
-            <div class="right"></div>
           </div>
-
           <div class="food-pills">
             <div ref="prevButtonElement" class="slick-custom is-prev slick-arrow">
               <i aria-hidden="true" class="fas fa-angle-left"></i>
@@ -34,31 +31,20 @@
               <i aria-hidden="true" class="fas fa-angle-right"></i>
             </div>
           </div>
-
           <div class="restaurants-list">
             <div class="columns is-multiline">
-              <!--Restaurants Loop-->
               <div v-for="(items, index) in dataOrder" :key="items.norec" class="column is-4">
                 <div class="restaurants-list-item">
-                  <div class="image-container">
-                    <img src="/@src/assets/illustrations/dashboards/lifestyle/customer.png" @error.once="(event) => onceImageErrored(event, '800x450')" />
-                  </div>
+                  <img :src="'http://127.0.0.1:8000/produk/' + items.fotoproduk"
+                    style="width: 300px; height: auto; max-height: 200px; object-fit: contain; border-radius: 8px; background: #f3f3f3;"
+                    alt="Produk" @error.once="(event) => onceImageErrored(event, '300x200')" />
                   <div class="meta-container">
-                    <div class="meta-icon">
-                       <img src="/@src/assets/illustrations/dashboards/lifestyle/customer.png" alt="" @error.once="
-                        (event) =>
-                          onceImageErrored(event, '                            ')
-                      " />
-                    </div>
                     <div class="meta-content">
                       <h4>{{ items.namaproduk }}</h4>
                       <p>
-                        <span>{{ items.namamerk }}</span>
-                        <i aria-hidden="true" class="fas fa-circle"></i>
-                        <span class="rating">
-                          <i aria-hidden="true" class="fas fa-star"></i>
-                          <span class="ml-1">{{ items.namatipe }}</span>
-                        </span>
+                        <VButton type="button" icon="feather:arrow-right-circle" class="is-fullwidth mr-3" color="info"
+                          @click="masukKeranjang(items)" outlined raised :loading="items.isLoading">
+                          Masukkan Keranjang</VButton>
                       </p>
                     </div>
                   </div>
@@ -66,10 +52,153 @@
               </div>
             </div>
           </div>
+          <VFlexPagination v-model:current-page="currentPage.page" :item-per-page="currentPage.limit"
+            :total-items="totalData" :max-links-displayed="5">
+            <template #before-pagination>
+            </template>
+            <template #before-navigation>
+              <VFlex class="mr-4 mt-1" column-gap="1rem">
+                <VField>
+
+                </VField>
+                <VField>
+                  <VControl>
+                    <div class="select is-rounded">
+                      <select v-model="currentPage.limit">
+                        <option :value="1">1 results per page</option>
+                        <option :value="5">6 results per page</option>
+                        <option :value="10">10 results per page</option>
+                        <option :value="15">15 results per page</option>
+                        <option :value="25">25 results per page</option>
+                        <option :value="50">50 results per page</option>
+                      </select>
+                    </div>
+                  </VControl>
+                </VField>
+              </VFlex>
+            </template>
+          </VFlexPagination>
+        </div>
+      </div>
+
+      <div class="left-body" v-if="activeSection === 'activity' && 'is-active'">
+        <div class="restaurants">
+          <div class="restaurants-toolbar">
+            <div class="left">
+              <h3>History Order</h3>
+            </div>
+          </div>
+          <div class="food-pills">
+            <div ref="prevButtonElement" class="slick-custom is-prev slick-arrow">
+              <i aria-hidden="true" class="fas fa-angle-left"></i>
+            </div>
+            <div ref="nextButtonElement" class="slick-custom is-next slick-arrow">
+              <i aria-hidden="true" class="fas fa-angle-right"></i>
+            </div>
+          </div>
+          <div class="list-view list-view-v3">
+            <div class="search-menu-rad mb-2">
+              <div class="search-location-rad" style="width: 100%">
+                <i class="iconify" data-icon="feather:search"></i>
+                <input type="text" placeholder="Cari Nama Alat, Nama Perusahaan, No order Alat, No Pendaftaran"
+                  v-model="item.searchHistory" v-on:keyup.enter="fetchHistoryOrder()" />
+              </div>
+              <VButton raised class="search-button-rad" @click="fetchHistoryOrder()" :loading="isLoading">
+                Cari Data
+              </VButton>
+            </div>
+            <VPlaceholderPage :class="[dataHistoryOrder.length !== 0 && 'is-hidden']" title="Tidak Ada Alat Hari Ini."
+              subtitle="Silakan Pilih Tanggal" larger>
+              <template #image>
+                <img class="light-image" src="/@src/assets/illustrations/placeholders/search-4.png" alt="" />
+                <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
+              </template>
+            </VPlaceholderPage>
+            <div class="list-view-inner mt-2" style="max-height:1000px;overflow: auto;">
+              <div name="list-complete" tag="div">
+                <div v-for="(item, rowIndex) in dataHistoryOrder" :key="rowIndex">
+                  <div v-if="rowGroupMetadataHistory[item.jenisorder].index === rowIndex">
+                    <span style="font-weight: bold; font-size: 16px; font-family: var(--font-alt);">{{
+                      item.jenisorder }}</span>
+                    <Badge :value="rowGroupMetadataHistory[item.jenisorder].size"
+                      v-if="rowGroupMetadataHistory[item.jenisorder].size > 0" class="ml-2 mt-2-min" />
+                  </div>
+                  <div class="list-view-item ">
+                    <div class="list-view-item-inner">
+                      <VAvatar size="small" picture="/images/avatars/svg/propinsi.svg" color="primary" bordered />
+                      <div class="meta-left">
+                        <h3>
+                          {{ item.namaproduk }}
+                        </h3>
+                        <span>
+                          <i aria-hidden="true" class="iconify" data-icon="feather:home"></i>
+                          <span>{{ item.namaperusahaan }}</span>
+                          <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
+                          <i aria-hidden="true" class="iconify" data-icon="feather:calendar"></i>
+                          <span>{{ item.tglregistrasi }}</span>
+                          <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
+                          <i aria-hidden="true" class="iconify" data-icon="feather:check-circle"></i>
+                          <span>{{ item.nopendaftaran }}</span>
+                          <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
+                          <i aria-hidden="true" class="iconify" data-icon="feather:check-circle"></i>
+                          <span>{{ item.noorderalat }}</span>
+                        </span>
+                        <div>
+                          <span style="font-weight: bold;">Merk/Tipe :
+                            {{ item.namamerk ?? '-' }} - {{ item.namatipe }}
+                          </span>
+                        </div>
+                        <div>
+                          <span style="font-weight: bold;">SN :
+                            {{ item.namaserialnumber ?? '-' }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="meta-right flex justify-center items-center">
+                        <div class="buttons">
+                          <!-- <VIconButton v-tooltip.bottom.left="'SPK'" icon="feather:printer" @click="cetakSpk(item)"
+                            color="warning" raised circle class="mr-2">
+                          </VIconButton>
+                          <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity"
+                            @click="detailOrder(item)" color="info" raised circle class="mr-2">
+                          </VIconButton> -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <VFlexPagination v-model:current-page="currentPageHistory.page" :item-per-page="currentPage.limitHistory"
+            :total-items="totalDataHistory" :max-links-displayed="5">
+            <template #before-pagination>
+            </template>
+            <template #before-navigation>
+              <VFlex class="mr-4 mt-1" column-gap="1rem">
+                <VField>
+
+                </VField>
+                <VField>
+                  <VControl>
+                    <div class="select is-rounded">
+                      <select v-model="currentPageHistory.limitHistory">
+                        <option :value="1">1 results per page</option>
+                        <option :value="5">6 results per page</option>
+                        <option :value="10">10 results per page</option>
+                        <option :value="15">15 results per page</option>
+                        <option :value="25">25 results per page</option>
+                        <option :value="50">50 results per page</option>
+                      </select>
+                    </div>
+                  </VControl>
+                </VField>
+              </VFlex>
+            </template>
+          </VFlexPagination>
         </div>
       </div>
     </div>
-
     <div class="right fixed-parent">
       <div class="sticky-panel fixed-child">
         <div class="widget icon-toolbar-widget">
@@ -78,15 +207,17 @@
               <a class="inner-icon" :class="[activeSection === 'cart' && 'is-active']" tabindex="0"
                 @keydown.space.prevent="activeSection = 'cart'" @click="activeSection = 'cart'">
                 <i aria-hidden="true" class="iconify" data-icon="feather:shopping-cart"></i>
+                <span class="badge2 badge2-danger pulsate">{{ dataKeranjang.length }}</span>
               </a>
             </div>
             <div class="toolbar-icon">
               <a class="inner-icon" :class="[activeSection === 'activity' && 'is-active']" tabindex="0"
                 @keydown.space.prevent="activeSection = 'activity'" @click="activeSection = 'activity'">
                 <i aria-hidden="true" class="iconify" data-icon="feather:activity"></i>
+                <span class="badge2 badge2-danger pulsate">{{ dataHistoryOrder.length }}</span>
               </a>
             </div>
-            <div class="toolbar-icon">
+            <!-- <div class="toolbar-icon">
               <a class="inner-icon" :class="[activeSection === 'address' && 'is-active']" tabindex="0"
                 @keydown.space.prevent="activeSection = 'address'" @click="activeSection = 'address'">
                 <i aria-hidden="true" class="iconify" data-icon="feather:map-pin"></i>
@@ -97,54 +228,62 @@
                 @keydown.space.prevent="activeSection = 'settings'" @click="activeSection = 'settings'">
                 <i aria-hidden="true" class="iconify" data-icon="feather:settings"></i>
               </a>
-            </div>
+            </div> -->
           </div>
         </div>
 
         <div class="widget cart-widget side-section" :class="[activeSection === 'cart' && 'is-active']">
           <div class="widget-toolbar">
             <div class="left">
-              <h3 class="is-bigger">My Order</h3>
+              <h3 class="is-bigger">Keranjang Saya</h3>
             </div>
             <div class="right">
-              <span class="tag is-curved">0 items</span>
+              <span class="tag is-curved">{{ dataKeranjang.length }}</span>
             </div>
           </div>
-          <VPlaceholderSection title="No Items" subtitle="Your cart is currently empty. Start adding products.">
+          <VPlaceholderSection v-if="isLoading" title="No Items"
+            subtitle="Your cart is currently empty. Start adding products.">
             <template #image>
               <img class="light-image" src="/@src/assets/illustrations/dashboards/food/cart-placeholder.svg" alt="" />
               <img class="dark-image" src="/@src/assets/illustrations/dashboards/food/cart-placeholder.svg" alt="" />
             </template>
           </VPlaceholderSection>
-          <div class="cart-items has-slimscroll is-hidden">
-            <div class="cart-item">
-              <VAvatar picture="/demo/photos/food/1.jpg" size="medium" squared />
-              <div class="meta">
-                <span class="text"> Double XL Burger </span>
-                <span class="price">$15.50 x 1</span>
-              </div>
+          <div class="cart-items has-slimscroll" v-else>
+            <div style="padding: 0 0.75rem 0.5rem;">
+              <label>
+                <VField grouped>
+                  <VControl raw subcontrol>
+                    <VCheckbox v-model="selectAll" label="Pilih semua" color="info" class="m-0 p-0" />
+                  </VControl>
+                </VField>
+              </label>
             </div>
-            <div class="cart-item">
-              <VAvatar picture="/demo/photos/food/2.jpg" size="medium" squared />
-              <div class="meta">
-                <span class="text"> Cherry Cupcakes </span>
-                <span class="price">$8.00 x 3</span>
-              </div>
-            </div>
-            <div class="cart-item">
-              <VAvatar picture="/demo/photos/food/3.jpg" size="medium" squared />
-              <div class="meta">
-                <span class="text"> Extra Fries </span>
-                <span class="price">$7.90 x 2</span>
+            <div v-for="(items, rowIndex) in dataKeranjang" :key="rowIndex">
+              <template v-if="rowGroupMetadata[items.jenisorder]?.index === rowIndex">
+                <div class="has-text-weight-semibold has-text-grey is-uppercase mt-3 mb-2" style="font-size: 13px;">
+                  {{ items.jenisorder }}
+                </div>
+              </template>
+              <div class="is-flex is-align-items-center mb-2 ml-2" style="gap: 0.75rem; padding-left: 0.5rem;">
+                <VCheckbox v-model="items.checked" color="info" class="m-0 p-0" />
+                <VAvatar picture="/demo/icon-registrasi.png" size="small" squared />
+                <div class="meta" style="line-height: 1.3;">
+                  <div class="has-text-weight-medium is-size-7">
+                    {{ items.namaproduk }}
+                  </div>
+                  <div class="is-size-7 has-text-grey">x 1</div>
+                </div>
               </div>
             </div>
           </div>
           <div class="cart-button">
             <div class="total">
-              <span class="label">Total</span>
-              <span>$0.00</span>
+              <span class="label">Total Dipilih</span>
+              <span>{{ selectedItems.length }}</span>
             </div>
-            <VButton color="primary" raised bold fullwidth> Start Checkout </VButton>
+            <VButton color="primary" raised bold fullwidth @click="checkoutSelected">
+              Checkout
+            </VButton>
           </div>
         </div>
 
@@ -191,6 +330,96 @@
       </div>
     </div>
   </div>
+  <VModal :open="modalKeranjang" title="Masukkan Keranjang" noclose size="medium" actions="right"
+    @close="modalKeranjang = false, clear()" cancelLabel="Tutup">
+    <template #content>
+      <div class="business-dashboard hr-dashboard">
+        <div class="columns is-multiline">
+          <div class="column is-12 p-0">
+            <div class="block-header">
+              <div class="left column is-12 p-0">
+                <div class="current-user">
+                  <h3>{{ item.namaproduk }}</h3>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="column is-12 p-4 mt-5">
+        <Fieldset legend="Edit Tindakan" :toggleable="true">
+          <div class="columns pl-3">
+            <div class="column is-12 ml-5">
+              <div class="columns">
+                <div class="columns is-multiline">
+                  <div class="column is-6">
+                    <VField>
+                      <VLabel>Merk Alat</VLabel>
+                      <VControl>
+                        <AutoComplete v-model="item.merkalat" :suggestions="d_merk" @complete="fetchmerk($event)"
+                          optionLabel="label" :dropdown="true" :minLength="3" class="is-input" appendTo="body"
+                          loadingIcon="pi pi-spinner" field="label" placeholder="ketik untuk mencari..." />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-6">
+                    <VField>
+                      <VLabel>Tipe Alat</VLabel>
+                      <VControl>
+                        <AutoComplete v-model="item.tipealat" :suggestions="d_tipe" @complete="fetchtipe($event)"
+                          optionLabel="label" :dropdown="true" :minLength="3" class="is-input" appendTo="body"
+                          loadingIcon="pi pi-spinner" field="label" placeholder="ketik untuk mencari..." />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-6">
+                    <VField>
+                      <VLabel>Serial Number</VLabel>
+                      <VControl>
+                        <AutoComplete v-model="item.serialnumber" :suggestions="d_sn"
+                          @complete="fetchserialnumber($event)" optionLabel="label" :dropdown="true" :minLength="3"
+                          class="is-input" appendTo="body" loadingIcon="pi pi-spinner" field="label"
+                          placeholder="ketik untuk mencari..." />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-6">
+                    <span class="label-pengkajian">Jenis Order</span>
+                    <div class="columns is-multiline p-3">
+                      <div class="column is-6">
+                        <VField>
+                          <VControl raw subcontrol>
+                            <VCheckbox v-model="item.jenisorderAlat" true-value="kalibrasi" label="Kalibrasi"
+                              class="p-0" color="primary" square />
+                          </VControl>
+                        </VField>
+                      </div>
+                      <div class="column is-6">
+                        <VField>
+                          <VControl raw subcontrol>
+                            <VCheckbox v-model="item.jenisorderAlat" true-value="repair" label="Reapir" class="p-0"
+                              color="primary" square />
+                          </VControl>
+                        </VField>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </Fieldset>
+      </div>
+    </template>
+    <template #action>
+      <VButton icon="feather:save" @click="saveKeranjang(item)" color="info" :loading="isLoading" raised>
+        Masukkan Keranjang
+      </VButton>
+    </template>
+  </VModal>
 </template>
 <script setup lang="ts">
 import type { TinySliderInstance } from 'tiny-slider/src/tiny-slider'
@@ -206,9 +435,11 @@ import { onceImageErrored } from '/@src/utils/via-placeholder'
 import { useHead } from '@vueuse/head'
 import { useViewWrapper } from '/@src/stores/viewWrapper'
 import { useApi } from '/@src/composable/useApi'
+import AutoComplete from 'primevue/autocomplete'
+import * as H from '/@src/utils/appHelper'
 
 useHead({
-    title: 'Dashboard Customer - ' + import.meta.env.VITE_PROJECT,
+  title: 'Dashboard Customer - ' + import.meta.env.VITE_PROJECT,
 })
 useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
 useViewWrapper().setFullWidth(false)
@@ -222,64 +453,298 @@ const prevButtonElement = ref<HTMLElement>()
 const item: any = ref({})
 let isLoading: any = ref(false)
 const currentPage: any = ref({
-    limit: 5,
-    rows: 50,
+  limit: 6,
+  rows: 50,
+})
+
+const currentPageHistory: any = ref({
+  limitHistory: 6,
+  rowsHistory: 50,
 })
 const dataOrder: any = ref(0)
+const dataHistoryOrder: any = ref(0)
+const dataKeranjang = ref<any[]>([])
 let totalData: any = ref(0)
+let totalDataHistory: any = ref(0)
 let isData: any = ref()
-
+let modalKeranjang: any = ref(false)
+const d_merk = ref([])
+const d_tipe = ref([])
+const d_sn = ref([])
+const d_lokasikalibrasi = ref([])
+const selectedItems = computed(() =>
+  dataKeranjang.value.filter((item: any) => item.checked)
+)
+const selectAll = ref(false)
+const rowGroupMetadata = ref<Record<string, { index: number; size: number }>>({})
+const rowGroupMetadataHistory = ref<Record<string, { index: number; size: number }>>({})
+History
 const fetchDataAlat = async () => {
-    isLoading.value = true
-    let search = ''
-    if (item.value.search) search = '&search=' + item.value.search
-    let limit: any = currentPage.value.limit
-    let offset: any = route.query.page ? route.query.page : 1
-    offset = (parseInt(offset) - 1) * limit
-    let page: any = route.query.page ? route.query.page : 1
+  isLoading.value = true
+  let search = ''
+  if (item.value.search) search = '&search=' + item.value.search
+  let limitHistory: any = currentPageHistory.value.limitHistory
+  let offset: any = route.query.page ? route.query.page : 1
+  offset = (parseInt(offset) - 1) * limitHistory
+  let page: any = route.query.page ? route.query.page : 1
 
-    await useApi().get(`customer/get-alat-customer?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPage.value.rows}&` + search).then((response) => {
-        dataOrder.value = response.data
-        totalData.value = response.total
-        response.data.forEach((element: any, i: any) => {
-            element.no = i + 1
-            let ini = element.namaperusahaan.split(' ')
-            let init = element.namaperusahaan.substr(0, 2)
-            if (ini.length > 1) {
-                init = init + ini[1].substr(0, 1)
-            }
-            element.initials = init
-        });
-        isData.value = response.total
-        isLoading.value = false
-    }).catch((err) => {
+  await useApi().get(`customer/get-alat-customer?page=${page}&offset=${offset}&limit=${limitHistory}&rows=${currentPage.value.rowsHistory}&` + search).then((response) => {
+    dataOrder.value = response.data
+    totalData.value = response.total
+    response.data.forEach((element: any, i: any) => {
+      element.no = i + 1
+      let ini = element.namaperusahaan.split(' ')
+      let init = element.namaperusahaan.substr(0, 2)
+      if (ini.length > 1) {
+        init = init + ini[1].substr(0, 1)
+      }
+      element.initials = init
+    });
+    isData.value = response.total
+    isLoading.value = false
+  }).catch((err) => {
+  })
+  isLoading.value = false
+}
+
+const fetchHistoryOrder = async () => {
+  isLoading.value = true
+  let searchHistory = ''
+  if (item.value.searchHistory) searchHistory = '&search=' + item.value.searchHistory
+  let limit: any = currentPage.value.limit
+  let offset: any = route.query.page ? route.query.page : 1
+  offset = (parseInt(offset) - 1) * limit
+  let page: any = route.query.page ? route.query.page : 1
+
+  await useApi().get(`customer/get-history-order-customer?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPage.value.rows}&` + searchHistory).then((response) => {
+    dataHistoryOrder.value = response.data
+    totalDataHistory.value = response.total
+    response.data.forEach((element: any, i: any) => {
+      element.no = i + 1
+      let ini = element.namaproduk.split(' ')
+      let init = element.namaproduk.substr(0, 2)
+      if (ini.length > 1) {
+        init = init + ini[1].substr(0, 1)
+      }
+      element.initials = init
+    });
+    isData.value = response.total
+    isLoading.value = false
+  }).catch((err) => {
+  })
+  isLoading.value = false
+  updateRowGroupMetaDataHistory()
+}
+
+const fetchKeranjangCustomer = async () => {
+  isLoading.value = true
+  let search = ''
+  if (item.value.search) search = '&search=' + item.value.search
+
+  await useApi().get(`customer/get-keranjang-customer?` + search).then((response) => {
+    dataKeranjang.value = response.map((element: any, i: any) => {
+      let ini = element.namaproduk.split(' ')
+      let init = element.namaproduk.substr(0, 2)
+      if (ini.length > 1) {
+        init = init + ini[1].substr(0, 1)
+      }
+
+      return {
+        ...element,
+        no: i + 1,
+        initials: init,
+        checked: false,
+      }
     })
     isLoading.value = false
+  })
+  updateRowGroupMetaData();
+}
+
+const updateRowGroupMetaData = () => {
+  rowGroupMetadata.value = {};
+  if (dataKeranjang.value) {
+    for (let i = 0; i < dataKeranjang.value.length; i++) {
+      let rowData = dataKeranjang.value[i];
+      let jenisorder = rowData.jenisorder;
+
+      if (i == 0) {
+        rowGroupMetadata.value[jenisorder] = { index: 0, size: 1 };
+      }
+      else {
+        let previousRowData = dataKeranjang.value[i - 1];
+        let previousRowGroup = previousRowData.jenisorder;
+        if (jenisorder === previousRowGroup) {
+          rowGroupMetadata.value[jenisorder].size++;
+        }
+        else {
+          rowGroupMetadata.value[jenisorder] = { index: i, size: 1 };
+        }
+      }
+    }
+  }
+}
+
+const updateRowGroupMetaDataHistory = () => {
+  rowGroupMetadataHistory.value = {};
+  if (dataHistoryOrder.value) {
+    for (let i = 0; i < dataHistoryOrder.value.length; i++) {
+      let rowData = dataHistoryOrder.value[i];
+      let jenisorder = rowData.jenisorder;
+
+      if (i == 0) {
+        rowGroupMetadataHistory.value[jenisorder] = { index: 0, size: 1 };
+      }
+      else {
+        let previousRowData = dataHistoryOrder.value[i - 1];
+        let previousRowGroup = previousRowData.jenisorder;
+        if (jenisorder === previousRowGroup) {
+          rowGroupMetadataHistory.value[jenisorder].size++;
+        }
+        else {
+          rowGroupMetadataHistory.value[jenisorder] = { index: i, size: 1 };
+        }
+      }
+    }
+  }
 }
 
 currentPage.value.page = computed(() => {
-    try {
-        return Number.parseInt(route.query.page as string) || 1
-    } catch { }
-    return 1
+  try {
+    return Number.parseInt(route.query.page as string) || 1
+  } catch { }
+  return 1
 })
 watch(
-    () => currentPage.value.page,
-    (newValue, oldValue) => {
-        if (newValue != oldValue) {
-            fetchDataAlat()
-        }
+  () => currentPage.value.page,
+  (newValue, oldValue) => {
+    if (newValue != oldValue) {
+      fetchDataAlat()
     }
+  }
 )
 watch(
-    () => currentPage.value.limit,
-    (newValue, oldValue) => {
-        if (newValue != oldValue) {
-            fetchDataAlat()
-        }
+  () => currentPage.value.limit,
+  (newValue, oldValue) => {
+    if (newValue != oldValue) {
+      fetchDataAlat()
     }
+  }
 )
 
+const masukKeranjang = async (e: any) => {
+  console.log(e)
+  modalKeranjang.value = true
+  item.value.namaproduk = e.namaproduk
+  item.value.idproduk = e.id
+}
+
+const saveKeranjang = async (e: any) => {
+  if (!item.value.merkalat) { H.alert('warning', 'Merk Alat harus di isi'); return }
+  if (!item.value.tipealat) { H.alert('warning', 'Tipe Alat harus di isi'); return }
+  if (!item.value.serialnumber) { H.alert('warning', 'Serial Number harus di isi'); return }
+  if (!item.value.jenisorderAlat) { H.alert('warning', 'Jenis Order harus di isi'); return }
+
+  let json = {
+    'keranjangcustomer': {
+      'idalat': item.value.idproduk ?? null,
+      'merkalat': item.value.merkalat?.value ?? null,
+      'tipealat': item.value.tipealat?.value ?? null,
+      'serialnumber': item.value.serialnumber?.value ?? null,
+      'jenisorder': item.value.jenisorderAlat ?? null,
+    }
+  }
+
+  isLoading.value = true
+  await useApi().post(`/customer/save-keranjang-customer`, json).then(async (response: any) => {
+    isLoading.value = false
+    modalKeranjang.value = false
+    fetchKeranjangCustomer()
+  }).catch((e: any) => {
+    isLoading.value = false
+    console.clear()
+    console.log(e)
+  })
+  isLoading.value = false
+}
+
+const fetchmerk = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/merkalat_m?select=id,namamerk&param_search=namamerk&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_merk.value = response
+  })
+}
+
+const fetchtipe = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/tipealat_m?select=id,namatipe&param_search=namatipe&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_tipe.value = response
+  })
+}
+
+const fetchserialnumber = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/serialnumber_m?select=id,namaserialnumber&param_search=namaserialnumber&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_sn.value = response
+  })
+}
+
+const fetchlokasiKalibrasi = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/lokasikalibrasi_m?select=id,lokasi&param_search=lokasi&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_lokasikalibrasi.value = response
+  })
+}
+
+const checkoutSelected = async () => {
+  const itemsToCheckout = selectedItems.value
+  if (itemsToCheckout.length === 0) {
+    H.alert('warning', 'Pilih minimal satu item untuk checkout')
+    return
+  }
+
+  console.log(itemsToCheckout)
+
+  let json = {
+    'mitraregistrasi': {
+      'nomitrafk': 3,
+    },
+    'mitraregistrasidetail': itemsToCheckout
+  }
+
+  isLoading.value = true
+  await useApi().post(`/customer/save-checkout`, json).then(async (response: any) => {
+    isLoading.value = false
+    fetchKeranjangCustomer()
+    fetchHistoryOrder()
+  }).catch((e: any) => {
+    isLoading.value = false
+    console.clear()
+    console.log(e)
+  })
+  isLoading.value = false
+}
+
+watch(selectAll, (newVal) => {
+  dataKeranjang.value.forEach((item) => {
+    item.checked = newVal
+  })
+})
+
+watch(dataKeranjang, (newItems) => {
+  const allChecked = newItems.length > 0 && newItems.every((item) => item.checked)
+  selectAll.value = allChecked
+}, { deep: true })
+
+const clear = () => {
+  item.value.merkalat = ''
+  item.value.tipealat = ''
+  item.value.serialnumber = ''
+}
 
 const onIndexChanged = (info: any) => {
   // direct access to info object
@@ -324,9 +789,107 @@ onUnmounted(() => {
 })
 
 fetchDataAlat()
+fetchHistoryOrder()
+fetchKeranjangCustomer()
 </script>
 <style lang="scss">
 @import '/@src/scss/abstracts/all';
+@import '/@src/scss/module/dashboard/customer.scss';
+
+.cart-item+.cart-item {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+
+.search-menu-rad {
+  height: 56px !important;
+  white-space: nowrap;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  width: 100%;
+  padding-left: 0.75rem;
+
+  >div:not(:last-of-type) {
+    border-right: 1px solid var(--search-border-color);
+  }
+
+  .search-bar {
+    height: 55px;
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-right: 1.5rem;
+
+    .field {
+      width: 100%;
+    }
+
+    .multiselect-tags {
+      padding-left: 2.5rem;
+    }
+  }
+
+  .search-location-rad,
+  .search-job,
+  .search-salary {
+    display: flex;
+    align-items: center;
+    width: 50%;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0 25px;
+    height: 100%;
+    font-family: var(--font);
+
+    input {
+      width: 100%;
+      height: 90%;
+      display: block;
+      font-family: var(--font);
+      color: var(--input-color);
+      background-color: transparent;
+      border: none;
+    }
+
+    svg {
+      margin-right: 0.5rem;
+      width: 18px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+  }
+
+  .search-button-rad {
+    background-color: var(--primary);
+    min-width: 100px;
+    height: 56px !important;
+    border: none;
+    font-weight: 500;
+    font-family: var(--font);
+    padding: 0 1rem;
+    border-radius: 0 0.75rem 0.75rem 0;
+    color: white;
+    cursor: pointer;
+    margin-left: auto;
+  }
+}
+
+.search-widget {
+  flex: 1;
+  display: inline-block;
+  width: 100%;
+  padding: 10px;
+  background-color: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--fade-grey-dark-3);
+  transition: all 0.3s;
+}
 
 .food-delivery-dashboard {
   display: flex;

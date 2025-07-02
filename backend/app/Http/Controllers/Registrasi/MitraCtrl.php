@@ -43,6 +43,8 @@ class MitraCtrl extends Controller
                 'mtr.namapenanggungjawab',
                 'mtr.tanggalkonfirmasipendaftaran',
                 'mtr.jenisorder',
+                'mtr.isregiscustomer',
+                'mtr.verifregiscustomer',
             )
             ->where('mt.statusenabled', true)
             ->where('mtr.statusenabled', true)

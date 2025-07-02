@@ -258,7 +258,7 @@ await api.get(
 
       <template #toolbar>
         <div style="display: flex; align-items: center;">
-          <div style="font-size: 18px; font-weight: bold; margin-right: 16px;">
+          <div style="font-size: 15px; font-weight: bold; margin-right: 20px;">
             {{ waktusekarang }}
           </div>
           <Toolbar class="desktop-toolbar">

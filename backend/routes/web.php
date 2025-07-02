@@ -220,6 +220,10 @@ Route::middleware(['log'])->group(function () {
 
     Route::controller(CustomerCtrl::class)->group(function () {
         Route::get('customer/get-alat-customer', 'getAlatCustomer');
+        Route::get('customer/get-keranjang-customer', 'keranjangCustomer');
+        Route::get('customer/get-history-order-customer', 'historyOrder');
+        Route::post('customer/save-keranjang-customer', 'saveKeranjangCustomer');
+        Route::post('customer/save-checkout', 'saveRegistrasiCustomer');
     });
     
     Route::controller(MitraCtrl::class)->group(function () {

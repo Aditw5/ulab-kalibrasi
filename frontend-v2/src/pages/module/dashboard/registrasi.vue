@@ -118,10 +118,7 @@
                                       }}
                                     </span>
                                   </div>
-                                  <VTag v-if="!item.iskaji" color="danger" rounded>Belum Kaji</VTag>
-                                  <VTag v-if="item.iskaji && item.statusorder != 1" color="warning" rounded>Sudah Kaji
-                                  </VTag>
-                                  <VTag v-if="item.statusorder == 1" color="info" rounded>Sudah Diverif Asman</VTag>
+
                                 </div>
                               </div>
                               <div class="flex-head" style=" display: flex; justify-content: space-between;">
@@ -135,7 +132,16 @@
                                         <span>Batal Registrasi</span>
                                       </div>
                                     </a>
-                                    <a v-if="item.iskaji !== null" role="menuitem" @click="cetakTandaTerima(item)"
+                                    <a style="background-color:darkcyan;" v-if="item.verifregiscustomer == null && item.isregiscustomer" role="menuitem" @click="cetakTandaTerima(item)"
+                                      class="dropdown-item is-media">
+                                      <div class="icon">
+                                        <i aria-hidden="true" class="lnil lnil-checkmark"></i>
+                                      </div>
+                                      <div class="meta">
+                                        <span>Verifikasi Registrasi Customer </span>
+                                      </div>
+                                    </a>
+                                    <a s v-if="item.iskaji !== null" role="menuitem" @click="cetakTandaTerima(item)"
                                       class="dropdown-item is-media">
                                       <div class="icon">
                                         <i aria-hidden="true" class="lnil lnil-printer"></i>
@@ -167,6 +173,16 @@
 
                                   </template>
                                 </VDropdown>
+                                <div class="is-flex is-justify-content-flex-end is-flex-wrap gap-2">
+                                  <VTag v-if="item.verifregiscustomer == null && item.isregiscustomer" color="danger"
+                                    rounded>
+                                    Belum Admin Verif</VTag>
+                                  <VTag v-if="item.isregiscustomer" color="info" rounded>Registrasi Customer</VTag>
+                                  <VTag v-if="!item.iskaji" color="danger" rounded>Belum Kaji</VTag>
+                                  <VTag v-if="item.iskaji && item.statusorder != 1" color="warning" rounded>Sudah Kaji
+                                  </VTag>
+                                  <VTag v-if="item.statusorder == 1" color="info" rounded>Sudah Diverif Asman</VTag>
+                                </div>
                               </div>
                               <div class="grid-item">
                                 <VAvatar :picture="(item.foto != null ? item.foto : '/images/other/no_image.jpg')"
@@ -174,20 +190,23 @@
                                 <h3 class="dark-inverted">{{ item.namaperusahaan }}</h3>
                                 <VTag v-if="item.jenisorder == 'repair'" color="warning" rounded>Repair</VTag>
                                 <VTag v-if="item.jenisorder == 'kalibrasi'" color="info" rounded>Kalibrasi</VTag>
-                                <h3 class="dark-inverted">{{ item.nopendaftaran }}</h3>
+                                <h3 class="dark-inverted">{{ item.nopendaftaran ?? '-' }}</h3>
                                 <!-- <p>{{ item.nocm }}</p> -->
                                 <p>Email : {{ item.email }}</p>
                                 <p>No HP : {{ item.nohp }}</p>
                                 <div class="buttons mt-4" style="display: flex; justify-content: center;">
-                                  <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'kalibrasi'"
+                                  <VIconButton
+                                    v-if="item.statusorder != 1 && item.jenisorder == 'kalibrasi' && (!item.isregiscustomer || (item.isregiscustomer && item.verifregiscustomer !== null))"
                                     v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info" outlined
                                     circle icon="pi pi-arrow-right" @click="kajiUlang(item)" />
-                                  <VIconButton v-if="item.statusorder != 1 && item.jenisorder == 'repair'"
+                                  <VIconButton
+                                    v-if="item.statusorder != 1 && item.jenisorder == 'repair' && (!item.isregiscustomer || (item.isregiscustomer && item.verifregiscustomer !== null))"
                                     v-tooltip.bottom.left="'Kaji Ulang Repair'" label="Bottom center" color="info"
                                     outlined circle icon="pi pi-arrow-right" @click="kajiUlangRepair(item)" />
-                                  <VIconButton v-if="item.statusorder == 1" v-tooltip.bottom.left="'Kaji Ulang'"
-                                    label="Bottom center" color="info" outlined circle icon="pi pi-arrow-right"
-                                    disabled />
+                                  <VIconButton
+                                    v-if="item.statusorder == 1 || (item.verifregiscustomer == null && item.isregiscustomer)"
+                                    v-tooltip.bottom.left="'Kaji Ulang'" label="Bottom center" color="info" outlined
+                                    circle icon="pi pi-arrow-right" disabled />
                                 </div>
                               </div>
                             </div>
@@ -1097,84 +1116,84 @@ fetchAlatKalibrasi(0)
   border-radius: 12px;
   background: var(--primary);
   border: 1px solid var(--primary);
-    font-family: var(--font);
-    text-align: center;
+  font-family: var(--font);
+  text-align: center;
 
-    span {
-        display: block;
+  span {
+    display: block;
 
-        &:first-child {
-            font-size: 1.3rem;
-            color: var(--smoke-white);
-            font-weight: 600;
-            line-height: 1;
-        }
-
-        &:nth-child(2) {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--primary-light-40);
-        }
+    &:first-child {
+      font-size: 1.3rem;
+      color: var(--smoke-white);
+      font-weight: 600;
+      line-height: 1;
     }
+
+    &:nth-child(2) {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--primary-light-40);
+    }
+  }
 }
 
 .meta-container {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+
+  .meta-icon {
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 5px;
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    max-height: 46px;
+    background: var(--white);
+    border: 1px solid var(--fade-grey-dark-3);
+    border-radius: 500px;
 
-    .meta-icon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 46px;
-        min-width: 46px;
-        height: 46px;
-        max-height: 46px;
-        background: var(--white);
-        border: 1px solid var(--fade-grey-dark-3);
-        border-radius: 500px;
+    img {
+      display: flex;
+      height: 22px;
+      width: 22px;
+    }
+  }
 
-        img {
-            display: flex;
-            height: 22px;
-            width: 22px;
-        }
+  .meta-content {
+    margin-left: 8px;
+    font-family: var(--font);
+    line-height: 1.3;
+
+    h4 {
+      font-family: var(--font-alt);
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--dark-text);
     }
 
-    .meta-content {
-        margin-left: 8px;
-        font-family: var(--font);
-        line-height: 1.3;
+    p {
+      display: flex;
+      align-items: center;
 
-        h4 {
-            font-family: var(--font-alt);
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--dark-text);
+      .fa-circle {
+        font-size: 5px;
+        margin: 0 10px;
+      }
+
+      .fa-star {
+        position: relative;
+        top: -1px;
+        font-size: 12px;
+        color: #fab82a;
+
+        +span {
+          color: var(--dark-text);
         }
-
-        p {
-            display: flex;
-            align-items: center;
-
-            .fa-circle {
-                font-size: 5px;
-                margin: 0 10px;
-            }
-
-            .fa-star {
-                position: relative;
-                top: -1px;
-                font-size: 12px;
-                color: #fab82a;
-
-                +span {
-                    color: var(--dark-text);
-                }
-            }
-        }
+      }
     }
+  }
 }
 
 .c-title {
