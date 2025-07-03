@@ -205,13 +205,13 @@ const onUpload = () => {
 }
 
 const downloadTemplate = () => {
-  window.open(import.meta.env.VITE_API_BASE_URL + 'penyelia/download-template-lembar-kerja?token=' + useUserSession().token, '_blank');
+  window.open('https://ulabumro.id:8000/service/penyelia/download-template-lembar-kerja?token=' + useUserSession().token, '_blank');
 }
 
 const downloadFileTerunggah = () => {
   const norec = NOREC_DETAIL
   const token = useUserSession().token
-  const url = `${import.meta.env.VITE_API_BASE_URL}manager/download-file-terunggah?norec=${norec}&token=${token}`
+  const url = `https://ulabumro.id:8000/service/manager/download-file-terunggah?norec=${norec}&token=${token}`
   window.open(url, '_blank')
 }
 
