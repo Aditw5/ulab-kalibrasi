@@ -132,8 +132,9 @@
                                         <span>Batal Registrasi</span>
                                       </div>
                                     </a>
-                                    <a style="background-color:darkcyan;" v-if="item.verifregiscustomer == null && item.isregiscustomer" role="menuitem" @click="cetakTandaTerima(item)"
-                                      class="dropdown-item is-media">
+                                    <a style="background-color:darkcyan;"
+                                      v-if="item.verifregiscustomer == null && item.isregiscustomer" role="menuitem"
+                                      @click="verifikasiPendaftaranCustomer(item)" class="dropdown-item is-media">
                                       <div class="icon">
                                         <i aria-hidden="true" class="lnil lnil-checkmark"></i>
                                       </div>
@@ -642,6 +643,135 @@
       </VButton>
     </template>
   </VModal>
+  <VModal :open="modalverifikasiRegistrasiCustomer" title="Verfikasi Registrasi Customer" size="big" actions="right"
+    @close="modalverifikasiRegistrasiCustomer = false" cancelLabel="Tutup">
+    <template #content>
+      <div class="columns is-multiline">
+        <div class="column is-4">
+          <VField>
+            <VLabel class="required-field">Tanggal Verifikasi Registrasi</VLabel>
+            <VDatePicker v-model="item.tanggalverifikasiregistrasi" mode="dateTime" style="width: 100%" trim-weeks
+              :max-date="new Date()">
+              <template #default="{ inputValue, inputEvents }">
+                <VField>
+                  <VControl icon="feather:calendar" fullwidth>
+                    <VInput :value="inputValue" placeholder="Tanggal" v-on="inputEvents" disabled />
+                  </VControl>
+                </VField>
+              </template>
+            </VDatePicker>
+          </VField>
+        </div>
+        <div class="column is-4">
+          <VField>
+            <VLabel class="required-field">Nama Perusahaan</VLabel>
+            <VControl icon="feather:map-pin">
+              <VInput type="text" v-model="item.perusahaancustomer" placeholder="Tempat Lahir" class="is-rounded_Z"
+                disabled />
+            </VControl>
+          </VField>
+        </div>
+        <div class="column is-4">
+          <VField>
+            <VLabel class="required-field">Peenanggung Jawab</VLabel>
+            <VControl icon="feather:map-pin">
+              <VInput type="text" v-model="item.namapenaggungjawabcustomer" placeholder="Tempat Lahir"
+                class="is-rounded_Z" disabled />
+            </VControl>
+          </VField>
+        </div>
+        <div class="column is-4">
+          <VField>
+            <VLabel class="required-field">Catatan Untuk Customer</VLabel>
+            <VTextarea rows="2" placeholder="......" v-model="item.catatanuntukcustomer">
+            </VTextarea>
+          </VField>
+        </div>
+        <div class="column is-4 mt-5">
+          <VButton v-if="item.filecustomerams != null" icon="feather:printer" color="primary" @click="cetakAms(item)" :loading="isLoading" raised>
+            Cetak AMS
+          </VButton>
+          <VButton v-if="item.filecustomertools != null" rounded color="warning" class="" icon="feather:download" raised bold @click="downloadTools(item)">
+            Download List Tools
+          </VButton>
+        </div>
+        <div class="column is-12" v-if="dataNamaPaketCustomer != null">
+          <div class="columns is-multiline">
+            <div class="ml-4 column is-5">
+              <div class="meta-container">
+                <div class="meta-content">
+                  <h4>Paket Kalibrasi {{ dataNamaPaketCustomer }}</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-12">
+          <Fieldset legend="Data Alat" :toggleable="true">
+            <div class="column" v-for="(data) in 3" style="text-align:center" v-if="isLoadDataOrder">
+              <div class="columns is-multiline">
+                <div class="column is-2" style="margin-top: 27px;">
+                  <VPlaceload class="mx-2" />
+                </div>
+                <div class="column">
+                  <VPlaceloadText :lines="4" width="75%" last-line-width="20%" />
+                </div>
+
+              </div>
+            </div>
+            <div class="timeline-wrapper" v-else>
+              <div class="timeline-wrapper-inner">
+                <div class="timeline-container">
+                  <div class="timeline-item is-unread" v-for="(items, index) in detailOrderLayananCustomer"
+                    :key="items.norec">
+                    <div :class="'dot is-' + listColor[index + 1]"></div>
+
+                    <div class="content-wrap is-grey">
+                      <div class="content-box">
+                        <div class="status"></div>
+                        <VIconBox size="medium" :color="listColor[index + 1]" rounded>
+                          <i class="iconify" data-icon="feather:package" aria-hidden="true"></i>
+                        </VIconBox>
+                        <div class="box-text" style="width:70%">
+                          <div class="meta-text">
+                            <p>
+                              <span>{{ items.namaproduk }}</span>
+                            </p>
+                            <table class="tb-order">
+                              <tr>
+                                <td>Merk/Tipe</td>
+                                <td>:</td>
+                                <td>{{ items.namamerk }} - {{ items.namatipe }} </td>
+                              </tr>
+                              <tr>
+                                <td>Serial Number</td>
+                                <td>:</td>
+                                <td>{{ items.namaserialnumber }} </td>
+                              </tr>
+                              <tr>
+                                <td>Duraasi Permintaan Paket</td>
+                                <td>:</td>
+                                <td class="font-values">{{ items.hari_paket }}</td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Fieldset>
+        </div>
+      </div>
+    </template>
+    <template #action>
+      <VButton icon="feather:plus" color="primary" @click="saveVerifikasiPendaftaranCustomer" :loading="isLoading"
+        raised>Simpan Verifikasi
+      </VButton>
+    </template>
+  </VModal>
 </template>
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
@@ -699,9 +829,11 @@ let isLoadDataDeatilOrder: any = ref(false)
 const kelompokUser = useUserSession().getUser().kelompokUser.kelompokUser
 const selectView: any = ref()
 let modalRiwayat: any = ref(false)
+let modalverifikasiRegistrasiCustomer: any = ref(false)
 selectView.value = 'grid'
 const activeTab = ref(0)
 const dataNamaPaket: any = ref()
+const dataNamaPaketCustomer: any = ref()
 const dataPaket: any = ref()
 const dataPaketTanggal: any = ref()
 const currentPage: any = ref({
@@ -734,9 +866,11 @@ const order: any = ref(0)
 const norecPd: string = ref('');
 const apd: any = reactive({})
 let detailOrderLayanan: any = ref(0)
+let detailOrderLayananCustomer: any = ref(0)
 const item = reactive({
   filterDate: new Date(),
   tanggalkonfirmasi: new Date(),
+  tanggalverifikasiregistrasi: new Date(),
   qPeriode: [
     new Date(),
     new Date()
@@ -959,6 +1093,51 @@ const konfirmaasiPendaftaran = async (e: any) => {
   detailOrderLayanan.value = response.detail
 }
 
+const verifikasiPendaftaranCustomer = async (e: any) => {
+  console.log(e)
+  detailOrderLayananCustomer.value = []
+  modalverifikasiRegistrasiCustomer.value = true
+  item.perusahaancustomer = e.namaperusahaan
+  item.namapenaggungjawabcustomer = e.namapenanggungjawab
+  item.norecregis = e.iddetail
+  item.filecustomerams = e.filecustomerams
+  item.filecustomertools = e.filecustomertools
+  isLoadDataOrder.value = true
+  const response = await useApi().get(`/registrasi/get-alat-verif-customer?norec_pd=${e.iddetail}`)
+  response.detail.forEach((element: any, i: any) => {
+    element.no = i + 1
+  });
+  item.lokasikalibrasi = response.detail[0].lokasikalibrasifk
+  item.lokasirepair = response.detail[0].lokasirepairfk
+  dataNamaPaketCustomer.value = response.detail[0].namapaket
+  isLoadDataOrder.value = false
+  detailOrderLayananCustomer.value = response.detail
+}
+
+const saveVerifikasiPendaftaranCustomer = async () => {
+  let json = {
+    verifregistrasi: {
+      'norecregis': item.norecregis,
+      'catatancustomer': item.catatanuntukcustomer,
+      'tanggalverifregiscustomer': item.tanggalverifikasiregistrasi,
+      'lokasikalibrasi': item.lokasikalibrasi ?? null,
+      'lokasirepair': item.lokasirepair ?? null,
+    }
+  }
+  isLoading.value = true
+  await useApi()
+    .post(`/registrasi/save-verifikasi-regis-customer`, json)
+    .then((response: any) => {
+      isLoading.value = false
+      modalverifikasiRegistrasiCustomer.value = false
+      clear()
+      fetchMitra()
+    })
+    .catch((e: any) => {
+      isLoading.value = false
+    })
+}
+
 const saveBatalRegis = async () => {
   if (!item.alasanpembatalan) { H.alert('warning', 'Alasan Pembatalan harus di isi'); return }
   let json = {
@@ -1021,6 +1200,7 @@ const clear = () => {
   item.alasanpembatalan = ''
   item.tanggalpembatalan = ''
   item.tanggalkonfirmasi = ''
+  item.catatanuntukcustomer = ''
 
   modalBatalRegis.value = false
 }
@@ -1091,7 +1271,25 @@ const cetakLaporanRepair = (e) => {
   H.printBlade(`asman/cetak-laporan-repair?pdf=true&norec=${e.norec}&norec_detail=${e.norec_detail}`);
 }
 
-qzService.connect()
+const cetakAms = (item: any) => {
+  if (!item.norecregis) {
+    H.alert('warning', 'Data tidak valid');
+    return;
+  }
+
+  H.printBlade(`registrasi/cetak-ams?norecregis=${item.norecregis}`);
+};
+
+const downloadTools = (item: any) => {
+  const norec = item.norecregis;
+  const token = useUserSession().token;
+  // const url = `http://localhost:8000/service/registrasi/download-tools-customer?norecregis=${norec}&token=${token}`;
+  const url = `https://ulabumro.id:8000/service/registrasi/download-tools-customer?norecregis=${norec}&token=${token}`;
+  
+  window.open(url, '_blank');
+};
+
+// qzService.connect()
 // fetchdDropdown()
 fetchMitra()
 fetchAlatKalibrasi(0)

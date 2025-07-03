@@ -176,6 +176,8 @@ class RegistrasiMitraCtrl extends Controller
                 $tahun = date('y');
                 $lastPendaftaran = MitraRegistrasi::where('lokasikalibrasi', $lokasi)
                     ->whereYear('tglregistrasi', date('Y'))
+                    ->whereNotNull('nopendaftaran')
+                    ->where('nopendaftaran', '!=', '')
                     ->orderByDesc('nopendaftaran')
                     ->first();
 
@@ -281,6 +283,8 @@ class RegistrasiMitraCtrl extends Controller
                 $tahun = date('y');
                 $lastPendaftaran = MitraRegistrasi::where('lokasirepair', $lokasi)
                     ->whereYear('tglregistrasi', date('Y'))
+                    ->whereNotNull('nopendaftaran')
+                    ->where('nopendaftaran', '!=', '')
                     ->orderByDesc('nopendaftaran')
                     ->first();
 

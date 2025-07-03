@@ -219,11 +219,13 @@ Route::middleware(['log'])->group(function () {
     });
 
     Route::controller(CustomerCtrl::class)->group(function () {
+        Route::get('customer/get-status-customer', 'getStatusCustomer');
         Route::get('customer/get-alat-customer', 'getAlatCustomer');
         Route::get('customer/get-keranjang-customer', 'keranjangCustomer');
         Route::get('customer/get-history-order-customer', 'historyOrder');
         Route::post('customer/save-keranjang-customer', 'saveKeranjangCustomer');
         Route::post('customer/save-checkout', 'saveRegistrasiCustomer');
+        Route::post('customer/save-status-customer', 'saveStatusCustomer');
     });
     
     Route::controller(MitraCtrl::class)->group(function () {
@@ -242,6 +244,10 @@ Route::middleware(['log'])->group(function () {
         Route::get('registrasi/cetak-permintaan-kalibrasi', 'cetakPermintaanKalibrasi');
         Route::post('registrasi/save-penolakan-alat', 'savePenolakanALat');
         Route::get('registrasi/produk-by-id', 'produkByMitra');
+        Route::get('registrasi/get-alat-verif-customer', 'getVerifAlatCustomer');
+        Route::post('registrasi/save-verifikasi-regis-customer', 'saveVerifikasiRegisCustomer');
+        Route::get('registrasi/cetak-ams', 'cetakAms');
+        Route::get('registrasi/download-tools-customer', 'downloadToolsCustomer');
     });
 
     Route::controller(AsmanCtrl::class)->group(function () {

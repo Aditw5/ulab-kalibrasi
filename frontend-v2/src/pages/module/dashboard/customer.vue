@@ -144,6 +144,12 @@
                           <span>{{ item.noorderalat }}</span>
                         </span>
                         <div>
+                          <VTag v-if="item.verifregiscustomer == null" label="Alat Menunggu Diverifikasi"
+                            :color="'warning'" class="ml-2" />
+                          <VTag v-if="item.verifregiscustomer" label="Alat Sudah Diverifikasi" :color="'success'"
+                            class="ml-2" />
+                        </div>
+                        <div>
                           <span style="font-weight: bold;">Merk/Tipe :
                             {{ item.namamerk ?? '-' }} - {{ item.namatipe }}
                           </span>
@@ -156,12 +162,12 @@
                       </div>
                       <div class="meta-right flex justify-center items-center">
                         <div class="buttons">
-                          <!-- <VIconButton v-tooltip.bottom.left="'SPK'" icon="feather:printer" @click="cetakSpk(item)"
-                            color="warning" raised circle class="mr-2">
+                          <VIconButton v-tooltip.bottom.left="'Cetak AMS'" icon="feather:printer"
+                            @click="cetakAms(item)" color="warning" raised circle class="mr-2">
                           </VIconButton>
-                          <VIconButton v-tooltip.bottom.left="'Aktivitas'" icon="feather:activity"
-                            @click="detailOrder(item)" color="info" raised circle class="mr-2">
-                          </VIconButton> -->
+                          <VIconButton v-tooltip.bottom.left="'Download List Tools'" icon="feather:download"
+                            @click="downloadTools(item)" color="info" raised circle class="mr-2">
+                          </VIconButton>
                         </div>
                       </div>
                     </div>
@@ -281,7 +287,7 @@
               <span class="label">Total Dipilih</span>
               <span>{{ selectedItems.length }}</span>
             </div>
-            <VButton color="primary" raised bold fullwidth @click="checkoutSelected">
+            <VButton color="primary" raised bold fullwidth @click="simpanCheckout(selectedItems)">
               Checkout
             </VButton>
           </div>
@@ -420,6 +426,169 @@
       </VButton>
     </template>
   </VModal>
+  <VModal :open="modalCheckout" title="Checkout" noclose size="medium" actions="right"
+    @close="modalCheckout = false, clear()" cancelLabel="Tutup">
+    <template #content>
+      <div class="column is-12 p-4 mt-5">
+        <Fieldset legend="Edit Tindakan" :toggleable="true">
+          <div class="columns pl-3">
+            <div class="column is-12">
+              <div class="columns">
+                <div class="columns is-multiline">
+                  <div class="column is-6" v-if="!hanyaRepair">
+                    <VField>
+                      <VLabel class="required-field">Lokasi Kalibrasi/Repair</VLabel>
+                      <VControl fullwidth class="prime-auto ">
+                        <AutoComplete v-model="item.lokasi" :suggestions="d_lokasikalibrasi"
+                          @complete="fetchlokasiKalibrasi($event)" :optionLabel="'label'" :dropdown="true"
+                          :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                          :field="'label'" placeholder="ketik untuk mencari..." />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-12" v-if="hanyaRepair">
+                    <VField>
+                      <VLabel class="required-field">Lokasi Repair</VLabel>
+                      <VControl fullwidth class="prime-auto ">
+                        <AutoComplete v-model="item.lokasi" :suggestions="d_lokasikalibrasi"
+                          @complete="fetchlokasiKalibrasi($event)" :optionLabel="'label'" :dropdown="true"
+                          :minLength="3" class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'"
+                          :field="'label'" placeholder="ketik untuk mencari..." />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-6" v-if="!hanyaRepair">
+                    <VField>
+                      <VLabel>Paket Kalibrasi</VLabel>
+                      <VControl fullwidth class="prime-auto ">
+                        <AutoComplete v-model="item.paketkalibrasi" :suggestions="d_paketkalibrasi"
+                          @complete="fetchpaketKalibrasi($event)" :optionLabel="'label'" :dropdown="true" :minLength="3"
+                          class="is-input" :appendTo="'body'" :loadingIcon="'pi pi-spinner'" :field="'label'"
+                          placeholder="ketik untuk mencari..." />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-12">
+                    <VField>
+                      <VLabel>Catatan</VLabel>
+                      <VControl fullwidth>
+                        <VTextarea class="textarea" v-model="item.catatan" rows="4"
+                          placeholder="catatan registrasi (optional) ..." autocomplete="off" autocapitalize="off"
+                          spellcheck="true" />
+                      </VControl>
+                    </VField>
+                  </div>
+                  <div class="column is-12" v-if="!hanyaRepair">
+                    <span class="label-pengkajian required-field"> Rentang Ukur</span>
+                    <div class="columns is-multiline p-3">
+                      <div class="column is-3">
+                        <VField>
+                          <VControl raw subcontrol>
+                            <VCheckbox v-model="item.rentangUkur" true-value="standarLab" label="Standar Lab"
+                              class="p-0" color="primary" square />
+                          </VControl>
+                        </VField>
+                      </div>
+                      <div class="column is-4">
+                        <VField>
+                          <VControl raw subcontrol>
+                            <VCheckbox v-model="item.rentangUkur" true-value="permintaanPelanggan"
+                              label="Permintaan Pelanggan" class="p-0" color="primary" square />
+                          </VControl>
+                        </VField>
+                      </div>
+                      <div class="column is-4">
+                        <VField>
+                          <VControl raw subcontrol>
+                            <VCheckbox v-model="item.rentangUkur" true-value="lainLain" label="Lain-Lain" class="p-0"
+                              color="primary" square />
+                          </VControl>
+                        </VField>
+                      </div>
+                      <div class="column is-12" v-if="item.rentangUkur == 'permintaanPelanggan'">
+                        <VField>
+                          <VTextarea rows="2" placeholder="Permintaan Pelanggan......"
+                            v-model="item.rentangUkurketPermintaanPelanggan">
+                          </VTextarea>
+                        </VField>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="label-pengkajian required-field ml-4"> Upload AMS</span>
+                  <div class="column is-12">
+                    <FileUpload v-model="fileCustomer" mode="advanced" name="demo" accept="application/pdf"
+                      :maxFileSize="10000000" outlined
+                      :invalidFileTypeMessage="'{0}: File yang diupload harus JPEG/JPG.'"
+                      :invalidFileSizeMessage="'Ukuran maksimal berkas adalah {1}'"
+                      style="background-color: transparent; color: var(--danger); border: 1px solid;"
+                      :chooseLabel="fileCustomer ? fileCustomer.name : 'Unggah'" @select="onSelect($event)"
+                      class="is-rounded w-100" />
+                  </div>
+                  <span class="label-pengkajian ml-4"> Upload List Tools</span>
+                  <div class="column is-12">
+                    <FileUpload v-model="fileCustomerTools" mode="advanced" name="demo"
+                      accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                      :maxFileSize="10000000" outlined
+                      :invalidFileTypeMessage="'{0}: File yang diupload harus JPEG/JPG.'"
+                      :invalidFileSizeMessage="'Ukuran maksimal berkas adalah {1}'"
+                      style="background-color: transparent; color: var(--danger); border: 1px solid;"
+                      :chooseLabel="fileCustomerTools ? fileCustomerTools.name : 'Unggah'"
+                      @select="onSelectTools($event)" class="is-rounded w-100" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Fieldset>
+      </div>
+    </template>
+    <template #action>
+      <VButton icon="feather:save" @click="checkoutSelected(item)" color="info" :loading="isLoading" raised>
+        Simpan
+      </VButton>
+    </template>
+  </VModal>
+  <Dialog v-model:visible="statusCustomer" :modal="true" :closable="false" :draggable="false" :dismissableMask="false"
+    :showHeader="false" :transitionOptions="null" :breakpoints="{}" :style="{ padding: '0', margin: '0' }"
+    contentStyle="background: transparent; box-shadow: none; padding: 0;" class="loading-dialog load-search">
+    <div class="loading-content"
+      style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw;">
+      <p style="font-size: 20pt; font-weight: bold; color: black;" class="mt-4">
+        Lengkapi data Anda terlebih dahulu...
+      </p><br>
+      <div class="columns">
+        <div class="columns is-multiline">
+          <div class="column is-6">
+            <p style="font-size: 9pt; font-weight: bold; color: black;" class="mt-4">
+              Penanggung Jawab Unit
+            </p>
+            <VField>
+              <VControl>
+                <AutoComplete v-model="item.penanggungjawabunit" :suggestions="d_unit" @complete="fetchUnit($event)"
+                  optionLabel="label" :dropdown="true" :minLength="3" class="is-input" appendTo="body"
+                  loadingIcon="pi pi-spinner" field="label" placeholder="ketik untuk mencari..." />
+              </VControl>
+            </VField>
+          </div>
+          <div class="column is-6">
+            <p style="font-size: 9pt; font-weight: bold; color: black;" class="mt-4">
+              Jabatan
+            </p>
+            <VField>
+              <VControl fullwidth>
+                <VInput v-model="item.jabatanpenanggungjawab" placeholder="Jabatan Penanggung Jawab" />
+              </VControl>
+            </VField>
+          </div>
+          <div class="column is-12" style="text-align: center;">
+            <VButton icon="feather:save" @click="saveStatusCustomer(item)" color="success" :loading="isLoading" raised>
+              Simpan
+            </VButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Dialog>
 </template>
 <script setup lang="ts">
 import type { TinySliderInstance } from 'tiny-slider/src/tiny-slider'
@@ -437,6 +606,8 @@ import { useViewWrapper } from '/@src/stores/viewWrapper'
 import { useApi } from '/@src/composable/useApi'
 import AutoComplete from 'primevue/autocomplete'
 import * as H from '/@src/utils/appHelper'
+import Dialog from 'primevue/dialog';
+import FileUpload from 'primevue/fileupload';
 
 useHead({
   title: 'Dashboard Customer - ' + import.meta.env.VITE_PROJECT,
@@ -461,6 +632,8 @@ const currentPageHistory: any = ref({
   limitHistory: 6,
   rowsHistory: 50,
 })
+const statusCustomer: any = ref()
+const dataCustomer: any = ref()
 const dataOrder: any = ref(0)
 const dataHistoryOrder: any = ref(0)
 const dataKeranjang = ref<any[]>([])
@@ -468,6 +641,10 @@ let totalData: any = ref(0)
 let totalDataHistory: any = ref(0)
 let isData: any = ref()
 let modalKeranjang: any = ref(false)
+let modalCheckout: any = ref(false)
+let hanyaRepair: any = ref(false)
+const d_paketkalibrasi = ref([])
+const d_unit = ref([])
 const d_merk = ref([])
 const d_tipe = ref([])
 const d_sn = ref([])
@@ -478,7 +655,78 @@ const selectedItems = computed(() =>
 const selectAll = ref(false)
 const rowGroupMetadata = ref<Record<string, { index: number; size: number }>>({})
 const rowGroupMetadataHistory = ref<Record<string, { index: number; size: number }>>({})
-History
+const fileCustomer: any = ref()
+const fileCustomerTools: any = ref()
+
+const fetchStatusCustomer = async () => {
+  await useApi().get(`customer/get-status-customer`).then((response) => {
+    statusCustomer.value = response.data.isuserbaru
+    dataCustomer.value = response.data
+  }).catch((err) => {
+  })
+  isLoading.value = false
+}
+
+const saveStatusCustomer = async (e: any) => {
+  if (!item.value.penanggungjawabunit) { H.alert('warning', 'Unit harus di isi'); return }
+  if (!item.value.jabatanpenanggungjawab) { H.alert('warning', 'Jabatan Alat harus di isi'); return }
+
+  let json = {
+    'statusCustomer': {
+      'mitrafk': item.value.penanggungjawabunit?.value ?? null,
+      'jabatan': item.value.jabatanpenanggungjawab ?? null,
+    }
+  }
+
+  isLoading.value = true
+  await useApi().post(`/customer/save-status-customer`, json).then(async (response: any) => {
+    isLoading.value = false
+    fetchStatusCustomer()
+  }).catch((e: any) => {
+    isLoading.value = false
+    console.clear()
+    console.log(e)
+  })
+  isLoading.value = false
+}
+
+const onSelect = async (filez: any) => {
+  const file = filez.files[0];
+  if (!file) return;
+  if (file.size > 10000000) {
+    H.alert('error', 'Maksimal file size adalah 10 MB');
+    return;
+  }
+  if (file.type !== "application/pdf") {
+    H.alert('error', 'File yang diizinkan harus berupa PDF');
+    return;
+  }
+  fileCustomer.value = file;
+}
+
+const onSelectTools = async (filez: any) => {
+  const file = filez.files[0];
+  if (!file) return;
+
+  if (file.size > 10000000) {
+    H.alert('error', 'Maksimal file size adalah 10 MB');
+    return;
+  }
+
+  const allowedTypes = [
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    H.alert('error', 'File harus berupa Excel (.xls atau .xlsx)');
+    return;
+  }
+
+  fileCustomerTools.value = file;
+};
+
+
 const fetchDataAlat = async () => {
   isLoading.value = true
   let search = ''
@@ -668,6 +916,23 @@ const saveKeranjang = async (e: any) => {
   isLoading.value = false
 }
 
+const fetchUnit = async (filter: any) => {
+  await useApi().get(
+    `emr/dropdown/mitra_m?select=id,namaperusahaan&param_search=namaperusahaan&query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_unit.value = response
+  })
+}
+
+const fetchpaketKalibrasi = async (filter: any) => {
+  await useApi().get(
+    `registrasi/dropdown-paket-kalibrasi?query=${filter.query}&limit=10`
+  ).then((response) => {
+    d_paketkalibrasi.value = response
+    console.log(response)
+  })
+}
+
 const fetchmerk = async (filter: any) => {
   await useApi().get(
     `emr/dropdown/merkalat_m?select=id,namamerk&param_search=namamerk&query=${filter.query}&limit=10`
@@ -700,27 +965,43 @@ const fetchlokasiKalibrasi = async (filter: any) => {
   })
 }
 
-const checkoutSelected = async () => {
+const simpanCheckout = async (e: any[]) => {
   const itemsToCheckout = selectedItems.value
   if (itemsToCheckout.length === 0) {
     H.alert('warning', 'Pilih minimal satu item untuk checkout')
     return
   }
+  hanyaRepair.value = e.every(item => item.jenisorder === 'repair')
+  modalCheckout.value = true
+}
 
-  console.log(itemsToCheckout)
+const checkoutSelected = async (e: any) => {
+  const user = dataCustomer.value
+  const itemsToCheckout = selectedItems.value
 
-  let json = {
-    'mitraregistrasi': {
-      'nomitrafk': 3,
-    },
-    'mitraregistrasidetail': itemsToCheckout
-  }
+  if (!e.lokasi) { H.alert('warning', 'Lokasi harus di isi'); return }
+  if (!e.rentangUkur) { H.alert('warning', 'Rentang Ukur harus di isi'); return }
+
+  const formData = new FormData()
+  formData.append('fileCustomer', fileCustomer.value)
+  formData.append('fileCustomerTools', fileCustomerTools.value)
+  formData.append('namapenanggungjawab', user.name)
+  formData.append('nomitrafk', user.mitrafk)
+  formData.append('jabatanpenanggungjawab', user.jabatan)
+  formData.append('catatan', e.catatan ?? null)
+  formData.append('paketkalibrasi', e.paketkalibrasi?.value ?? null)
+  formData.append('lokasi', e.lokasi?.value ?? null)
+  formData.append('rentangUkur', e.rentangUkur)
+  formData.append('rentangUkurketPermintaanPelanggan', e.rentangUkurketPermintaanPelanggan ?? null)
+  formData.append('mitraregistrasidetail', JSON.stringify(itemsToCheckout))
 
   isLoading.value = true
-  await useApi().post(`/customer/save-checkout`, json).then(async (response: any) => {
+  await useApi().post(`/customer/save-checkout`, formData).then(async (response: any) => {
     isLoading.value = false
     fetchKeranjangCustomer()
     fetchHistoryOrder()
+    clear()
+    modalCheckout.value = false
   }).catch((e: any) => {
     isLoading.value = false
     console.clear()
@@ -744,6 +1025,11 @@ const clear = () => {
   item.value.merkalat = ''
   item.value.tipealat = ''
   item.value.serialnumber = ''
+  item.value.rentangUkurketPermintaanPelanggan = ''
+  item.value.rentangUkur = ''
+  item.value.paketkalibrasi = ''
+  item.value.catatan = ''
+  item.value.lokasi = ''
 }
 
 const onIndexChanged = (info: any) => {
@@ -788,6 +1074,25 @@ onUnmounted(() => {
   }
 })
 
+const cetakAms = (e: any) => {
+  if (!e.norec) {
+    H.alert('warning', 'Data tidak valid');
+    return;
+  }
+
+  H.printBlade(`registrasi/cetak-ams?norecregis=${e.norec}`);
+};
+
+const downloadTools = (item: any) => {
+  const norec = item.norec;
+  const token = useUserSession().token;
+  // const url = `http://localhost:8000/service/registrasi/download-tools-customer?norecregis=${norec}&token=${token}`;
+  const url = `https://ulabumro.id:8000/service/registrasi/download-tools-customer?norecregis=${norec}&token=${token}`;
+
+  window.open(url, '_blank');
+};
+
+fetchStatusCustomer()
 fetchDataAlat()
 fetchHistoryOrder()
 fetchKeranjangCustomer()
@@ -802,6 +1107,32 @@ fetchKeranjangCustomer()
   margin-top: 8px;
 }
 
+.p-dialog.loading-dialog {
+  border: none !important;
+  border-radius: 0 !important;
+  max-width: 100vw !important;
+  max-height: 120vh !important;
+}
+
+.p-dialog.loading-dialog .p-dialog-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.p-dialog.loading-dialog,
+.p-dialog.loading-dialog.p-dialog-enter-active,
+.p-dialog.loading-dialog.p-dialog-leave-active {
+  animation: none !important;
+  transition: none !important;
+}
+
+body>.p-dialog-mask:has(.p-dialog.loading-dialog) {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: none !important;
+}
 
 .search-menu-rad {
   height: 56px !important;

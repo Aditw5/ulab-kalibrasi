@@ -188,6 +188,8 @@ class AuthCtrl extends Controller
             $resPegawai = array(
                 'id' => $pegawai->id,
                 'namaLengkap' => $pegawai->name,
+                'mitrafk' => $pegawai->mitrafk,
+                'jabatan' => $pegawai->jabatan,
                 'statusEnabled' => $pegawai->statusenabled,
             );
 
@@ -242,6 +244,7 @@ class AuthCtrl extends Controller
             $user->password = $this->hashing_password($PSN['password']);
             $user->email = $PSN['email'];
             $user->nowa = $PSN['nowa'];
+            $user->isuserbaru = true;
             $user->save();
             $user->sendEmailVerificationNotification();
 

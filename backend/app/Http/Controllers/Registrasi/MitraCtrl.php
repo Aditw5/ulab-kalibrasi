@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Registrasi;
 
 use App\Http\Controllers\Controller;
+use App\Models\Transaksi\MitraRegistrasi;
 use App\Traits\Valet;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\App;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\File;
 
 class MitraCtrl extends Controller
 {
@@ -45,6 +47,8 @@ class MitraCtrl extends Controller
                 'mtr.jenisorder',
                 'mtr.isregiscustomer',
                 'mtr.verifregiscustomer',
+                'mtr.filecustomerams',
+                'mtr.filecustomertools',
             )
             ->where('mt.statusenabled', true)
             ->where('mtr.statusenabled', true)
@@ -880,5 +884,198 @@ class MitraCtrl extends Controller
             $blade,
             compact('profile', 'pageWidth', 'print', 'res')
         );
+    }
+
+    public function getVerifAlatCustomer(Request $r)
+    {
+        $data = DB::table('mitraregistrasi_t as mtr')
+            ->join('mitraregistrasidetail_t as mtrd', 'mtrd.noregistrasifk', '=', 'mtr.norec')
+            ->leftjoin('merkalat_m as mrk', 'mrk.id', '=', 'mtrd.namamerkfk')
+            ->leftjoin('tipealat_m as tp', 'tp.id', '=', 'mtrd.namatipefk')
+            ->leftjoin('serialnumber_m as sn', 'sn.id', '=', 'mtrd.serialnumberfk')
+            ->join('produk_m as prd', 'prd.id', '=', 'mtrd.namaalatfk')
+            ->join('mitra_m as mt', 'mt.id', '=', 'mtr.nomitrafk')
+            ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+            ->leftjoin('lokasikalibrasi_m as lk1', 'lk1.id', '=', 'mtr.lokasirepair')
+            ->leftjoin('lingkupkalibrasi_m as lp', 'lp.id', '=', 'mtrd.lingkupkalibrasifk')
+            ->leftjoin('paketkalibrasi_m as pk', 'pk.id', '=', 'mtr.paketkalibrasi')
+            ->select(
+                'mtr.norec',
+                'mtrd.norec as norec_detail',
+                'mtrd.iskaji',
+                'mtrd.durasikalbrasi',
+                'mtrd.namafile',
+                'mtrd.keterangan',
+                'mtrd.alasanpenolakanregis',
+                'mtrd.tanggalpenolakanregis',
+                'prd.namaproduk',
+                'mtr.tglregistrasi',
+                'mtr.nopendaftaran',
+                'mtr.catatan',
+                'mtr.jenisorder',
+                'mrk.id as idmerk',
+                'mrk.namamerk',
+                'tp.id as idtipe',
+                'tp.namatipe',
+                'sn.id as idsn',
+                'sn.namaserialnumber',
+                'mt.namaperusahaan',
+                'lk.id as lokasikalibrasifk',
+                'lk.lokasi',
+                'lk1.id as lokasirepairfk',
+                'lk1.lokasi as lokasirepair',
+                'lp.id as lingkupfk',
+                'lp.lingkupkalibrasi',
+                'pk.id as idpaket',
+                'pk.namapaket',
+                'pk.hari as hari_paket'
+            )
+            ->where('mtr.statusenabled', true)
+            ->where('mtr.norec', $r['norec_pd']);
+
+        $data = $data->orderByDesc('prd.namaproduk')->get();
+
+        $result['length'] = count($data);
+        $result['detail'] = $data;
+        $result['as'] = '@adit';
+
+        return $this->respond($result);
+    }
+
+    public function saveVerifikasiRegisCustomer(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $r_NewMitra = $request['verifregistrasi'];
+
+            if ($r_NewMitra['lokasikalibrasi'] != null) {
+                $lokasi = $r_NewMitra['lokasikalibrasi'];
+                switch ($lokasi) {
+                    case 1:
+                        $lokasiPrefix = 'J';
+                        break;
+                    default:
+                        $lokasiPrefix = 'G';
+                }
+                $tahun = date('y');
+                $lastPendaftaran = MitraRegistrasi::where('lokasikalibrasi', $lokasi)
+                    ->whereYear('tglregistrasi', date('Y'))
+                    ->whereNotNull('nopendaftaran')
+                    ->where('nopendaftaran', '!=', '')
+                    ->orderByDesc('nopendaftaran')
+                    ->first();
+
+                if ($lastPendaftaran && preg_match('/(\d{3})$/', $lastPendaftaran->nopendaftaran, $m)) {
+                    $urut = intval($m[1]) + 1;
+                } else {
+                    $urut = 1;
+                }
+                $urut3digit = str_pad($urut, 3, '0', STR_PAD_LEFT);
+                $nopendaftaran = $lokasiPrefix . '-' . $tahun . '-' . $urut3digit;
+            } else {
+                $lokasi = $r_NewMitra['lokasirepair'];
+                switch ($lokasi) {
+                    case 1:
+                        $lokasiPrefix = 'J';
+                        break;
+                    default:
+                        $lokasiPrefix = 'G';
+                }
+                $tahun = date('y');
+                $lastPendaftaran = MitraRegistrasi::where('lokasirepair', $lokasi)
+                    ->whereYear('tglregistrasi', date('Y'))
+                    ->whereNotNull('nopendaftaran')
+                    ->where('nopendaftaran', '!=', '')
+                    ->orderByDesc('nopendaftaran')
+                    ->first();
+
+                if ($lastPendaftaran && preg_match('/(\d{3})$/', $lastPendaftaran->nopendaftaran, $m)) {
+                    $urut = intval($m[1]) + 1;
+                } else {
+                    $urut = 1;
+                }
+                $urut3digit = str_pad($urut, 3, '0', STR_PAD_LEFT);
+                $nopendaftaran = 'RE' . $lokasiPrefix . '-' . $tahun . '-' . $urut3digit;
+            }
+
+            DB::table('mitraregistrasi_t')
+                ->where('norec', $r_NewMitra['norecregis'])
+                ->update([
+                    'tanggalverifregiscustomer' => $r_NewMitra['tanggalverifregiscustomer'] ?? null,
+                    'catatancustomer' => $r_NewMitra['catatancustomer'] ?? null,
+                    'nopendaftaran' => $nopendaftaran,
+                    'verifregiscustomer' => true,
+                ]);
+
+            $message = 'Berhasil Verifikasi Registrasi';
+
+            DB::commit();
+
+            $result = array(
+                "status" => 200,
+                "message" => $message,
+                "result" => array(
+                    "as" => '@adit',
+                )
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $result = array(
+                "status" => 400,
+                "message" => "Something Went Wrong",
+                "result"  => $e->getMessage() . ' | Line: ' . $e->getLine()
+            );
+        }
+
+        return $this->respond($result['result'], $result['status'], $result['message']);
+    }
+
+    public function cetakAms(Request $request)
+    {
+        $data = DB::table('mitraregistrasi_t')
+            ->where('norec', $request['norecregis'])
+            ->first();
+
+        if (!$data || !$data->filecustomerams) {
+            abort(404, 'Data AMS atau file tidak ditemukan');
+        }
+
+        $filename = basename($data->filecustomerams);
+        $filepath = asset('berkas-customer/' . $filename);
+
+        return view('report.customer.view-pdf', compact('filepath', 'data'));
+    }
+
+    public function downloadToolsCustomer(Request $request)
+    {
+        $data = DB::table('mitraregistrasi_t')
+            ->where('norec', $request['norecregis'])
+            ->first();
+
+        if (!$data || !$data->filecustomertools) {
+            abort(404, 'Data AMS atau file tidak ditemukan');
+        }
+
+        $filename = basename($data->filecustomertools);
+
+        $pathbundle = 'berkas-customer/'. $filename;
+        $name = $filename;
+        $path =  public_path($pathbundle);
+        if (File::exists($path)) {
+            $file = File::get($path);
+
+            $type = File::mimeType($path);
+
+            $response = response()->make($file, 200);
+            $response->header("Content-Type", $type)
+                ->header('Content-disposition', 'attachment; filename="' . $name . '"');
+            return $response;
+        } else {
+            return '
+            <script language="javascript">
+                window.alert("Tidak ada data.");
+                window.close()
+            </script>';
+        }
     }
 }

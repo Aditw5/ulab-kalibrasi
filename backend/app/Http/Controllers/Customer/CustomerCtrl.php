@@ -132,6 +132,7 @@ class CustomerCtrl extends Controller
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
                 'mtr.jenisorder',
+                'mtr.verifregiscustomer',
             )
             ->where('mtr.customerfk', $this->getPegawaiId())
             ->where('mtr.statusenabled', true)
@@ -199,24 +200,53 @@ class CustomerCtrl extends Controller
     {
         DB::beginTransaction();
         try {
-            $PD = $r['mitraregistrasi'];
-            $APD = $r['mitraregistrasidetail'];
+            $APD = json_decode($r->input('mitraregistrasidetail'), true);
+
+            $file = $r->file('fileCustomer');
+            $allowedExtensions = ['pdf'];
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, $allowedExtensions)) {
+                throw new \Exception("File harus berupa gambar (pdf).");
+            }
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $file->move(public_path('berkas-customer'), $filename);
+
+            $fileTools = $r->file('fileCustomerTools');
+            $allowedExtensionsTools = ['xls', 'xlsx'];
+            $extensionTools = strtolower($fileTools->getClientOriginalExtension());
+            if (!in_array($extensionTools, $allowedExtensionsTools)) {
+                throw new \Exception("File harus berupa excel.");
+            }
+            $filenameTools = time() . '_' . preg_replace('/\s+/', '_', $fileTools->getClientOriginalName());
+            $fileTools->move(public_path('berkas-customer'), $filenameTools);
 
             $customerId = $this->getPegawaiId();
-
             $groupedByJenisOrder = collect($APD)->groupBy('jenisorder');
             $registrasiData = [];
-
             foreach ($groupedByJenisOrder as $jenisorder => $alatList) {
                 $model_PD = new MitraRegistrasi();
                 $model_PD->norec = $model_PD->generateNewId();
                 $model_PD->statusenabled = true;
-                $model_PD->nomitrafk = $PD['nomitrafk'];
+                $model_PD->nomitrafk = $r['nomitrafk'];
+                $model_PD->namapenanggungjawab = $r['namapenanggungjawab'];
+                $model_PD->jabatanpenanggungjawab = $r['jabatanpenanggungjawab'];
+                $model_PD->catatan = $r['catatan'];
+                if ($jenisorder == 'kalibrasi') {
+                    $model_PD->lokasikalibrasi = $r['lokasi'];
+                    $model_PD->paketkalibrasi = $r['paketkalibrasi'];
+                    $model_PD->rentangUkur = $r['rentangUkur'];
+                    $model_PD->rentangUkurketPermintaanPelanggan = $r['rentangUkurketPermintaanPelanggan'];
+                } else {
+                    $model_PD->lokasirepair = $r['lokasi'];
+                }
                 $model_PD->tglregistrasi = now();
                 $model_PD->customerfk = $customerId;
                 $model_PD->isregiscustomer = true;
+                $model_PD->statusorder = 0;
                 $model_PD->statusordermanager = 0;
-                $model_PD->jenisorder = $jenisorder; 
+                $model_PD->jenisorder = $jenisorder;
+                $model_PD->filecustomerams = $filename;
+                $model_PD->filecustomertools = $filenameTools;
                 $model_PD->save();
 
                 foreach ($alatList as $alat) {
@@ -256,6 +286,59 @@ class CustomerCtrl extends Controller
                 "result" => $e->getMessage(),
             ];
             $transMessage = "Simpan Gagal";
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
+
+    public function getStatusCustomer(Request $r)
+    {
+        $data = DB::table('users')
+            ->select(
+                'id',
+                'name',
+                'email',
+                'mitrafk',
+                'jabatan',
+                'isuserbaru',
+            )
+            ->where('id', $this->getPegawaiId())
+            ->first();
+
+        $result['data'] = $data;
+        $result['as'] = '@adit';
+
+        return $this->respond($result);
+    }
+
+    public function saveStatusCustomer(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $VI = $r['statusCustomer'];
+            DB::table('users')
+                ->where('id', $this->getPegawaiId())
+                ->update([
+                    'mitrafk' => $VI['mitrafk'],
+                    'jabatan' => $VI['jabatan'],
+                    'isuserbaru' => false
+                ]);
+
+            $transMessage = "Simpan Status Customer Sukses";
+            DB::commit();
+            $result = array(
+                "status" => 200,
+                "result" => array(
+                    "as" => '@epic',
+                ),
+            );
+        } catch (Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = array(
+                "status" => 400,
+                "result"  => $e->getMessage()
+            );
         }
 
         return $this->respond($result['result'], $result['status'], $transMessage);
