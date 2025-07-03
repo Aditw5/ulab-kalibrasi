@@ -364,6 +364,7 @@ class MitraCtrl extends Controller
                 'lp.id as lingkupfk',
                 'lp.lingkupkalibrasi',
                 'pk.namapaket',
+                'mtr.isregiscustomer',
             )
             ->where('mtr.statusenabled', true)
             // ->where('mtrd.statusenabled', true)

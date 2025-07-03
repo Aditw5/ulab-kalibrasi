@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Master\PaketKalibrasi;
 use App\Models\Transaksi\KeranjangCustomer;
 use App\Models\Transaksi\MitraRegistrasi;
 use App\Models\Transaksi\MitraRegistrasiDetail;
@@ -249,6 +250,14 @@ class CustomerCtrl extends Controller
                 $model_PD->filecustomertools = $filenameTools;
                 $model_PD->save();
 
+                $durasikalibrasi = null;
+                if (!empty($r['paketkalibrasi'])) {
+                    $paket = PaketKalibrasi::find($r['paketkalibrasi']);
+                    if ($paket) {
+                        $durasikalibrasi = $paket->hari;
+                    }
+                }
+
                 foreach ($alatList as $alat) {
                     $model_APD = new MitraRegistrasiDetail;
                     $model_APD->norec = $model_APD->generateNewId();
@@ -258,6 +267,9 @@ class CustomerCtrl extends Controller
                     $model_APD->namatipefk = $alat['idtipe'] ?? null;
                     $model_APD->serialnumberfk = $alat['idsn'] ?? null;
                     $model_APD->noregistrasifk = $model_PD->norec;
+                    if ($durasikalibrasi !== null) {
+                        $model_APD->durasikalbrasi = $durasikalibrasi;
+                    }
                     $model_APD->save();
 
                     DB::table('keranjangcustomer_t')

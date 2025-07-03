@@ -138,7 +138,7 @@
                                         <VTag :color="itemsDet.iskaji == true ? 'primary' : 'danger'"
                                           :label="itemsDet.iskaji == true ? 'Sudah Kaji' : 'Belum Kaji'" />
                                       </div>
-                                      <div>
+                                      <div v-if="!itemsDet.isregiscustomer">
                                         <VTag color="warning" :label="itemsDet.lingkupkalibrasi" />
                                       </div>
                                     </div>
@@ -295,12 +295,22 @@
               </VControl>
             </VField>
           </div>
-          <div class="column is-4">
+          <div class="column is-4" v-if="!item.isregiscustomer">
             <VField>
               <VLabel>Lingkup Kalibrasi</VLabel>
               <VControl icon="feather:box">
-                <VInput type="text" v-model="input.lingkupkalibrasiFill" placeholder="Nama Pelayanan" class="is-rounded"
+                <VInput type="text" v-model="input.lingkupkalibrasiFill" placeholder="Lingkup Kalibrasi" class="is-rounded"
                   disabled />
+              </VControl>
+            </VField>
+          </div>
+          <div class="column is-4" v-if="item.isregiscustomer">
+            <VField>
+              <VLabel>Lingkup Kalibrasi</VLabel>
+              <VControl>
+                <AutoComplete v-model="input.lingkupkalibrasi" :suggestions="d_lingkup" @complete="fetchLingkup($event)"
+                  :optionLabel="'label'" :dropdown="true" :minLength="3" class="is-input" :appendTo="'body'"
+                  :loadingIcon="'pi pi-spinner'" :field="'label'" placeholder="ketik untuk mencari..." />
               </VControl>
             </VField>
           </div>
@@ -352,7 +362,7 @@
           <div class="column is-2" v-if="dataNamaPaket != null">
             <VField label="Durasi Hari">
               <VControl icon="lnir lnir-repeat-one">
-                <VInput type="number" v-model="input.durasikalbrasi" placeholder="Jumlah" class="is-rounded" disabled/>
+                <VInput type="number" v-model="input.durasikalbrasi" placeholder="Jumlah" class="is-rounded" disabled />
               </VControl>
             </VField>
           </div>
@@ -858,6 +868,7 @@ const KajiUlang = async (e: any) => {
   input.value.lingkupkalibrasiFill = e.lingkupkalibrasi ?? '';
   input.value.durasikalbrasi = e.durasikalbrasi ?? '';
   kajiUlangData.value = e;
+  item.isregiscustomer = e.isregiscustomer;
   modalKajiUlang.value = true;
   setAutoFill();
 };
