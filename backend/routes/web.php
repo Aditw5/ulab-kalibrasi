@@ -226,6 +226,7 @@ Route::middleware(['log'])->group(function () {
         Route::post('customer/save-keranjang-customer', 'saveKeranjangCustomer');
         Route::post('customer/save-checkout', 'saveRegistrasiCustomer');
         Route::post('customer/save-status-customer', 'saveStatusCustomer');
+        Route::post('customer/hapus-keranjang-customer', 'hapusKeranjangCustomer');
     });
     
     Route::controller(MitraCtrl::class)->group(function () {

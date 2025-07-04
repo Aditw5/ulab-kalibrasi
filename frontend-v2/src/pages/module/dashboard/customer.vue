@@ -255,14 +255,10 @@
             </template>
           </VPlaceholderSection>
           <div class="cart-items has-slimscroll" v-else>
-            <div style="padding: 0 0.75rem 0.5rem;">
-              <label>
-                <VField grouped>
-                  <VControl raw subcontrol>
-                    <VCheckbox v-model="selectAll" label="Pilih semua" color="info" class="m-0 p-0" />
-                  </VControl>
-                </VField>
-              </label>
+            <div class="is-flex is-align-items-center mb-3" style="gap: 1rem; justify-content: space-between;">
+              <VCheckbox v-model="selectAll" label="Pilih semua" color="info" class="m-0 p-0" />
+              <VIconButton type="button" @click="hapusKeranjangSelected" raised circle v-tooltip-prime.bottom="'Hapus'" outlined icon="feather:trash"
+                color="danger" />
             </div>
             <div v-for="(items, rowIndex) in dataKeranjang" :key="rowIndex">
               <template v-if="rowGroupMetadata[items.jenisorder]?.index === rowIndex">
@@ -665,6 +661,28 @@ const fetchStatusCustomer = async () => {
   }).catch((err) => {
   })
   isLoading.value = false
+}
+
+const hapusKeranjangSelected = async () => {
+  const itemsToDelete = selectedItems.value
+  if (itemsToDelete.length === 0) {
+    H.alert('warning', 'Pilih minimal satu item yang akan dihapus dari keranjang')
+    return
+  }
+
+  isLoading.value = true
+  try {
+    const norecArray = itemsToDelete.map((item: any) => item.norec)
+    await useApi().post(`/customer/hapus-keranjang-customer`, {
+      norec: norecArray
+    })
+    fetchKeranjangCustomer()
+  } catch (e: any) {
+    console.clear()
+    console.log(e)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 const saveStatusCustomer = async (e: any) => {

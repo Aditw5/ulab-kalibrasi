@@ -355,4 +355,48 @@ class CustomerCtrl extends Controller
 
         return $this->respond($result['result'], $result['status'], $transMessage);
     }
+
+    public function hapusKeranjangCustomer(Request $r)
+    {
+        DB::beginTransaction();
+        try {
+            $norecList = $r->input('norec'); 
+            if (!is_array($norecList) || count($norecList) === 0) {
+                return response()->json([
+                    "metaData" => [
+                        "code" => 400,
+                        "message" => "Data norec kosong/tidak valid"
+                    ],
+                    "response" => null
+                ], 400);
+            }
+
+            foreach ($norecList as $item) {
+                DB::table('keranjangcustomer_t')
+                    ->where('norec', $item)
+                    ->update([
+                        'statusenabled' => false,
+                    ]);
+            }
+
+            $transMessage = "Hapus Keranjang Sukses";
+            DB::commit();
+
+            $result = [
+                "status" => 200,
+                "result" => [
+                    "as" => '@adit',
+                ],
+            ];
+        } catch (\Exception $e) {
+            $transMessage = "Simpan Gagal";
+            DB::rollBack();
+            $result = [
+                "status" => 400,
+                "result"  => $e->getMessage()
+            ];
+        }
+
+        return $this->respond($result['result'], $result['status'], $transMessage);
+    }
 }
