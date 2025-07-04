@@ -23,13 +23,15 @@
               <h3>Order Alat</h3>
             </div>
           </div>
-          <div class="food-pills">
-            <div ref="prevButtonElement" class="slick-custom is-prev slick-arrow">
-              <i aria-hidden="true" class="fas fa-angle-left"></i>
+          <div class="search-menu-rad mb-2">
+            <div class="search-location-rad" style="width: 100%">
+              <i class="iconify" data-icon="feather:search"></i>
+              <input type="text" placeholder="Cari Nama Alat" v-model="item.searchDataAlat"
+                v-on:keyup.enter="fetchDataAlat()" />
             </div>
-            <div ref="nextButtonElement" class="slick-custom is-next slick-arrow">
-              <i aria-hidden="true" class="fas fa-angle-right"></i>
-            </div>
+            <VButton raised class="search-button-rad" @click="fetchDataAlat()" :loading="isLoading">
+              Cari Data
+            </VButton>
           </div>
           <div class="restaurants-list">
             <div class="columns is-multiline">
@@ -88,19 +90,108 @@
               <h3>History Order</h3>
             </div>
           </div>
-          <div class="food-pills">
-            <div ref="prevButtonElement" class="slick-custom is-prev slick-arrow">
-              <i aria-hidden="true" class="fas fa-angle-left"></i>
-            </div>
-            <div ref="nextButtonElement" class="slick-custom is-next slick-arrow">
-              <i aria-hidden="true" class="fas fa-angle-right"></i>
-            </div>
-          </div>
-          <div class="list-view list-view-v3">
+          <VCard class="text-center pt-0 pb-0 mb-3">
+            <VRadio v-model="orderAlat" value='0' label="Order" name="outlined_radio" color="success" />
+            <VRadio v-model="orderAlat" value='1' label="Detail Alat" name="outlined_radio" color="info" />
+          </VCard>
+          <div class="list-view list-view-v3" v-if="orderAlat == 0">
             <div class="search-menu-rad mb-2">
               <div class="search-location-rad" style="width: 100%">
                 <i class="iconify" data-icon="feather:search"></i>
-                <input type="text" placeholder="Cari Nama Alat, Nama Perusahaan, No order Alat, No Pendaftaran"
+                <input type="text" placeholder="No Pendaftaran" v-model="item.searchHistoryKelompok"
+                  v-on:keyup.enter="fetchHistoryOrderKelompok()" />
+              </div>
+              <VButton raised class="search-button-rad" @click="fetchHistoryOrderKelompok()" :loading="isLoading">
+                Cari Data
+              </VButton>
+            </div>
+            <VPlaceholderPage :class="[dataHistoryOrder.length !== 0 && 'is-hidden']" title="Tidak Ada Alat Hari Ini."
+              subtitle="Silakan Pilih Tanggal" larger>
+              <template #image>
+                <img class="light-image" src="/@src/assets/illustrations/placeholders/search-4.png" alt="" />
+                <img class="dark-image" src="/@src/assets/illustrations/placeholders/search-4-dark.svg" alt="" />
+              </template>
+            </VPlaceholderPage>
+            <div class="list-view-inner mt-2" style="max-height:1000px;overflow: auto;">
+              <div name="list-complete" tag="div">
+                <div v-for="(item, iddetail) in dataHistoryOrderKelompok" :key="iddetail">
+                  <div class="list-view-item ">
+                    <div class="list-view-item-inner">
+                      <VAvatar size="small" picture="/images/avatars/svg/propinsi.svg" color="primary" bordered />
+                      <div class="meta-left">
+                        <h3>
+                          {{ item.namaperusahaan }}
+                        </h3>
+                        <span>
+                          <i aria-hidden="true" class="iconify" data-icon="feather:home"></i>
+                          <span>{{ item.jenisorder }}</span>
+                          <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
+                          <i aria-hidden="true" class="iconify" data-icon="feather:calendar"></i>
+                          <span>{{ item.tglregistrasi }}</span>
+                          <i aria-hidden="true" class="fas fa-circle icon-separator"></i>
+                          <i aria-hidden="true" class="iconify" data-icon="feather:check-circle"></i>
+                          <span>{{ item.nopendaftaran }}</span>
+                        </span>
+                        <br>
+                        <VTag v-if="item.jenisorder == 'repair'" color="warning" rounded>Repair</VTag>
+                        <VTag v-if="item.jenisorder == 'kalibrasi'" color="info" rounded>Kalibrasi</VTag>
+                        <div>
+                          <VTag v-if="item.verifregiscustomer == null" label="Alat Menunggu Diverifikasi"
+                            :color="'warning'" />
+                          <VTag v-if="item.verifregiscustomer" label="Alat Sudah Diverifikasi" :color="'success'" />
+                        </div>
+                      </div>
+                      <div class="meta-right flex justify-center items-center">
+                        <div class="buttons">
+                          <VIconButton v-tooltip.bottom.left="'Cetak AMS'" icon="feather:printer"
+                            @click="cetakAmsKelompok(item)" color="warning" raised circle class="mr-2">
+                          </VIconButton>
+                          <VIconButton v-tooltip.bottom.left="'Download List Tools'" icon="feather:download"
+                            @click="cetakAmsKelompok(item)" color="info" raised circle class="mr-2">
+                          </VIconButton>
+                          <VIconButton v-tooltip.bottom.left="'Detail'" label="Bottom Left" color="primary" circle
+                            icon="pi pi-book" @click="getDetailVerify(item)" style="margin-right: 15px;" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <VFlexPagination v-model:current-page="currentPageHistoryKelompok.page"
+              :item-per-page="currentPageHistoryKelompok.limit" :total-items="totalDataHistoryKelompok"
+              :max-links-displayed="5">
+              <template #before-pagination>
+              </template>
+              <template #before-navigation>
+                <VFlex class="mr-4 mt-1" column-gap="1rem">
+                  <VField>
+
+                  </VField>
+                  <VField>
+                    <VControl>
+                      <div class="select is-rounded">
+                        <select v-model="currentPageHistoryKelompok.limit">
+                          <option :value="1">1 results per page</option>
+                          <option :value="5">6 results per page</option>
+                          <option :value="10">10 results per page</option>
+                          <option :value="15">15 results per page</option>
+                          <option :value="25">25 results per page</option>
+                          <option :value="50">50 results per page</option>
+                        </select>
+                      </div>
+                    </VControl>
+                  </VField>
+                </VFlex>
+              </template>
+            </VFlexPagination>
+          </div>
+
+          <div class="list-view list-view-v3" v-if="orderAlat == 1">
+            <div class="search-menu-rad mb-2">
+              <div class="search-location-rad" style="width: 100%">
+                <i class="iconify" data-icon="feather:search"></i>
+                <input type="text" placeholder="Cari Nama Alat, Merk/Tipe, Serial Number, No order Alat, No Pendaftaran"
                   v-model="item.searchHistory" v-on:keyup.enter="fetchHistoryOrder()" />
               </div>
               <VButton raised class="search-button-rad" @click="fetchHistoryOrder()" :loading="isLoading">
@@ -175,33 +266,33 @@
                 </div>
               </div>
             </div>
-          </div>
-          <VFlexPagination v-model:current-page="currentPageHistory.page" :item-per-page="currentPage.limitHistory"
-            :total-items="totalDataHistory" :max-links-displayed="5">
-            <template #before-pagination>
-            </template>
-            <template #before-navigation>
-              <VFlex class="mr-4 mt-1" column-gap="1rem">
-                <VField>
+            <VFlexPagination v-model:current-page="currentPageHistory.page" :item-per-page="currentPageHistory.limit"
+              :total-items="totalDataHistory" :max-links-displayed="5">
+              <template #before-pagination>
+              </template>
+              <template #before-navigation>
+                <VFlex class="mr-4 mt-1" column-gap="1rem">
+                  <VField>
 
-                </VField>
-                <VField>
-                  <VControl>
-                    <div class="select is-rounded">
-                      <select v-model="currentPageHistory.limitHistory">
-                        <option :value="1">1 results per page</option>
-                        <option :value="5">6 results per page</option>
-                        <option :value="10">10 results per page</option>
-                        <option :value="15">15 results per page</option>
-                        <option :value="25">25 results per page</option>
-                        <option :value="50">50 results per page</option>
-                      </select>
-                    </div>
-                  </VControl>
-                </VField>
-              </VFlex>
-            </template>
-          </VFlexPagination>
+                  </VField>
+                  <VField>
+                    <VControl>
+                      <div class="select is-rounded">
+                        <select v-model="currentPageHistory.limit">
+                          <option :value="1">1 results per page</option>
+                          <option :value="5">5 results per page</option>
+                          <option :value="10">10 results per page</option>
+                          <option :value="15">15 results per page</option>
+                          <option :value="25">25 results per page</option>
+                          <option :value="50">50 results per page</option>
+                        </select>
+                      </div>
+                    </VControl>
+                  </VField>
+                </VFlex>
+              </template>
+            </VFlexPagination>
+          </div>
         </div>
       </div>
     </div>
@@ -210,17 +301,17 @@
         <div class="widget icon-toolbar-widget">
           <div class="icon-toolbar">
             <div class="toolbar-icon">
-              <a class="inner-icon" :class="[activeSection === 'cart' && 'is-active']" tabindex="0"
-                @keydown.space.prevent="activeSection = 'cart'" @click="activeSection = 'cart'">
+              <a style="width: 150px;" class="inner-icon" :class="[activeSection === 'cart' && 'is-active']"
+                tabindex="0" @keydown.space.prevent="activeSection = 'cart'" @click="activeSection = 'cart'">
                 <i aria-hidden="true" class="iconify" data-icon="feather:shopping-cart"></i>
                 <span class="badge2 badge2-danger pulsate">{{ dataKeranjang.length }}</span>
               </a>
             </div>
             <div class="toolbar-icon">
-              <a class="inner-icon" :class="[activeSection === 'activity' && 'is-active']" tabindex="0"
-                @keydown.space.prevent="activeSection = 'activity'" @click="activeSection = 'activity'">
+              <a style="width: 150px;" class="inner-icon" :class="[activeSection === 'activity' && 'is-active']"
+                tabindex="0" @keydown.space.prevent="activeSection = 'activity'" @click="activeSection = 'activity'">
                 <i aria-hidden="true" class="iconify" data-icon="feather:activity"></i>
-                <span class="badge2 badge2-danger pulsate">{{ dataHistoryOrder.length }}</span>
+                <span class="badge2 badge2-danger pulsate">{{ totalDataOrder }}</span>
               </a>
             </div>
             <!-- <div class="toolbar-icon">
@@ -257,8 +348,8 @@
           <div class="cart-items has-slimscroll" v-else>
             <div class="is-flex is-align-items-center mb-3" style="gap: 1rem; justify-content: space-between;">
               <VCheckbox v-model="selectAll" label="Pilih semua" color="info" class="m-0 p-0" />
-              <VIconButton type="button" @click="hapusKeranjangSelected" raised circle v-tooltip-prime.bottom="'Hapus'" outlined icon="feather:trash"
-                color="danger" />
+              <VIconButton type="button" @click="hapusKeranjangSelected" raised circle v-tooltip-prime.bottom="'Hapus'"
+                outlined icon="feather:trash" color="danger" />
             </div>
             <div v-for="(items, rowIndex) in dataKeranjang" :key="rowIndex">
               <template v-if="rowGroupMetadata[items.jenisorder]?.index === rowIndex">
@@ -292,15 +383,59 @@
         <div class="side-section" :class="[activeSection === 'activity' && 'is-active']">
           <UIWidget class="followers-widget">
             <template #header>
-              <UIWidgetToolbarDropdown title="Followers" />
+              <div class="mb-3">
+                <span><b>Alat</b></span>
+              </div>
             </template>
             <template #body>
-              <UIWidgetFollowerStats :channels="followersStats" />
+              <div class="channels is-flex is-align-items-center" style="gap: 2.5rem;">
+                <div class="channel">
+                  <div class="channel-icon">
+                    <VIconButton type="button" raised v-tooltip-prime.bottom="'Total Alat'" outlined icon="feather:tool"
+                      color="info" />
+                  </div>
+                  <div class="channel-stats">
+                    <span>{{ totalDataOrder }}</span>
+                  </div>
+                </div>
+                <div class="channel">
+                  <div class="channel-icon">
+                    <VIconButton type="button" raised v-tooltip-prime.bottom="'Alat Diverifikasi'" icon="feather:check"
+                      color="success" />
+                  </div>
+                  <div class="channel-stats">
+                    <span>{{ countDiverifikasi }}</span>
+                  </div>
+                </div>
+                <div class="channel">
+                  <div class="channel-icon">
+                    <VIconButton type="button" raised circle v-tooltip-prime.bottom="'Alat Belum Diverifikasi'" outlined
+                      icon="feather:clock" color="warning" />
+                  </div>
+                  <div class="channel-stats">
+                    <span>{{ countBelumDiverifikasi }}</span>
+                  </div>
+                </div>
+              </div>
             </template>
           </UIWidget>
 
-          <IllustrationWidget class="illustration-widget-v2" title="You unlocked 2 new Achievements"
-            text="Congrats, your efforts have been rewarded. Keep up like this!" :picture="FoodWidget" />
+          <div class="widget illustration-widget">
+            <div class="column is-12">
+              <div class="dashboard-card">
+                <div class="card-head">
+                  <h3 class="dark-inverted">Persentase Verifikasi</h3>
+                </div>
+                <div class="radial-wrap">
+                  <ApexChart id="goal-gauge" :height="gaugeOptions.chart.height" :type="gaugeOptions.chart.type"
+                    :series="gaugeOptions.series" :options="gaugeOptions">
+                  </ApexChart>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
         </div>
 
         <div class="side-section" :class="[activeSection === 'address' && 'is-active']">
@@ -604,6 +739,8 @@ import AutoComplete from 'primevue/autocomplete'
 import * as H from '/@src/utils/appHelper'
 import Dialog from 'primevue/dialog';
 import FileUpload from 'primevue/fileupload';
+import ApexChart from 'vue3-apexcharts'
+import { useThemeColors } from '/@src/composable/useThemeColors'
 
 useHead({
   title: 'Dashboard Customer - ' + import.meta.env.VITE_PROJECT,
@@ -612,6 +749,7 @@ useViewWrapper().setPageTitle(import.meta.env.VITE_PROJECT)
 useViewWrapper().setFullWidth(false)
 const activeSection = ref('cart')
 const route = useRoute()
+const router = useRouter()
 const userLogin = useUserSession().getUser()
 let slider: TinySliderInstance
 const sliderElement = ref<HTMLElement>()
@@ -619,23 +757,35 @@ const nextButtonElement = ref<HTMLElement>()
 const prevButtonElement = ref<HTMLElement>()
 const item: any = ref({})
 let isLoading: any = ref(false)
-const currentPage: any = ref({
+const currentPage = ref({
+  page: 1,
   limit: 6,
   rows: 50,
 })
-
-const currentPageHistory: any = ref({
-  limitHistory: 6,
-  rowsHistory: 50,
+const currentPageHistory = ref({
+  page: 1,
+  limit: 5,
+  rows: 50,
 })
+
+const currentPageHistoryKelompok = ref({
+  page: 1,
+  limit: 5,
+  rows: 50,
+})
+const themeColors = useThemeColors()
 const statusCustomer: any = ref()
 const dataCustomer: any = ref()
 const dataOrder: any = ref(0)
+const dataHistoryOrderKelompok: any = ref(0)
 const dataHistoryOrder: any = ref(0)
+const countDiverifikasi: any = ref(0)
+const totalDataOrder: any = ref(0)
+const countBelumDiverifikasi: any = ref(0)
 const dataKeranjang = ref<any[]>([])
 let totalData: any = ref(0)
 let totalDataHistory: any = ref(0)
-let isData: any = ref()
+let totalDataHistoryKelompok: any = ref(0)
 let modalKeranjang: any = ref(false)
 let modalCheckout: any = ref(false)
 let hanyaRepair: any = ref(false)
@@ -653,6 +803,7 @@ const rowGroupMetadata = ref<Record<string, { index: number; size: number }>>({}
 const rowGroupMetadataHistory = ref<Record<string, { index: number; size: number }>>({})
 const fileCustomer: any = ref()
 const fileCustomerTools: any = ref()
+const orderAlat: any = ref(0)
 
 const fetchStatusCustomer = async () => {
   await useApi().get(`customer/get-status-customer`).then((response) => {
@@ -662,6 +813,61 @@ const fetchStatusCustomer = async () => {
   })
   isLoading.value = false
 }
+
+const percentVerif = computed(() => {
+  if (totalDataOrder.value === 0) return 0
+  return Math.round((countDiverifikasi.value / totalDataOrder.value) * 100)
+})
+
+const gaugeOptions = computed(() => ({
+  series: [percentVerif.value],
+  chart: {
+    height: 270,
+    type: 'radialBar',
+    offsetY: -10,
+  },
+  colors: [themeColors.accent],
+  plotOptions: {
+    radialBar: {
+      startAngle: -135,
+      endAngle: 135,
+      dataLabels: {
+        name: {
+          show: true,
+          fontSize: '18px',
+          fontWeight: 700,
+          offsetY: -10,
+          color: themeColors.accent,
+          formatter: function () {
+            return "Diverifikasi"
+          }
+        },
+        value: {
+          show: true,
+          fontWeight: 600,
+          color: themeColors.lightText,
+          fontSize: '24px',
+          offsetY: -5,
+          formatter: function (val) {
+            return val + "%";
+          }
+        }
+      },
+      hollow: {
+        margin: 15,
+        size: '75%',
+      },
+      track: {
+        strokeWidth: '100%',
+      },
+    },
+  },
+  stroke: {
+    lineCap: 'round',
+  },
+  labels: ['Diverifikasi'],
+}))
+
 
 const hapusKeranjangSelected = async () => {
   const itemsToDelete = selectedItems.value
@@ -747,14 +953,14 @@ const onSelectTools = async (filez: any) => {
 
 const fetchDataAlat = async () => {
   isLoading.value = true
-  let search = ''
-  if (item.value.search) search = '&search=' + item.value.search
-  let limitHistory: any = currentPageHistory.value.limitHistory
-  let offset: any = route.query.page ? route.query.page : 1
-  offset = (parseInt(offset) - 1) * limitHistory
-  let page: any = route.query.page ? route.query.page : 1
+  let searchDataAlat = ''
+  if (item.value.searchDataAlat) searchDataAlat = '&search=' + item.value.searchDataAlat
+  let limit: any = currentPage.value.limit
+  let page = currentPage.value.page
+  let offset = (page - 1) * limit
 
-  await useApi().get(`customer/get-alat-customer?page=${page}&offset=${offset}&limit=${limitHistory}&rows=${currentPage.value.rowsHistory}&` + search).then((response) => {
+
+  await useApi().get(`customer/get-alat-customer?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPage.value.rows}&` + searchDataAlat).then((response) => {
     dataOrder.value = response.data
     totalData.value = response.total
     response.data.forEach((element: any, i: any) => {
@@ -766,7 +972,6 @@ const fetchDataAlat = async () => {
       }
       element.initials = init
     });
-    isData.value = response.total
     isLoading.value = false
   }).catch((err) => {
   })
@@ -777,15 +982,18 @@ const fetchHistoryOrder = async () => {
   isLoading.value = true
   let searchHistory = ''
   if (item.value.searchHistory) searchHistory = '&search=' + item.value.searchHistory
-  let limit: any = currentPage.value.limit
-  let offset: any = route.query.page ? route.query.page : 1
-  offset = (parseInt(offset) - 1) * limit
-  let page: any = route.query.page ? route.query.page : 1
+  let limit: any = currentPageHistory.value.limit
+  let page = currentPageHistory.value.page
+  let offset = (page - 1) * limit
 
-  await useApi().get(`customer/get-history-order-customer?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPage.value.rows}&` + searchHistory).then((response) => {
-    dataHistoryOrder.value = response.data
-    totalDataHistory.value = response.total
-    response.data.forEach((element: any, i: any) => {
+
+  await useApi().get(`customer/get-history-order-customer?page=${page}&offset=${offset}&limit=${limit}&rows=${currentPageHistory.value.rows}&` + searchHistory).then((response) => {
+    dataHistoryOrder.value = response.data.data
+    totalDataOrder.value = response.totalData
+    countDiverifikasi.value = response.countVerif
+    countBelumDiverifikasi.value = response.countBelumVerif
+    totalDataHistory.value = response.data.total
+    response.data.data.forEach((element: any, i: any) => {
       element.no = i + 1
       let ini = element.namaproduk.split(' ')
       let init = element.namaproduk.substr(0, 2)
@@ -794,12 +1002,38 @@ const fetchHistoryOrder = async () => {
       }
       element.initials = init
     });
-    isData.value = response.total
     isLoading.value = false
   }).catch((err) => {
   })
   isLoading.value = false
   updateRowGroupMetaDataHistory()
+}
+
+const fetchHistoryOrderKelompok = async () => {
+  isLoading.value = true
+  let searchHistoryKelompok = ''
+  if (item.value.searchHistoryKelompok) searchHistoryKelompok = '&search=' + item.value.searchHistoryKelompok
+  let limit: any = currentPageHistoryKelompok.value.limit
+  let page = currentPageHistoryKelompok.value.page
+  let offset = (page - 1) * limit
+  const user = dataCustomer.value
+
+  await useApi().get(`customer/get-history-order-customer-kelompok?page=${page}&offset=${offset}&limit=${limit}&mtrauser=${user.mitrafk}&rows=${currentPageHistoryKelompok.value.rows}&` + searchHistoryKelompok).then((response) => {
+    dataHistoryOrderKelompok.value = response.data
+    totalDataHistoryKelompok.value = response.total
+    response.data.forEach((element: any, i: any) => {
+      element.no = i + 1
+      let ini = element.namaperusahaan.split(' ')
+      let init = element.namaperusahaan.substr(0, 2)
+      if (ini.length > 1) {
+        init = init + ini[1].substr(0, 1)
+      }
+      element.initials = init
+    });
+    isLoading.value = false
+  }).catch((err) => {
+  })
+  isLoading.value = false
 }
 
 const fetchKeranjangCustomer = async () => {
@@ -875,12 +1109,15 @@ const updateRowGroupMetaDataHistory = () => {
   }
 }
 
-currentPage.value.page = computed(() => {
-  try {
-    return Number.parseInt(route.query.page as string) || 1
-  } catch { }
-  return 1
-})
+const getDetailVerify = (e: any) => {
+  router.push({
+    name: 'module-customer-detail-registrasi',
+    query: {
+      norec_pd: e.iddetail,
+    },
+  })
+}
+
 watch(
   () => currentPage.value.page,
   (newValue, oldValue) => {
@@ -894,6 +1131,40 @@ watch(
   (newValue, oldValue) => {
     if (newValue != oldValue) {
       fetchDataAlat()
+    }
+  }
+)
+
+watch(
+  () => currentPageHistory.value.page,
+  (newValue, oldValue) => {
+    if (newValue != oldValue) {
+      fetchHistoryOrder()
+    }
+  }
+)
+watch(
+  () => currentPageHistory.value.limit,
+  (newValue, oldValue) => {
+    if (newValue != oldValue) {
+      fetchHistoryOrder()
+    }
+  }
+)
+
+watch(
+  () => currentPageHistoryKelompok.value.page,
+  (newValue, oldValue) => {
+    if (newValue != oldValue) {
+      fetchHistoryOrderKelompok()
+    }
+  }
+)
+watch(
+  () => currentPageHistoryKelompok.value.limit,
+  (newValue, oldValue) => {
+    if (newValue != oldValue) {
+      fetchHistoryOrderKelompok()
     }
   }
 )
@@ -1028,6 +1299,14 @@ const checkoutSelected = async (e: any) => {
   isLoading.value = false
 }
 
+watch(orderAlat, (newVal) => {
+  if (newVal == '0') {
+    fetchHistoryOrderKelompok()
+  } else if (newVal == '1') {
+    fetchHistoryOrder()
+  }
+})
+
 watch(selectAll, (newVal) => {
   dataKeranjang.value.forEach((item) => {
     item.checked = newVal
@@ -1092,6 +1371,15 @@ onUnmounted(() => {
   }
 })
 
+const cetakAmsKelompok = (e: any) => {
+  if (!e.iddetail) {
+    H.alert('warning', 'Data tidak valid');
+    return;
+  }
+
+  H.printBlade(`registrasi/cetak-ams?norecregis=${e.iddetail}`);
+};
+
 const cetakAms = (e: any) => {
   if (!e.norec) {
     H.alert('warning', 'Data tidak valid');
@@ -1110,10 +1398,18 @@ const downloadTools = (item: any) => {
   window.open(url, '_blank');
 };
 
-fetchStatusCustomer()
-fetchDataAlat()
-fetchHistoryOrder()
-fetchKeranjangCustomer()
+const initDashboard = async () => {
+  await fetchStatusCustomer()
+  await fetchKeranjangCustomer()
+  await fetchDataAlat()
+  await fetchHistoryOrder()
+  await fetchHistoryOrderKelompok()
+}
+
+onMounted(() => {
+  initDashboard()
+})
+
 </script>
 <style lang="scss">
 @import '/@src/scss/abstracts/all';
@@ -1986,6 +2282,44 @@ body>.p-dialog-mask:has(.p-dialog.loading-dialog) {
     .right {
       .sticky-panel {
         max-width: 255px;
+      }
+    }
+  }
+}
+
+
+.radial-wrap {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 44px);
+
+  .radial-stats {
+    margin-top: auto;
+    display: flex;
+    padding-top: 20px;
+    border-top: 1px solid var(--fade-grey-dark-3);
+
+    .radial-stat {
+      width: 50%;
+      text-align: center;
+
+      &:first-child {
+        border-right: 1px solid var(--fade-grey-dark-3);
+      }
+
+      span {
+        display: block;
+
+        &:first-child {
+          color: var(--light-text);
+          font-size: 0.9rem;
+        }
+
+        &:nth-child(2) {
+          color: var(--dark-text);
+          font-size: 1.3rem;
+          font-weight: 600;
+        }
       }
     }
   }

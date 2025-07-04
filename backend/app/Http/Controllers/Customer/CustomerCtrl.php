@@ -95,6 +95,53 @@ class CustomerCtrl extends Controller
         return $this->respond($data);
     }
 
+    public function historyOrderKelompok(Request $r)
+    {
+
+        $data  = DB::table('mitra_m as mt')
+            ->leftjoin('mitraregistrasi_t as mtr', 'mtr.nomitrafk', '=', 'mt.id')
+            ->leftjoin('lokasikalibrasi_m as lk', 'lk.id', '=', 'mtr.lokasikalibrasi')
+            ->leftJoin('users as us', DB::raw('CAST(us.mitrafk AS TEXT)'), '=', 'mt.id')
+            ->select(
+                'mt.id',
+                'mt.namaperusahaan',
+                'mt.tgldaftar',
+                'mt.email',
+                'mt.nohp',
+                'mt.foto',
+                'mt.progress',
+                'mtr.tglregistrasi',
+                'mtr.petugas',
+                'mtr.nopendaftaran',
+                'mtr.lokasikalibrasi',
+                'mtr.lokasirepair',
+                'mtr.norec as iddetail',
+                'mtr.statusorder',
+                'mtr.jenisorder',
+                'mtr.verifregiscustomer',
+            )
+            ->where('mt.statusenabled', true)
+            ->where('mtr.isregiscustomer', true)
+            ->where('mt.id', $r['mtrauser'])
+            ->where('mtr.statusenabled', true);
+
+        if (isset($r['search']) && $r['search'] != '') {
+            $searchTerm = '%' . $r['search'] . '%';
+            $data = $data->where(function ($query) use ($searchTerm) {
+                $query->where('mt.namaperusahaan', 'ilike', $searchTerm)
+                    ->orWhere('mtr.nopendaftaran', 'ilike', $searchTerm);
+            });
+        }
+        $page = 1;
+        if (isset($r['page']) && $r['page'] != '') {
+            $page = $r['page'];
+        }
+        $data = $data->orderByDesc('mtr.tglregistrasi');
+        $data = $data->paginate(isset($r['limit']) ? $r['limit'] : 10, ['*'], 'page', $page);
+
+        return $this->respond($data);
+    }
+
     public function historyOrder(Request $r)
     {
         $data = DB::table('mitraregistrasi_t as mtr')
@@ -117,6 +164,7 @@ class CustomerCtrl extends Controller
                 'mtrd.tglisilembarkerjapelaksana',
                 'mtrd.pelaksanaisilembarkerjafk',
                 'mtrd.tglverifasman',
+                'mtrd.noorderalat',
                 'prd.namaproduk',
                 'mtr.tglregistrasi',
                 'mtr.nopendaftaran',
@@ -146,6 +194,8 @@ class CustomerCtrl extends Controller
                     ->orWhere('prd.id', 'ilike', $searchTerm)
                     ->orWhere('mrk.namamerk', 'ilike', $searchTerm)
                     ->orWhere('tp.namatipe', 'ilike', $searchTerm)
+                    ->orWhere('mtr.nopendaftaran', 'ilike', $searchTerm)
+                    ->orWhere('mtrd.noorderalat', 'ilike', $searchTerm)
                     ->orWhere('sn.namaserialnumber', 'ilike', $searchTerm);
             });
         }
@@ -154,10 +204,23 @@ class CustomerCtrl extends Controller
             $page = $r['page'];
         }
 
+        $totalQuery = clone $data;
+        $totalData = $totalQuery->count();
+
+        $totalVerifQuery = clone $data;
+        $countVerif = $totalVerifQuery->where('mtr.verifregiscustomer', true)->count();
+
+        $totalBelumVerifQuery = clone $data;
+        $countBelumVerif = $totalBelumVerifQuery->whereNull('mtr.verifregiscustomer')->count();
+
         $data = $data->orderBy('mtr.jenisorder');
         $data = $data->paginate(isset($r['limit']) ? $r['limit'] : 10, ['*'], 'page', $page);
 
-        return $this->respond($data);
+        $res['data'] = $data;
+        $res['totalData'] = $totalData;
+        $res['countVerif'] = $countVerif;
+        $res['countBelumVerif'] = $countBelumVerif;
+        return $this->respond($res);
     }
 
     public function saveKeranjangCustomer(Request $r)
@@ -360,7 +423,7 @@ class CustomerCtrl extends Controller
     {
         DB::beginTransaction();
         try {
-            $norecList = $r->input('norec'); 
+            $norecList = $r->input('norec');
             if (!is_array($norecList) || count($norecList) === 0) {
                 return response()->json([
                     "metaData" => [
